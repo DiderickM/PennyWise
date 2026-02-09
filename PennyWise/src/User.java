@@ -1,10 +1,4 @@
 /**
- * Created on Mon Feb 09 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
-/**
  * Abstract User class represents the base user in PennyWise system.
  * Demonstrates INHERITANCE, POLYMORPHISM, and ENCAPSULATION.
  * 
@@ -17,7 +11,8 @@ public abstract class User {
     private String username;
     private String password;
     private String email;
-
+    private Account[] accounts = null; 
+    
     /**
      * Constructor to initialize User attributes.
      * 
@@ -66,6 +61,27 @@ public abstract class User {
         this.email = email;
     }
 
+    public Account[] getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Account[] accounts) {
+        this.accounts = accounts;
+    }
+
+    public void addAccount(Account account) {
+        if (accounts == null) {
+            accounts = new Account[1];
+            accounts[0] = account;
+        } else {
+            // Create a new array with one additional slot
+            Account[] newAccounts = new Account[accounts.length + 1];
+            System.arraycopy(accounts, 0, newAccounts, 0, accounts.length);
+            newAccounts[accounts.length] = account; // Add new account to the end
+            accounts = newAccounts; // Replace old array with new array
+        }
+    }
+
     /**
      * POLYMORPHISM: Abstract method that will be implemented differently
      * by RegularUser and Admin subclasses.
@@ -80,6 +96,11 @@ public abstract class User {
         System.out.println("User ID: " + userId);
         System.out.println("Username: " + username);
         System.out.println("Email: " + email);
+        for (Account account : accounts) {
+            if (account != null) {
+                System.out.println("  - Account Type: " + account.getAccountType() + ", Balance: $" + String.format("%.2f", account.getBalance()));
+            }
+        }
         System.out.println("==================================");
     }
 }

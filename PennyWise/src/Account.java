@@ -105,6 +105,47 @@ public abstract class Account {
     }
 
     /**
+     * VALUE RETURNING METHOD: Transfers money to another account.
+     * Demonstrates ENCAPSULATION and interaction between objects.
+     * 
+     * @param amount Amount to transfer
+     * @param targetAccount The account to transfer money to
+     * @return true if transfer successful, false otherwise
+     */
+    public boolean transfer(double amount, Account targetAccount) {
+        // SELECTION: Validate transfer conditions
+        if (amount <= 0) {
+            System.out.println("Transfer amount must be positive.");
+            return false;
+        }
+        
+        if (targetAccount == null) {
+            System.out.println("Target account is invalid.");
+            return false;
+        }
+        
+        if (this.equals(targetAccount)) {
+            System.out.println("Cannot transfer to the same account.");
+            return false;
+        }
+        
+        if (this.balance < amount) {
+            System.out.println("Insufficient funds for transfer.");
+            return false;
+        }
+        
+        // Perform the transfer
+        this.balance -= amount;
+        targetAccount.balance += amount;
+        
+        // Record transactions in both accounts
+        this.recordTransaction(amount, "TRANSFER OUT", getCurrentDate());
+        targetAccount.recordTransaction(amount, "TRANSFER IN", getCurrentDate());
+        
+        return true;
+    }
+
+    /**
      * VOID METHOD: Records a transaction in the transaction array.
      * Demonstrates ARRAYS usage.
      * 
