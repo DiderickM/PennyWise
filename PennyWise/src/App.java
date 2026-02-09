@@ -76,19 +76,13 @@ public class App {
                     int choice = Integer.parseInt(scanner.nextLine());
                     
                     switch (choice) {
-                        case 1:
-                            regularUserMode(scanner);
-                            break;
-                        case 2:
-                            // All admin logic moved to Admin class
-                            Admin.launchAdmin(scanner);
-                            break;
-                        case 3:
+                        case 1 -> regularUserMode(scanner);
+                        case 2 -> Admin.launchAdmin(scanner);// All admin logic moved to Admin class
+                        case 3 -> {
                             running = false;
                             System.out.println("\nThank you for using PennyWise. Goodbye!");
-                            break;
-                        default:
-                            System.out.println("Invalid option. Please try again.");
+                        }
+                        default -> System.out.println("Invalid option. Please try again.");
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid input. Please enter a number.");
