@@ -54,10 +54,10 @@ public class RegularUser extends User {
     // ENCAPSULATION: Setter for first account (backward compatibility)
     public void setAccount(Account account) {
         if (account != null) {
-            if (getAccounts() == null || getAccounts().length == 0) {
+            Account[] accounts = getAccounts();
+            if (accounts == null || accounts.length == 0) {
                 addAccount(account);
             } else {
-                Account[] accounts = getAccounts();
                 accounts[0] = account;
             }
         }

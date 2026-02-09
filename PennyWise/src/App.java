@@ -301,10 +301,14 @@ public class App {
                 System.out.println("7. View Checking Account Details");
                 System.out.println("8. View Overdraft History");
                 System.out.println("9. " + (accounts.length > 1 ? "Back to Account Selection" : "Logout"));
+            } else if (selectedAccount instanceof SavingsAccount) {
+                System.out.println("7. View Savings Account Details");
+                System.out.println("8. " + (accounts.length > 1 ? "Back to Account Selection" : "Logout"));
             } else {
                 System.out.println("7. " + (accounts.length > 1 ? "Back to Account Selection" : "Logout"));
             }
-            System.out.print("Select option (1-" + (selectedAccount instanceof CheckingAccount ? "9" : "7") + "): ");
+            int maxOption = (selectedAccount instanceof CheckingAccount) ? 9 : ((selectedAccount instanceof SavingsAccount) ? 8 : 7);
+            System.out.print("Select option (1-" + maxOption + "): ");
 
             String choice = scanner.nextLine();
             
@@ -374,6 +378,8 @@ public class App {
                 case "7" -> {
                     if (selectedAccount instanceof CheckingAccount checkingAccount) {
                         checkingAccount.displayCheckingInfo();
+                    } else if (selectedAccount instanceof SavingsAccount savingsAccount) {
+                        savingsAccount.displaySavingsInfo();
                     } else {
                         // Back or logout
                         if (accounts.length == 1) {
@@ -385,6 +391,12 @@ public class App {
                 case "8" -> {
                     if (selectedAccount instanceof CheckingAccount checkingAccount) {
                         checkingAccount.displayOverdraftHistory();
+                    } else if (selectedAccount instanceof SavingsAccount) {
+                        // Back or logout for Savings Account
+                        if (accounts.length == 1) {
+                            inAccount = false;
+                            System.out.println("Logged out successfully.");
+                        }
                     } else {
                         System.out.println("Invalid option.");
                     }
