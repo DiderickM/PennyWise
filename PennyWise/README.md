@@ -1,4 +1,5 @@
 # PennyWise Financial Manager - Comprehensive Project Documentation
+# <span style="color:blue">This ReadMe is generated based on the provided code trough Visual Studio Code</span>.
 
 ## Group Project for Erasmus University: Master in Business Information Management
 
