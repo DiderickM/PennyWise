@@ -29,15 +29,35 @@ import java.util.Scanner;
  * 
  * Select account type (1-2): 1
  * 
- * ========== Regular User Dashboard ==========
- * Welcome, john_doe!
- * Account Type: SAVINGS
- * Current Balance: $1000.00
- * ===========================================
  * 
- * ... (Menu continues with deposit, withdraw, view transactions, etc.)
+ * ... (Menu continues with more options: another account, deposit, withdraw, view transactions, etc.)
  * =========================================
  */
+
+/**
+ * SAMPLE RUN: Admin Mode (NOTE: Admin login credentials are hardcoded for demonstration, and no users are pre-populated in this sample run)
+ * ========================================
+ * Welcome to PennyWise Financial Manager!
+ * ========================================    
+ * 1. Regular User Mode
+ * 2. Admin Mode  
+ * 3. Exit
+ * 
+ * Please select an option (1-3): 2
+ * 
+ * --- Admin Mode ---
+ * Enter Admin Username: admin
+ * Enter Admin Password: admin123
+ * 
+ * ========== Admin Dashboard ==========
+ *  Welcome, Admin admin!
+ *  Admin Level: SUPER
+ *  Options: View all users, Modify accounts, Generate reports
+ * =====================================
+ *
+ * --- Admin Menu ---
+ * ... (Menu continues with more options: View all users, Modify accounts, Generate reports, etc.)
+*/
 
 /**
  * App class - DRIVER CLASS for PennyWise Financial Management System.
