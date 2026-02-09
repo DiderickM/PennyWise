@@ -1,4 +1,10 @@
 /**
+ * Created on Mon Feb 09 2026
+ *
+ * Copyright (c) 2026 Diderick Magermans
+ */
+
+/**
  * Abstract User class represents the base user in PennyWise system.
  * Demonstrates INHERITANCE, POLYMORPHISM, and ENCAPSULATION.
  * 

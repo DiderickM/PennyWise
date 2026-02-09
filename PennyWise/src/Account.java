@@ -1,4 +1,10 @@
 /**
+ * Created on Mon Feb 09 2026
+ *
+ * Copyright (c) 2026 Diderick Magermans
+ */
+
+/**
  * Abstract Account class represents the base account in PennyWise system.
  * Demonstrates INHERITANCE, POLYMORPHISM, ENCAPSULATION, and ARRAYS for transaction storage.
  * 

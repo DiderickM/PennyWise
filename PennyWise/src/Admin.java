@@ -1,4 +1,10 @@
 /**
+ * Created on Mon Feb 09 2026
+ *
+ * Copyright (c) 2026 Diderick Magermans
+ */
+
+/**
  * Admin class extends User with system administration capabilities.
  * Demonstrates INHERITANCE and POLYMORPHISM.
  * 

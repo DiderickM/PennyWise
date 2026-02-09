@@ -1,4 +1,10 @@
 /**
+ * Created on Mon Feb 09 2026
+ *
+ * Copyright (c) 2026 Diderick Magermans
+ */
+
+/**
  * RegularUser class extends User with account management functionality.
  * Demonstrates INHERITANCE and POLYMORPHISM.
  * 
