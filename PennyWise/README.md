@@ -43,6 +43,14 @@ The PennyWise system aims to:
 - Showcase proper code organization, documentation, and best practices
 - Provide a scalable foundation for additional financial features
 
+### Recent Enhancements (v1.1)
+
+**New Features Added:**
+- ✅ **Multiple Accounts Per User** - Users can now create and manage multiple accounts simultaneously during registration and while logged in
+- ✅ **Money Transfers** - Transfer funds between user's own accounts with automatic transaction recording and balance updates
+- Enhanced account selection interface for seamless multi-account management
+- Improved user dashboard to display all accounts and balances
+
 ---
 
 ## Features
@@ -51,9 +59,12 @@ The PennyWise system aims to:
 
 #### Account Management
 - **User Registration:** Create new accounts with unique user IDs, usernames, and email addresses
+- **Multiple Accounts:** Each user can hold multiple accounts simultaneously (savings, checking, or a combination)
+- **Account Creation:** Add new accounts at any time during or after registration
 - **Account Selection:** Choose between Savings Account (with interest) or Checking Account (with overdraft protection)
+- **Account Switching:** Easily switch between multiple accounts to perform different operations
 - **Secure Login:** Multi-factor identification using username and password credential verification
-- **Profile Management:** View and edit personal user information including email and password
+- **Profile Management:** View and edit personal user information including email and password, with access to all accounts
 
 #### Account Operations
 - **Balance Checking:** Real-time account balance display formatted to two decimal places
@@ -62,6 +73,11 @@ The PennyWise system aims to:
   - Savings accounts: Limited to 3 withdrawals per month
   - Checking accounts: Withdraw up to balance + overdraft limit
 - **Transaction History:** Complete audit trail of all account operations with dates and amounts
+- **Money Transfers:** Transfer funds between user's own accounts
+  - Select source and target accounts
+  - Specify transfer amount with validation
+  - Automatic transaction recording (TRANSFER OUT / TRANSFER IN)
+  - Real-time balance updates on both accounts
 
 #### Account-Specific Features
 
@@ -658,18 +674,58 @@ You'll see two options:
 2. Create a username for login
 3. Set a strong password
 4. Provide an email address
-5. Select account type:
+5. Select first account type:
    - **Option 1: Savings Account** - Earns 3% annual interest, limited to 3 withdrawals per month
    - **Option 2: Checking Account** - Overdraft protection up to $500, overdraft fees apply
+6. When prompted, choose whether to add another account (Yes/No)
+   - If Yes: Repeat account type selection for additional accounts
+   - If No: Complete registration with current accounts
 
 **Initial Setup:**
 - All new accounts start with $1000.00 initial balance
-- Account number is automatically generated
-- First transaction recorded as "INITIAL DEPOSIT"
+- Account numbers are automatically generated with sequence numbers
+- First transaction recorded as "INITIAL DEPOSIT" in each account
+- Example account numbers: SA-user001-1, SA-user001-2, CA-user001-3
+
+**Multiple Accounts Feature:**
+- Users can start with 1 or more accounts at registration
+- Additional accounts can be added later through the account menu
+- Each account is independent with separate balances and transaction history
+- Users can switch between accounts and perform transfers between their own accounts
 
 ### Account Operations Menu
 
-Once logged in, you'll access the Account Menu with these options:
+Once logged in, you'll access the Account Selection and Operations interface.
+
+#### Account Selection (Multiple Accounts)
+
+**If you have multiple accounts:**
+1. System displays all your accounts with current balances
+2. Each account is numbered (1, 2, 3, etc.) with:
+   - Account type (Savings/Checking)
+   - Current balance
+3. Select the account number to operate on it
+4. Option to add a new account appears at the bottom
+5. Logout option always available
+
+**Example display:**
+```
+--- Select Account ---
+1. Savings - Balance: $750.00
+2. Checking - Balance: $1250.00
+3. Add New Account
+4. Logout
+Select account (1-4):
+```
+
+**If you have a single account:**
+- System automatically selects your account
+- Proceeds directly to Account Menu
+- Account Menu shows all available options
+
+### Account Operations
+
+After selecting an account (or if you have only one), you'll access the Account Menu with these options:
 
 #### Option 1: Check Balance
 - Instantly view current account balance
@@ -700,12 +756,36 @@ Once logged in, you'll access the Account Menu with these options:
 
 #### Option 5: View Profile
 - Shows User ID, username, and registered email address
+- Displays all accounts associated with this user
+- Shows account type and balance for each account
 - Verify personal information accuracy
 - Return to account menu to make changes (requires admin)
 
-#### Options 6-8 (Checking Accounts Only)
+#### Option 6: Transfer Money
+- Transfer funds between your own accounts
+- **Requirements:**
+  - User must have at least 2 accounts to perform transfers
+  - Source account must have sufficient balance
+- **Process:**
+  1. Select source account (currently selected)
+  2. View available target accounts with their balances
+  3. Choose target account from the list
+  4. Enter transfer amount
+  5. System validates the transfer is possible
+  6. Balance updates immediately on both accounts
+  7. Both accounts record transaction details
+- **Transaction Recording:**
+  - Source account records "TRANSFER OUT"
+  - Target account records "TRANSFER IN"
+  - Both with identical amounts and dates
+- **Error Handling:**
+  - Cannot transfer to same account
+  - Must exceed $0
+  - Requires sufficient balance in source account
 
-**Option 6: View Checking Account Details**
+#### Options 7-9 (Checking Accounts Only)
+
+**Option 7: View Checking Account Details**
 - Account number and type
 - Current balance with formatting
 - Overdraft limit (e.g., $500)
@@ -713,14 +793,14 @@ Once logged in, you'll access the Account Menu with these options:
 - Available funds calculation (balance + limit)
 - Current overdraft status (NORMAL or OVERDRAFT)
 
-**Option 7: View Overdraft History**
+**Option 8: View Overdraft History**
 - List of all withdrawal transactions
 - Helps track overdraft usage patterns
 - See total number of withdrawal transactions
 
-**Option 8: Logout**
-- Exit account and return to main menu
-- Session data is preserved
+**Option 9: Back to Account Selection / Logout**
+- For users with multiple accounts: Return to account selection menu
+- For users with single account: Logout and return to main menu
 
 ### Savings Account Specific Features
 
@@ -762,6 +842,27 @@ Once logged in, you'll access the Account Menu with these options:
 - Calculation: Current Balance + Overdraft Limit
 - For example: -$100 balance + $500 limit = $400 available
 - Updated in account details display
+
+### Adding New Accounts After Login
+
+Users can create additional accounts at any time without logging out:
+
+**During Account Selection Menu:**
+- Choose "Add New Account" option (displayed as the next available number)
+- Follow account type selection (Savings or Checking)
+- New account created with $1000 initial balance
+- Returns to account selection menu with new account available
+
+**Access New Account Immediately:**
+- Just-created account appears in account list
+- Can perform transactions immediately
+- Separate transaction history maintained
+- Interest/overdraft processing applies independently
+
+**Account Naming Convention:**
+- Format: `[Type]-[UserID]-[Sequence]`
+- Example: `SA-user001-1`, `SA-user001-2`, `CA-user001-3`
+- Ensures each account is uniquely identifiable
 
 ---
 
@@ -990,8 +1091,8 @@ Once logged in, you'll access the Account Menu with these options:
 - Scheduled transactions
 - Recurring payments
 - Transaction categorization and tagging
-- Transfer between accounts
 - Multi-currency support
+- Cross-account transfers between different users
 
 #### Financial Analytics
 - Spending patterns and reports
