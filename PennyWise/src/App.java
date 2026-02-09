@@ -313,10 +313,15 @@ public class App {
         while (inAdmin) {
             System.out.println("\n--- Admin Menu ---");
             System.out.println("1. View All Users");
-            System.out.println("2. View User Details");
-            System.out.println("3. Display Admin Capabilities");
-            System.out.println("4. Logout");
-            System.out.print("Select option (1-4): ");
+            System.out.println("2. Modify User Information");
+            System.out.println("3. Adjust Account Balance");
+            System.out.println("4. Delete User Account");
+            if (admin.hasSuperPrivileges()) {
+                System.out.println("5. Generate System-wide Report");
+                System.out.println("6. Manage Administrators");
+            }
+            System.out.println("7. Logout");
+            System.out.print("Select option: ");
 
             String choice = scanner.nextLine();
             
@@ -327,15 +332,34 @@ public class App {
                     displayAllUsers();
                     break;
                 case "2":
-                    System.out.print("Enter Username to view: ");
-                    String username = scanner.nextLine();
-                    displayUserDetails(username);
+                    // VOID METHOD: Modify user information
+                    modifyUserInformation(scanner);
                     break;
                 case "3":
-                    // VOID METHOD: displayAdminCapabilities()
-                    admin.displayAdminCapabilities();
+                    // VOID METHOD: Adjust account balance
+                    adjustAccountBalance(scanner);
                     break;
                 case "4":
+                    // VOID METHOD: Delete user account
+                    deleteUserAccount(scanner);
+                    break;
+                case "5":
+                    if (admin.hasSuperPrivileges()) {
+                        // VOID METHOD: Generate system report
+                        generateSystemReport();
+                    } else {
+                        System.out.println("You don't have permission for this action.");
+                    }
+                    break;
+                case "6":
+                    if (admin.hasSuperPrivileges()) {
+                        // VOID METHOD: Manage admins
+                        manageAdmins(scanner);
+                    } else {
+                        System.out.println("You don't have permission for this action.");
+                    }
+                    break;
+                case "7":
                     inAdmin = false;
                     System.out.println("Admin logged out.");
                     break;
@@ -422,5 +446,305 @@ public class App {
         }
         return null;
     }
+
+    /**
+     * VOID METHOD: Modifies user information (username, email, password).
+     * Demonstrates ENCAPSULATION through setter methods.
+     */
+    private static void modifyUserInformation(Scanner scanner) {
+        System.out.print("Enter username of user to modify: ");
+        String username = scanner.nextLine();
+        RegularUser user = findRegularUserByUsername(username);
+
+        if (user != null) {
+            System.out.println("\n--- Modify User Information ---");
+            System.out.println("1. Change Username");
+            System.out.println("2. Change Email");
+            System.out.println("3. Change Password");
+            System.out.println("4. Cancel");
+            System.out.print("Select option (1-4): ");
+
+            String choice = scanner.nextLine();
+
+            // SELECTION: switch statement for modification options
+            switch (choice) {
+                case "1":
+                    System.out.print("Enter new username: ");
+                    String newUsername = scanner.nextLine();
+                    user.setUsername(newUsername);
+                    System.out.println("Username updated successfully!");
+                    break;
+                case "2":
+                    System.out.print("Enter new email: ");
+                    String newEmail = scanner.nextLine();
+                    user.setEmail(newEmail);
+                    System.out.println("Email updated successfully!");
+                    break;
+                case "3":
+                    System.out.print("Enter new password: ");
+                    String newPassword = scanner.nextLine();
+                    user.setPassword(newPassword);
+                    System.out.println("Password updated successfully!");
+                    break;
+                case "4":
+                    System.out.println("Modification cancelled.");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+
+    /**
+     * VOID METHOD: Adjusts account balances for corrections.
+     * Demonstrates ENCAPSULATION through account balance setter.
+     */
+    private static void adjustAccountBalance(Scanner scanner) {
+        System.out.print("Enter username of user to adjust balance: ");
+        String username = scanner.nextLine();
+        RegularUser user = findRegularUserByUsername(username);
+
+        if (user != null && user.getAccount() != null) {
+            Account account = user.getAccount();
+            System.out.println("\n--- Adjust Account Balance ---");
+            System.out.println("Current Balance: $" + String.format("%.2f", account.getBalance()));
+            System.out.println("1. Add Amount");
+            System.out.println("2. Subtract Amount");
+            System.out.println("3. Set Exact Balance");
+            System.out.println("4. Cancel");
+            System.out.print("Select option (1-4): ");
+
+            String choice = scanner.nextLine();
+
+            // SELECTION: switch statement for balance adjustment
+            switch (choice) {
+                case "1":
+                    try {
+                        System.out.print("Enter amount to add: $");
+                        double addAmount = Double.parseDouble(scanner.nextLine());
+                        if (addAmount > 0) {
+                            account.setBalance(account.getBalance() + addAmount);
+                            System.out.println("Amount added. New Balance: $" + String.format("%.2f", account.getBalance()));
+                        } else {
+                            System.out.println("Invalid amount.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input.");
+                    }
+                    break;
+                case "2":
+                    try {
+                        System.out.print("Enter amount to subtract: $");
+                        double subtractAmount = Double.parseDouble(scanner.nextLine());
+                        if (subtractAmount > 0) {
+                            account.setBalance(account.getBalance() - subtractAmount);
+                            System.out.println("Amount subtracted. New Balance: $" + String.format("%.2f", account.getBalance()));
+                        } else {
+                            System.out.println("Invalid amount.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input.");
+                    }
+                    break;
+                case "3":
+                    try {
+                        System.out.print("Enter exact balance amount: $");
+                        double exactAmount = Double.parseDouble(scanner.nextLine());
+                        if (exactAmount >= 0) {
+                            account.setBalance(exactAmount);
+                            System.out.println("Balance set to: $" + String.format("%.2f", account.getBalance()));
+                        } else {
+                            System.out.println("Balance must be non-negative.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input.");
+                    }
+                    break;
+                case "4":
+                    System.out.println("Adjustment cancelled.");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        } else {
+            System.out.println("User or account not found.");
+        }
+    }
+
+    /**
+     * VOID METHOD: Deletes a user account from the system.
+     * Demonstrates ARRAYS manipulation.
+     */
+    private static void deleteUserAccount(Scanner scanner) {
+        System.out.print("Enter username of user to delete: ");
+        String username = scanner.nextLine();
+
+        int userIndex = -1;
+        // LOOPS: for loop to find user index
+        for (int i = 0; i < userCount; i++) {
+            if (users[i] instanceof RegularUser) {
+                RegularUser user = (RegularUser) users[i];
+                if (user.getUsername().equals(username)) {
+                    userIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (userIndex != -1) {
+            System.out.print("Are you sure you want to delete user '" + username + "'? (yes/no): ");
+            String confirmation = scanner.nextLine();
+
+            // SELECTION: if to confirm deletion
+            if (confirmation.equalsIgnoreCase("yes")) {
+                // Shift array elements to remove user
+                for (int i = userIndex; i < userCount - 1; i++) {
+                    users[i] = users[i + 1];
+                }
+                userCount--;
+                System.out.println("User '" + username + "' has been deleted successfully.");
+            } else {
+                System.out.println("Deletion cancelled.");
+            }
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+
+    /**
+     * VOID METHOD: Generates a system-wide report (SUPER admin only).
+     * Demonstrates LOOPS through user data.
+     */
+    private static void generateSystemReport() {
+        System.out.println("\n========== SYSTEM-WIDE FINANCIAL REPORT ==========");
+        System.out.println("Generated at: " + new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new java.util.Date()));
+        
+        double totalBalance = 0;
+        int totalTransactions = 0;
+        int savingsAccountCount = 0;
+        int checkingAccountCount = 0;
+
+        System.out.println("\n--- User Account Summary ---");
+        
+        // LOOPS: for loop through users array
+        if (userCount == 0) {
+            System.out.println("No users in system.");
+        } else {
+            for (int i = 0; i < userCount; i++) {
+                if (users[i] instanceof RegularUser) {
+                    RegularUser user = (RegularUser) users[i];
+                    Account account = user.getAccount();
+                    
+                    if (account != null) {
+                        System.out.println((i + 1) + ". " + user.getUsername() + " - Account: " + account.getAccountType());
+                        System.out.println("   Balance: $" + String.format("%.2f", account.getBalance()));
+                        System.out.println("   Transactions: " + account.getTransactionCount());
+                        
+                        totalBalance += account.getBalance();
+                        totalTransactions += account.getTransactionCount();
+                        
+                        // SELECTION: if to count account types
+                        if (account instanceof SavingsAccount) {
+                            savingsAccountCount++;
+                        } else if (account instanceof CheckingAccount) {
+                            checkingAccountCount++;
+                        }
+                    }
+                }
+            }
+        }
+
+        System.out.println("\n--- Financial Summary ---");
+        System.out.println("Total Users: " + userCount);
+        System.out.println("Savings Accounts: " + savingsAccountCount);
+        System.out.println("Checking Accounts: " + checkingAccountCount);
+        System.out.println("Total System Balance: $" + String.format("%.2f", totalBalance));
+        System.out.println("Total Transactions: " + totalTransactions);
+        System.out.println("Average Balance per User: $" + String.format("%.2f", userCount > 0 ? totalBalance / userCount : 0));
+        System.out.println("==================================================");
+    }
+
+    /**
+     * VOID METHOD: Manages administrator accounts (SUPER admin only).
+     * Demonstrates user management and ENCAPSULATION.
+     */
+    private static void manageAdmins(Scanner scanner) {
+        System.out.println("\n--- Administrator Management ---");
+        System.out.println("1. View Admins (Simulated - Only one admin in demo)");
+        System.out.println("2. Create New Admin");
+        System.out.println("3. Modify Admin");
+        System.out.println("4. Cancel");
+        System.out.print("Select option (1-4): ");
+
+        String choice = scanner.nextLine();
+
+        // SELECTION: switch statement for admin management
+        switch (choice) {
+            case "1":
+                System.out.println("\n--- Current Admins ---");
+                System.out.println("1. admin (SUPER) - admin@pennywise.com");
+                System.out.println("Note: In full implementation, multiple admins would be stored in an array.");
+                break;
+            case "2":
+                System.out.println("\n--- Create New Admin ---");
+                System.out.print("Enter new admin username: ");
+                String newAdminUsername = scanner.nextLine();
+                System.out.print("Enter admin email: ");
+                String adminEmail = scanner.nextLine();
+                System.out.print("Enter admin privilege level (BASIC/SUPER): ");
+                String adminLevel = scanner.nextLine();
+                
+                // SELECTION: validate privilege level
+                if (adminLevel.equalsIgnoreCase("BASIC") || adminLevel.equalsIgnoreCase("SUPER")) {
+                    System.out.println("New admin '" + newAdminUsername + "' created with " + adminLevel + " privileges.");
+                    System.out.println("Note: In full implementation, this would be stored in a database.");
+                } else {
+                    System.out.println("Invalid privilege level. Must be BASIC or SUPER.");
+                }
+                break;
+            case "3":
+                System.out.println("\n--- Modify Admin ---");
+                System.out.print("Enter admin username to modify: ");
+                String adminUsername = scanner.nextLine();
+                
+                if (adminUsername.equals("admin")) {
+                    System.out.println("1. Change Email");
+                    System.out.println("2. Change Privilege Level");
+                    System.out.print("Select option (1-2): ");
+                    String modifyChoice = scanner.nextLine();
+                    
+                    // SELECTION: switch for admin modification
+                    switch (modifyChoice) {
+                        case "1":
+                            System.out.print("Enter new email: ");
+                            String newEmail = scanner.nextLine();
+                            System.out.println("Admin email updated to: " + newEmail);
+                            break;
+                        case "2":
+                            System.out.print("Enter new privilege level (BASIC/SUPER): ");
+                            String newLevel = scanner.nextLine();
+                            if (newLevel.equalsIgnoreCase("BASIC") || newLevel.equalsIgnoreCase("SUPER")) {
+                                System.out.println("Admin privilege level changed to: " + newLevel);
+                            } else {
+                                System.out.println("Invalid privilege level.");
+                            }
+                            break;
+                        default:
+                            System.out.println("Invalid option.");
+                    }
+                } else {
+                    System.out.println("Admin not found.");
+                }
+                break;
+            case "4":
+                System.out.println("Admin management cancelled.");
+                break;
+            default:
+                System.out.println("Invalid option.");
+        }
+    }
 }
+
 

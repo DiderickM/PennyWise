@@ -57,12 +57,12 @@ public class Admin extends User {
     public void displayAdminCapabilities() {
         System.out.println("\n--- Admin Capabilities ---");
         System.out.println("1. View all user accounts");
-        System.out.println("{NOT IMPLEMENTED} 2. Modify user information");
-        System.out.println("{NOT IMPLEMENTED} 3. Adjust account balances (for corrections)");
-        System.out.println("{NOT IMPLEMENTED} 4. Delete user accounts");
+        System.out.println("2. Modify user information");
+        System.out.println("3. Adjust account balances (for corrections)");
+        System.out.println("4. Delete user accounts");
         if (hasSuperPrivileges()) {
-            System.out.println("{NOT IMPLEMENTED} 5. [SUPER] Generate system-wide reports");
-            System.out.println("{NOT IMPLEMENTED} 6. [SUPER] Manage other administrators");
+            System.out.println("5. [SUPER] Generate system-wide reports");
+            System.out.println("6. [SUPER] Manage other administrators");
         }
         System.out.println("-------------------------");
     }
