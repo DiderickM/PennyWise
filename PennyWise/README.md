@@ -18,7 +18,7 @@ We selected the Financial Software theme because it provides a perfect framework
 Diderick Magermans (667451DM) 
 
 
-#### Group Project Themes
+#### Group Project
 The topic of your group project can be chosen from one of the following three themes:
 • Recommendation System: The software in this theme keeps a list of items. The software
 allows users to search through the list according to their filers and it also returns the outputs
