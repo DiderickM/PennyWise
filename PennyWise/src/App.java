@@ -208,18 +208,25 @@ public class App {
         
         // LOOPS: while loop for account menu
         while (inAccount) {
+            Account account = user.getAccount();
+            
             System.out.println("\n--- Account Menu ---");
             System.out.println("1. Check Balance");
             System.out.println("2. Deposit Money");
             System.out.println("3. Withdraw Money");
             System.out.println("4. View Transaction History");
             System.out.println("5. View Profile");
-            System.out.println("6. Logout");
-            System.out.print("Select option (1-6): ");
+            // Display account-specific options based on account type
+            if (account instanceof CheckingAccount) {
+                System.out.println("6. View Checking Account Details");
+                System.out.println("7. View Overdraft History");
+                System.out.println("8. Logout");
+            } else {
+                System.out.println("6. Logout");
+            }
+            System.out.print("Select option (1-" + (account instanceof CheckingAccount ? "8" : "6") + "): ");
 
             String choice = scanner.nextLine();
-            
-            Account account = user.getAccount();
             
             // SELECTION: switch expression for account menu options
             switch (choice) {
@@ -253,8 +260,28 @@ public class App {
                 case "4" -> user.viewTransactionHistory();
                 case "5" -> user.displayProfile();
                 case "6" -> {
-                    inAccount = false;
-                    System.out.println("Logged out successfully.");
+                    if (account instanceof CheckingAccount checkingAccount) {
+                        checkingAccount.displayCheckingInfo();
+                    } else {
+                        // Default logout for non-checking accounts
+                        inAccount = false;
+                        System.out.println("Logged out successfully.");
+                    }
+                }
+                case "7" -> {
+                    if (account instanceof CheckingAccount checkingAccount) {
+                        checkingAccount.displayOverdraftHistory();
+                    } else {
+                        System.out.println("Invalid option.");
+                    }
+                }
+                case "8" -> {
+                    if (account instanceof CheckingAccount) {
+                        inAccount = false;
+                        System.out.println("Logged out successfully.");
+                    } else {
+                        System.out.println("Invalid option.");
+                    }
                 }
                 default -> System.out.println("Invalid option.");
             }

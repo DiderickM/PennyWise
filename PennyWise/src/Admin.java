@@ -106,9 +106,10 @@ public class Admin extends User {
             if (hasSuperPrivileges()) {
                 System.out.println("5. Generate System-wide Report");
                 System.out.println("6. Apply Account Features (Interest) to All Savings Accounts");
-                System.out.println("7. Manage Administrators");
+                System.out.println("7. Apply Account Features (Overdraft Fees) to All Checking Accounts");
+                System.out.println("8. Manage Administrators");
             }
-            System.out.println("8. Logout");
+            System.out.println("9. Logout");
             System.out.print("Select option: ");
 
             String choice = scanner.nextLine();
@@ -126,10 +127,14 @@ public class Admin extends User {
                     else System.out.println("You don't have permission for this action.");
                 }
                 case "7" -> {
-                    if (hasSuperPrivileges()) manageAdmins(scanner);
+                    if (hasSuperPrivileges()) applyAccountFeaturesToAllChecking();
                     else System.out.println("You don't have permission for this action.");
                 }
                 case "8" -> {
+                    if (hasSuperPrivileges()) manageAdmins(scanner);
+                    else System.out.println("You don't have permission for this action.");
+                }
+                case "9" -> {
                     inAdmin = false;
                     System.out.println("Admin logged out.");
                 }
@@ -438,6 +443,48 @@ public class Admin extends User {
         System.out.println("\n--- Summary ---");
         System.out.println("Total Savings Accounts Processed: " + savingsAccountCount);
         System.out.println("Total Interest Applied System-wide: $" + String.format("%.2f", totalInterestApplied));
+        System.out.println("====================================================================");
+    }
+
+    /**
+     * VOID METHOD: Applies account features (overdraft fees) to all checking accounts.
+     * Super admin only - processes overdraft fee calculations for all checking accounts.
+     */
+    private void applyAccountFeaturesToAllChecking() {
+        System.out.println("\n========== Applying Account Features to All Checking Accounts ==========");
+        int checkingAccountCount = 0;
+        double totalOverdraftFeesApplied = 0;
+
+        // LOOPS: for loop to iterate through all users
+        for (int i = 0; i < App.getUserCount(); i++) {
+            User u = App.getUser(i);
+            if (u instanceof RegularUser user) {
+                Account account = user.getAccount();
+                // SELECTION: Check if account is a CheckingAccount
+                if (account instanceof CheckingAccount checkingAccount) {
+                    double balanceBefore = account.getBalance();
+                    // Apply account-specific features (overdraft fees in this case)
+                    checkingAccount.applyAccountFeatures();
+                    double balanceAfter = account.getBalance();
+                    double feesApplied = balanceBefore - balanceAfter;
+                    
+                    System.out.println("User: " + user.getUsername());
+                    System.out.println("  Account: " + account.getAccountNumber());
+                    System.out.println("  Balance Before: $" + String.format("%.2f", balanceBefore));
+                    System.out.println("  Overdraft Status: " + (checkingAccount.isInOverdraft() ? "IN OVERDRAFT" : "NORMAL"));
+                    System.out.println("  Fees Applied: $" + String.format("%.2f", feesApplied));
+                    System.out.println("  Balance After: $" + String.format("%.2f", balanceAfter));
+                    
+                    checkingAccountCount++;
+                    totalOverdraftFeesApplied += feesApplied;
+                }
+            }
+        }
+
+        // Display summary
+        System.out.println("\n--- Summary ---");
+        System.out.println("Total Checking Accounts Processed: " + checkingAccountCount);
+        System.out.println("Total Overdraft Fees Applied System-wide: $" + String.format("%.2f", totalOverdraftFeesApplied));
         System.out.println("====================================================================");
     }
 }
