@@ -14,7 +14,6 @@
 6. [How to Compile and Run](#how-to-compile-and-run)
 7. [User Guide](#user-guide)
 8. [Admin Guide](#admin-guide)
-9. [Code Examples and Demonstrations](#code-examples-and-demonstrations)
 10. [Project Scope and Requirements](#project-scope-and-requirements)
 11. [Future Enhancements](#future-enhancements)
 
@@ -924,167 +923,6 @@ Once logged in, you'll access the Account Menu with these options:
 
 ---
 
-## Code Examples and Demonstrations
-
-### Example 1: User Registration Flow
-
-```java
-// User enters regular user mode and selects registration
-// System captures input and creates new RegularUser
-
-System.out.print("Enter User ID: ");
-String userId = scanner.nextLine();  // "user001"
-
-System.out.print("Enter Username: ");
-String username = scanner.nextLine();  // "john_doe"
-
-System.out.print("Enter Password: ");
-String password = scanner.nextLine();  // "secure123"
-
-System.out.print("Enter Email: ");
-String email = scanner.nextLine();  // "john@example.com"
-
-// User selects account type
-System.out.println("1. Savings Account (3% interest)");
-System.out.println("2. Checking Account (with overdraft)");
-String choice = scanner.nextLine();  // "1"
-
-// Account created based on selection
-Account account = new SavingsAccount("SA-user001", 1000.0, 0.03);
-
-// User object created with account
-RegularUser newUser = new RegularUser(userId, username, password, email, account);
-
-// User added to system
-App.addRegularUser(newUser);
-```
-
-### Example 2: Deposit and Withdrawal Processing
-
-```java
-// User deposits money
-System.out.print("Enter deposit amount: $");
-double amount = Double.parseDouble(scanner.nextLine());  // "250"
-
-if (account.deposit(amount)) {
-    // Successfully deposited
-    System.out.println("Deposit successful! New balance: $" + 
-        String.format("%.2f", account.getBalance()));
-    // New balance: $1250.00
-}
-
-// User attempts withdrawal
-System.out.print("Enter withdrawal amount: $");
-double withdrawAmount = Double.parseDouble(scanner.nextLine());  // "100"
-
-// SavingsAccount overrides withdraw() to check monthly limit
-if (account.withdraw(withdrawAmount)) {
-    // Successful withdrawal
-    System.out.println("Withdrawal successful! New balance: $" + 
-        String.format("%.2f", account.getBalance()));
-    // New balance: $1150.00
-    // Transaction recorded automatically
-} else {
-    // Failure (maybe monthly limit exceeded)
-    System.out.println("Insufficient funds or invalid amount.");
-}
-```
-
-### Example 3: Interest Application
-
-```java
-// Admin triggers interest application for all savings accounts
-for (int i = 0; i < App.getUserCount(); i++) {
-    User u = App.getUser(i);
-    if (u instanceof RegularUser user) {
-        Account account = user.getAccount();
-        if (account instanceof SavingsAccount savingsAccount) {
-            double balanceBefore = account.getBalance();
-            
-            // Calculate and apply interest
-            savingsAccount.applyAccountFeatures();
-            
-            double balanceAfter = account.getBalance();
-            double interestEarned = balanceAfter - balanceBefore;
-            
-            System.out.println("User: " + user.getUsername());
-            System.out.println("  Interest Applied: $" + 
-                String.format("%.2f", interestEarned));
-            System.out.println("  New Balance: $" + 
-                String.format("%.2f", balanceAfter));
-        }
-    }
-}
-```
-
-### Example 4: Transaction History Recording
-
-```java
-// Every operation creates transaction entry
-public boolean deposit(double amount) {
-    if (amount > 0) {
-        balance += amount;
-        // Records transaction automatically
-        recordTransaction(amount, "DEPOSIT", getCurrentDate());
-        return true;
-    }
-    return false;
-}
-
-// Transaction stored in array
-protected void recordTransaction(double amount, String type, String date) {
-    if (transactionCount < transactions.length) {
-        transactions[transactionCount] = 
-            new Transaction(amount, type, date);
-        transactionCount++;
-    }
-}
-
-// Displayed with full history
-public void displayTransactionHistory() {
-    System.out.println("========== Transaction History ==========");
-    for (int i = 0; i < transactionCount; i++) {
-        transactions[i].displayTransaction();
-        // Output: [02/09/2026] DEPOSIT: $250.00
-    }
-    System.out.println("=========================================");
-}
-```
-
-### Example 5: Polymorphic Behavior
-
-```java
-// Both RegularUser and Admin extend User
-// Each implements displayDashboard() differently
-
-// RegularUser implementation
-public void displayDashboard() {
-    System.out.println("========== Regular User Dashboard ==========");
-    System.out.println("Welcome, " + getUsername() + "!");
-    System.out.println("Account Type: " + account.getAccountType());
-    System.out.println("Current Balance: $" + 
-        String.format("%.2f", account.getBalance()));
-    System.out.println("===========================================");
-}
-
-// Admin implementation
-public void displayDashboard() {
-    System.out.println("========== Admin Dashboard ==========");
-    System.out.println("Welcome, Admin " + getUsername() + "!");
-    System.out.println("Admin Level: " + adminLevel);
-    System.out.println("=====================================");
-}
-
-// Used polymorphically
-User user = new RegularUser(...);
-user.displayDashboard();  // Calls RegularUser version
-
-User admin = new Admin(...);
-admin.displayDashboard();  // Calls Admin version
-```
-
----
-
 ## Project Scope and Requirements
 
 ### Course Requirements Met
@@ -1132,9 +970,9 @@ admin.displayDashboard();  // Calls Admin version
 
 ---
 
-## Future Enhancements
+## Future Enhancements 
 
-### Phase 2: Advanced Features
+### : Advanced Features
 
 #### Data Persistence
 - File-based storage (serialization)
@@ -1175,7 +1013,7 @@ admin.displayDashboard();  // Calls Admin version
 - Audit trail enhancements
 - Regulatory reporting generation
 
-### Phase 3: Enterprise Features
+### : Enterprise Features
 
 #### Multi-user Account Management
 - Joint accounts with dual authorized users
@@ -1214,7 +1052,7 @@ This codebase serves as an excellent foundation for further development and lear
 Note4: Submit the final version of your project by Wednesday, March 18th, at 9:00am through
 Canvas.
 
-##### Gradeing
+##### Gradeing (Checklist)
 
 Project Grading:
 Correct data types and convenient variable naming
