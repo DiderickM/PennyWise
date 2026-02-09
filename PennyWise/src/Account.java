@@ -8,10 +8,10 @@ public abstract class Account {
     // ENCAPSULATION: Private fields with getters and setters
     private String accountNumber;
     private double balance;
-    private String accountType; // Will be overridden by subclasses
+    private final String accountType; // Will be overridden by subclasses
     
     // ARRAYS: Store transaction history
-    private Transaction[] transactions;
+    private final Transaction[] transactions;
     private int transactionCount; // Track number of transactions
 
     /**
@@ -89,8 +89,10 @@ public abstract class Account {
      */
     public boolean withdraw(double amount) {
         // SELECTION: if-else statement to validate withdrawal
+        System.out.println("IK BEN HIER");
         if (amount > 0 && balance >= amount) {
             balance -= amount;
+            System.out.println("Withdrawal successful - requested: $" + String.format("%.2f", amount));
             recordTransaction(amount, "WITHDRAWAL", getCurrentDate());
             return true;
         }
@@ -105,7 +107,7 @@ public abstract class Account {
      * @param type Transaction type
      * @param date Transaction date
      */
-    private void recordTransaction(double amount, String type, String date) {
+    protected void recordTransaction(double amount, String type, String date) {
         // SELECTION: Check if array has space
         if (transactionCount < transactions.length) {
             transactions[transactionCount] = new Transaction(amount, type, date);
@@ -156,7 +158,7 @@ public abstract class Account {
     /**
      * VALUE RETURNING METHOD: Gets current date as string.
      */
-    private String getCurrentDate() {
+    protected String getCurrentDate() {
         return new java.text.SimpleDateFormat("MM/dd/yyyy").format(new java.util.Date());
     }
 

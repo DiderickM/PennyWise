@@ -61,12 +61,11 @@ public class CheckingAccount extends Account {
     public boolean withdraw(double amount) {
         // SELECTION: Check if withdrawal exceeds overdraft limit
         double totalAvailable = getBalance() + overdraftLimit;
-        
+        System.out.println("Attempting withdrawal of $" + String.format("%.2f", amount) + " - Available funds (including overdraft): $" + String.format("%.2f", totalAvailable));
         if (amount > 0 && amount <= totalAvailable) {
             setBalance(getBalance() - amount);
             // Record transaction using parent method
-            recordTransactionPublic(amount, "WITHDRAWAL");
-            
+            recordTransaction(amount, "WITHDRAWAL", getCurrentDate());
             // SELECTION: Check if overdraft is now in use
             if (getBalance() < 0) {
                 System.out.println("WARNING: Account is in overdraft!");
@@ -88,14 +87,6 @@ public class CheckingAccount extends Account {
      */
     public double getAvailableFunds() {
         return getBalance() + overdraftLimit;
-    }
-
-    /**
-     * Helper method to record transactions publicly for withdraw override.
-     */
-    private void recordTransactionPublic(double amount, String type) {
-        // Create transaction object (simplified - using deposit to record)
-        deposit(-(amount)); // Offset the deposit that will happen
     }
 
     /**
