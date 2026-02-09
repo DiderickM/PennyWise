@@ -1,5 +1,5 @@
 # PennyWise Financial Manager - Comprehensive Project Documentation
-# ⚠️ <span style="color: blue">*This ReadMe is generated based on the provided code through Visual Studio Code*</span>.⚠️
+# ⚠️ <span style="color: blue">*This ReadMe is automatically generated based on the code through Visual Studio Code*</span>.⚠️
 
 ## Group Project for Erasmus University: Master in Business Information Management
 
@@ -43,14 +43,6 @@ The PennyWise system aims to:
 - Demonstrate enterprise-level software design patterns
 - Showcase proper code organization, documentation, and best practices
 - Provide a scalable foundation for additional financial features
-
-### Recent Enhancements (v1.1)
-
-**New Features Added:**
-- ✅ **Multiple Accounts Per User** - Users can now create and manage multiple accounts simultaneously during registration and while logged in
-- ✅ **Money Transfers** - Transfer funds between user's own accounts with automatic transaction recording and balance updates
-- Enhanced account selection interface for seamless multi-account management
-- Improved user dashboard to display all accounts and balances
 
 ---
 
