@@ -173,38 +173,21 @@ public class App {
         int accountCount = 0;
         while (addingAccounts) {
             // Select account type
-            System.out.println("\nSelect Account Type:");
-            System.out.println("1. Savings Account (3% interest)");
-            System.out.println("2. Checking Account (with overdraft)");
+            System.out.println();
+            displayAccountTypeMenu();
             System.out.print("Select account type (1-2): ");
             String accountChoice = scanner.nextLine();
             
-            // SELECTION: switch expression for account type selection
-            Account account = switch (accountChoice) {
-                case "1" -> {
-                    System.out.println("Savings Account created.");
-                    yield new SavingsAccount("SA-" + userId + "-" + (accountCount + 1), 1000.0, 0.03);
-                }
-                case "2" -> {
-                    System.out.println("Checking Account created.");
-                    yield new CheckingAccount("CA-" + userId + "-" + (accountCount + 1), 1000.0, 500.0, 35.0);
-                }
-                default -> {
-                    System.out.println("Invalid option. Savings Account created by default.");
-                    yield new SavingsAccount("SA-" + userId + "-" + (accountCount + 1), 1000.0, 0.03);
-                }
-            };
-            
+            // Create account using helper method
+            Account account = createAccount(userId, accountChoice, accountCount);
             newUser.addAccount(account);
             accountCount++;
             
             // Ask if user wants to add another account
-            if (accountCount > 0) {
-                System.out.print("Add another account? (yes/no): ");
-                String response = scanner.nextLine().toLowerCase();
-                if (!response.equals("yes") && !response.equals("y")) {
-                    addingAccounts = false;
-                }
+            System.out.print("Add another account? (yes/no): ");
+            String response = scanner.nextLine().toLowerCase();
+            if (!response.equals("yes") && !response.equals("y")) {
+                addingAccounts = false;
             }
         }
         
@@ -252,7 +235,7 @@ public class App {
             // Display all accounts and select one
             Account[] accounts = user.getAccounts();
             
-            if (accounts == null || accounts.length == 0) {
+            if (hasNoAccounts(accounts)) {
                 System.out.println("\nYou have no accounts. Please add an account first.");
                 inAccount = false;
                 break;
@@ -267,7 +250,7 @@ public class App {
                 for (int i = 0; i < accounts.length; i++) {
                     if (accounts[i] != null) {
                         System.out.println((i+1) + ". " + accounts[i].getAccountType() + 
-                                         " - Balance: $" + String.format("%.2f", accounts[i].getBalance()));
+                                         " - Balance: $" + formatMoney(accounts[i].getBalance()));
                     }
                 }
                 System.out.println((accounts.length+1) + ". Add New Account");
@@ -327,30 +310,26 @@ public class App {
             
             // SELECTION: switch expression for account menu options
             switch (choice) {
-                case "1" -> System.out.println("Current Balance: $" + String.format("%.2f", selectedAccount.getBalance()));
+                case "1" -> System.out.println("Current Balance: $" + formatMoney(selectedAccount.getBalance()));
                 case "2" -> {
                     System.out.print("Enter deposit amount: $");
-                    try {
-                        double amount = Double.parseDouble(scanner.nextLine());
-                        if (selectedAccount.deposit(amount)) {
-                            System.out.println("Deposit successful! New balance: $" + String.format("%.2f", selectedAccount.getBalance()));
-                        } else {
-                            System.out.println("Invalid deposit amount.");
-                        }
-                    } catch (NumberFormatException e) {
+                    double amount = getDoubleInput(scanner);
+                    if (amount > 0 && selectedAccount.deposit(amount)) {
+                        System.out.println("Deposit successful! New balance: $" + formatMoney(selectedAccount.getBalance()));
+                    } else if (amount > 0) {
+                        System.out.println("Invalid deposit amount.");
+                    } else {
                         System.out.println("Invalid input.");
                     }
                 }
                 case "3" -> {
                     System.out.print("Enter withdrawal amount: $");
-                    try {
-                        double amount = Double.parseDouble(scanner.nextLine());
-                        if (selectedAccount.withdraw(amount)) {
-                            System.out.println("Withdrawal successful! New balance: $" + String.format("%.2f", selectedAccount.getBalance()));
-                        } else {
-                            System.out.println("Insufficient funds, invalid amount or other invalid input.");
-                        }
-                    } catch (NumberFormatException e) {
+                    double amount = getDoubleInput(scanner);
+                    if (amount > 0 && selectedAccount.withdraw(amount)) {
+                        System.out.println("Withdrawal successful! New balance: $" + formatMoney(selectedAccount.getBalance()));
+                    } else if (amount > 0) {
+                        System.out.println("Insufficient funds, invalid amount or other invalid input.");
+                    } else {
                         System.out.println("Invalid input.");
                     }
                 }
@@ -363,34 +342,32 @@ public class App {
                     } else {
                         System.out.println("\n--- Transfer Money ---");
                         System.out.println("Transferring FROM: " + selectedAccount.getAccountType() + 
-                                         " (Balance: $" + String.format("%.2f", selectedAccount.getBalance()) + ")");
+                                         " (Balance: $" + formatMoney(selectedAccount.getBalance()) + ")");
                         
                         // Display other accounts
                         System.out.println("\nAvailable accounts to transfer TO:");
                         for (int i = 0; i < accounts.length; i++) {
                             if (i != selectedAccountIndex && accounts[i] != null) {
                                 System.out.println((i+1) + ". " + accounts[i].getAccountType() + 
-                                                 " - Balance: $" + String.format("%.2f", accounts[i].getBalance()));
+                                                 " - Balance: $" + formatMoney(accounts[i].getBalance()));
                             }
                         }
                         
                         System.out.print("Select target account (1-" + accounts.length + "): ");
-                        try {
-                            int targetIndex = Integer.parseInt(scanner.nextLine()) - 1;
-                            if (targetIndex >= 0 && targetIndex < accounts.length && targetIndex != selectedAccountIndex && accounts[targetIndex] != null) {
-                                System.out.print("Enter transfer amount: $");
-                                double amount = Double.parseDouble(scanner.nextLine());
-                                
-                                if (user.transferBetweenAccounts(selectedAccountIndex, targetIndex, amount)) {
-                                    System.out.println("Transfer successful!");
-                                    System.out.println("Source account balance: $" + String.format("%.2f", selectedAccount.getBalance()));
-                                    System.out.println("Target account balance: $" + String.format("%.2f", accounts[targetIndex].getBalance()));
-                                }
-                            } else {
-                                System.out.println("Invalid target account.");
+                        int targetIndex = (int) getDoubleInput(scanner) - 1;
+                        if (targetIndex >= 0 && targetIndex < accounts.length && targetIndex != selectedAccountIndex && accounts[targetIndex] != null) {
+                            System.out.print("Enter transfer amount: $");
+                            double amount = getDoubleInput(scanner);
+                            
+                            if (amount > 0 && user.transferBetweenAccounts(selectedAccountIndex, targetIndex, amount)) {
+                                System.out.println("Transfer successful!");
+                                System.out.println("Source account balance: $" + formatMoney(selectedAccount.getBalance()));
+                                System.out.println("Target account balance: $" + formatMoney(accounts[targetIndex].getBalance()));
+                            } else if (amount <= 0) {
+                                System.out.println("Invalid input.");
                             }
-                        } catch (NumberFormatException e) {
-                            System.out.println("Invalid input.");
+                        } else {
+                            System.out.println("Invalid target account.");
                         }
                     }
                 }
@@ -432,30 +409,14 @@ public class App {
      */
     private static void addNewAccountToUser(Scanner scanner, RegularUser user) {
         System.out.println("\n--- Create New Account ---");
-        System.out.println("Select Account Type:");
-        System.out.println("1. Savings Account (3% interest)");
-        System.out.println("2. Checking Account (with overdraft)");
+        displayAccountTypeMenu();
         System.out.print("Select account type (1-2): ");
         
         String accountChoice = scanner.nextLine();
         String userId = user.getUserId();
         int accountCount = user.getAccounts() != null ? user.getAccounts().length : 0;
         
-        Account newAccount = switch (accountChoice) {
-            case "1" -> {
-                System.out.println("Savings Account created.");
-                yield new SavingsAccount("SA-" + userId + "-" + (accountCount + 1), 1000.0, 0.03);
-            }
-            case "2" -> {
-                System.out.println("Checking Account created.");
-                yield new CheckingAccount("CA-" + userId + "-" + (accountCount + 1), 1000.0, 500.0, 35.0);
-            }
-            default -> {
-                System.out.println("Invalid option. Savings Account created by default.");
-                yield new SavingsAccount("SA-" + userId + "-" + (accountCount + 1), 1000.0, 0.03);
-            }
-        };
-        
+        Account newAccount = createAccount(userId, accountChoice, accountCount);
         user.addAccount(newAccount);
         System.out.println("Account added successfully!");
     }
@@ -531,5 +492,64 @@ public class App {
             }
         }
         return null;
+    }
+
+    // ============== UTILITY HELPER METHODS ==============
+
+    /**
+     * Formats a currency value to 2 decimal places.
+     * Replaces redundant String.format("%.2f", value) calls throughout codebase.
+     */
+    public static String formatMoney(double amount) {
+        return String.format("%.2f", amount);
+    }
+
+    /**
+     * Safely parses a double from user input with error handling.
+     * Returns -1 if input is invalid.
+     */
+    public static double getDoubleInput(Scanner scanner) {
+        try {
+            return Double.parseDouble(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    /**
+     * Creates a new account based on user selection.
+     * Eliminates duplicate account creation logic.
+     */
+    public static Account createAccount(String userId, String accountChoice, int accountCount) {
+        return switch (accountChoice) {
+            case "1" -> {
+                System.out.println("Savings Account created.");
+                yield new SavingsAccount("SA-" + userId + "-" + (accountCount + 1), 1000.0, 0.03);
+            }
+            case "2" -> {
+                System.out.println("Checking Account created.");
+                yield new CheckingAccount("CA-" + userId + "-" + (accountCount + 1), 1000.0, 500.0, 35.0);
+            }
+            default -> {
+                System.out.println("Invalid option. Savings Account created by default.");
+                yield new SavingsAccount("SA-" + userId + "-" + (accountCount + 1), 1000.0, 0.03);
+            }
+        };
+    }
+
+    /**
+     * Displays the account type selection menu.
+     */
+    public static void displayAccountTypeMenu() {
+        System.out.println("Select Account Type:");
+        System.out.println("1. Savings Account (3% interest)");
+        System.out.println("2. Checking Account (with overdraft)");
+    }
+
+    /**
+     * Checks if accounts array is null or empty.
+     */
+    public static boolean hasNoAccounts(Account[] accounts) {
+        return accounts == null || accounts.length == 0;
     }
 }

@@ -113,7 +113,7 @@ public class Admin extends User {
                 System.out.println("5. Generate System-wide Report");
                 System.out.println("6. Apply Account Features (Interest) to All Savings Accounts");
                 System.out.println("7. Apply Account Features (Overdraft Fees) to All Checking Accounts");
-                System.out.println("8. Manage Administrators");
+                System.out.println("8. Manage Administrators (Simulated)");
             }
             System.out.println("9. Logout");
             System.out.print("Select option: ");
@@ -217,10 +217,37 @@ public class Admin extends User {
         String username = scanner.nextLine();
         RegularUser user = findRegularUserByUsername(username);
 
-        if (user != null && user.getAccount() != null) {
-            Account account = user.getAccount();
+        if (user != null) {
+            Account[] accounts = user.getAccounts();
+            if (App.hasNoAccounts(accounts)) {
+                System.out.println("User has no accounts.");
+                return;
+            }
+            
+            // If multiple accounts, let admin choose
+            Account account;
+            if (accounts.length > 1) {
+                System.out.println("\n--- Select Account ---");
+                for (int i = 0; i < accounts.length; i++) {
+                    if (accounts[i] != null) {
+                        System.out.println((i+1) + ". " + accounts[i].getAccountType() + 
+                                         " - Balance: $" + App.formatMoney(accounts[i].getBalance()));
+                    }
+                }
+                System.out.print("Select account (1-" + accounts.length + "): ");
+                int accountChoice = (int) App.getDoubleInput(scanner) - 1;
+                if (accountChoice >= 0 && accountChoice < accounts.length && accounts[accountChoice] != null) {
+                    account = accounts[accountChoice];
+                } else {
+                    System.out.println("Invalid account selection.");
+                    return;
+                }
+            } else {
+                account = accounts[0];
+            }
+            
             System.out.println("\n--- Adjust Account Balance ---");
-            System.out.println("Current Balance: $" + String.format("%.2f", account.getBalance()));
+            System.out.println("Current Balance: $" + App.formatMoney(account.getBalance()));
             System.out.println("1. Add Amount");
             System.out.println("2. Subtract Amount");
             System.out.println("3. Set Exact Balance");
@@ -230,45 +257,33 @@ public class Admin extends User {
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1" -> {
-                    try {
-                        System.out.print("Enter amount to add: $");
-                        double addAmount = Double.parseDouble(scanner.nextLine());
-                        if (addAmount > 0) {
-                            account.setBalance(account.getBalance() + addAmount);
-                            System.out.println("Amount added. New Balance: $" + String.format("%.2f", account.getBalance()));
-                        } else {
-                            System.out.println("Invalid amount.");
-                        }
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid input.");
+                    System.out.print("Enter amount to add: $");
+                    double amount = App.getDoubleInput(scanner);
+                    if (amount > 0) {
+                        account.setBalance(account.getBalance() + amount);
+                        System.out.println("Amount added. New Balance: $" + App.formatMoney(account.getBalance()));
+                    } else {
+                        System.out.println("Invalid amount.");
                     }
                 }
                 case "2" -> {
-                    try {
-                        System.out.print("Enter amount to subtract: $");
-                        double subtractAmount = Double.parseDouble(scanner.nextLine());
-                        if (subtractAmount > 0) {
-                            account.setBalance(account.getBalance() - subtractAmount);
-                            System.out.println("Amount subtracted. New Balance: $" + String.format("%.2f", account.getBalance()));
-                        } else {
-                            System.out.println("Invalid amount.");
-                        }
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid input.");
+                    System.out.print("Enter amount to subtract: $");
+                    double amount = App.getDoubleInput(scanner);
+                    if (amount > 0) {
+                        account.setBalance(account.getBalance() - amount);
+                        System.out.println("Amount subtracted. New Balance: $" + App.formatMoney(account.getBalance()));
+                    } else {
+                        System.out.println("Invalid amount.");
                     }
                 }
                 case "3" -> {
-                    try {
-                        System.out.print("Enter exact balance amount: $");
-                        double exactAmount = Double.parseDouble(scanner.nextLine());
-                        if (exactAmount >= 0) {
-                            account.setBalance(exactAmount);
-                            System.out.println("Balance set to: $" + String.format("%.2f", account.getBalance()));
-                        } else {
-                            System.out.println("Balance must be non-negative.");
-                        }
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid input.");
+                    System.out.print("Enter exact balance amount: $");
+                    double amount = App.getDoubleInput(scanner);
+                    if (amount >= 0) {
+                        account.setBalance(amount);
+                        System.out.println("Balance set to: $" + App.formatMoney(account.getBalance()));
+                    } else {
+                        System.out.println("Balance must be non-negative.");
                     }
                 }
                 case "4" -> System.out.println("Adjustment cancelled.");
@@ -324,15 +339,21 @@ public class Admin extends User {
             for (int i = 0; i < App.getUserCount(); i++) {
                 User u = App.getUser(i);
                 if (u instanceof RegularUser user) {
-                    Account account = user.getAccount();
-                    if (account != null) {
-                        System.out.println((i + 1) + ". " + user.getUsername() + " - Account: " + account.getAccountType());
-                        System.out.println("   Balance: $" + String.format("%.2f", account.getBalance()));
-                        System.out.println("   Transactions: " + account.getTransactionCount());
-                        totalBalance += account.getBalance();
-                        totalTransactions += account.getTransactionCount();
-                        if (account instanceof SavingsAccount) savingsAccountCount++;
-                        else if (account instanceof CheckingAccount) checkingAccountCount++;
+                    Account[] accounts = user.getAccounts();
+                    if (!App.hasNoAccounts(accounts)) {
+                        int accountIndex = 1;
+                        for (Account account : accounts) {
+                            if (account != null) {
+                                System.out.println((i + 1) + "." + accountIndex + " " + user.getUsername() + " - Account: " + account.getAccountType());
+                                System.out.println("   Balance: $" + App.formatMoney(account.getBalance()));
+                                System.out.println("   Transactions: " + account.getTransactionCount());
+                                totalBalance += account.getBalance();
+                                totalTransactions += account.getTransactionCount();
+                                if (account instanceof SavingsAccount) savingsAccountCount++;
+                                else if (account instanceof CheckingAccount) checkingAccountCount++;
+                                accountIndex++;
+                            }
+                        }
                     }
                 }
             }
@@ -342,9 +363,9 @@ public class Admin extends User {
         System.out.println("Total Users: " + App.getUserCount());
         System.out.println("Savings Accounts: " + savingsAccountCount);
         System.out.println("Checking Accounts: " + checkingAccountCount);
-        System.out.println("Total System Balance: $" + String.format("%.2f", totalBalance));
+        System.out.println("Total System Balance: $" + App.formatMoney(totalBalance));
         System.out.println("Total Transactions: " + totalTransactions);
-        System.out.println("Average Balance per User: $" + String.format("%.2f", App.getUserCount() > 0 ? totalBalance / App.getUserCount() : 0));
+        System.out.println("Average Balance per User: $" + App.formatMoney(App.getUserCount() > 0 ? totalBalance / App.getUserCount() : 0));
         System.out.println("==================================================");
     }
 
@@ -424,23 +445,27 @@ public class Admin extends User {
         for (int i = 0; i < App.getUserCount(); i++) {
             User u = App.getUser(i);
             if (u instanceof RegularUser user) {
-                Account account = user.getAccount();
-                // SELECTION: Check if account is a SavingsAccount
-                if (account instanceof SavingsAccount savingsAccount) {
-                    double balanceBefore = account.getBalance();
-                    // Apply account-specific features (interest in this case)
-                    savingsAccount.applyAccountFeatures();
-                    double balanceAfter = account.getBalance();
-                    double interestEarned = balanceAfter - balanceBefore;
-                    
-                    System.out.println("User: " + user.getUsername());
-                    System.out.println("  Account: " + account.getAccountNumber());
-                    System.out.println("  Balance Before: $" + String.format("%.2f", balanceBefore));
-                    System.out.println("  Interest Applied: $" + String.format("%.2f", interestEarned));
-                    System.out.println("  Balance After: $" + String.format("%.2f", balanceAfter));
-                    
-                    savingsAccountCount++;
-                    totalInterestApplied += interestEarned;
+                Account[] accounts = user.getAccounts();
+                if (!App.hasNoAccounts(accounts)) {
+                    for (Account account : accounts) {
+                        // SELECTION: Check if account is a SavingsAccount
+                        if (account instanceof SavingsAccount savingsAccount) {
+                            double balanceBefore = account.getBalance();
+                            // Apply account-specific features (interest in this case)
+                            savingsAccount.applyAccountFeatures();
+                            double balanceAfter = account.getBalance();
+                            double interestEarned = balanceAfter - balanceBefore;
+                            
+                            System.out.println("User: " + user.getUsername());
+                            System.out.println("  Account: " + account.getAccountNumber());
+                            System.out.println("  Balance Before: $" + App.formatMoney(balanceBefore));
+                            System.out.println("  Interest Applied: $" + App.formatMoney(interestEarned));
+                            System.out.println("  Balance After: $" + App.formatMoney(balanceAfter));
+                            
+                            savingsAccountCount++;
+                            totalInterestApplied += interestEarned;
+                        }
+                    }
                 }
             }
         }
@@ -448,7 +473,7 @@ public class Admin extends User {
         // Display summary
         System.out.println("\n--- Summary ---");
         System.out.println("Total Savings Accounts Processed: " + savingsAccountCount);
-        System.out.println("Total Interest Applied System-wide: $" + String.format("%.2f", totalInterestApplied));
+        System.out.println("Total Interest Applied System-wide: $" + App.formatMoney(totalInterestApplied));
         System.out.println("====================================================================");
     }
 
@@ -465,24 +490,28 @@ public class Admin extends User {
         for (int i = 0; i < App.getUserCount(); i++) {
             User u = App.getUser(i);
             if (u instanceof RegularUser user) {
-                Account account = user.getAccount();
-                // SELECTION: Check if account is a CheckingAccount
-                if (account instanceof CheckingAccount checkingAccount) {
-                    double balanceBefore = account.getBalance();
-                    // Apply account-specific features (overdraft fees in this case)
-                    checkingAccount.applyAccountFeatures();
-                    double balanceAfter = account.getBalance();
-                    double feesApplied = balanceBefore - balanceAfter;
-                    
-                    System.out.println("User: " + user.getUsername());
-                    System.out.println("  Account: " + account.getAccountNumber());
-                    System.out.println("  Balance Before: $" + String.format("%.2f", balanceBefore));
-                    System.out.println("  Overdraft Status: " + (checkingAccount.isInOverdraft() ? "IN OVERDRAFT" : "NORMAL"));
-                    System.out.println("  Fees Applied: $" + String.format("%.2f", feesApplied));
-                    System.out.println("  Balance After: $" + String.format("%.2f", balanceAfter));
-                    
-                    checkingAccountCount++;
-                    totalOverdraftFeesApplied += feesApplied;
+                Account[] accounts = user.getAccounts();
+                if (!App.hasNoAccounts(accounts)) {
+                    for (Account account : accounts) {
+                        // SELECTION: Check if account is a CheckingAccount
+                        if (account instanceof CheckingAccount checkingAccount) {
+                            double balanceBefore = account.getBalance();
+                            // Apply account-specific features (overdraft fees in this case)
+                            checkingAccount.applyAccountFeatures();
+                            double balanceAfter = account.getBalance();
+                            double feesApplied = balanceBefore - balanceAfter;
+                            
+                            System.out.println("User: " + user.getUsername());
+                            System.out.println("  Account: " + account.getAccountNumber());
+                            System.out.println("  Balance Before: $" + App.formatMoney(balanceBefore));
+                            System.out.println("  Overdraft Status: " + (checkingAccount.isInOverdraft() ? "IN OVERDRAFT" : "NORMAL"));
+                            System.out.println("  Fees Applied: $" + App.formatMoney(feesApplied));
+                            System.out.println("  Balance After: $" + App.formatMoney(balanceAfter));
+                            
+                            checkingAccountCount++;
+                            totalOverdraftFeesApplied += feesApplied;
+                        }
+                    }
                 }
             }
         }
@@ -490,7 +519,7 @@ public class Admin extends User {
         // Display summary
         System.out.println("\n--- Summary ---");
         System.out.println("Total Checking Accounts Processed: " + checkingAccountCount);
-        System.out.println("Total Overdraft Fees Applied System-wide: $" + String.format("%.2f", totalOverdraftFeesApplied));
+        System.out.println("Total Overdraft Fees Applied System-wide: $" + App.formatMoney(totalOverdraftFeesApplied));
         System.out.println("====================================================================");
     }
 }

@@ -92,7 +92,7 @@ public class RegularUser extends User {
             for (int i = 0; i < accounts.length; i++) {
                 if (accounts[i] != null) {
                     System.out.println("  [" + i + "] Account Type: " + accounts[i].getAccountType() + 
-                                     ", Balance: $" + String.format("%.2f", accounts[i].getBalance()));
+                                     ", Balance: $" + App.formatMoney(accounts[i].getBalance()));
                 }
             }
         } else {

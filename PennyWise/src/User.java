@@ -98,7 +98,7 @@ public abstract class User {
         System.out.println("Email: " + email);
         for (Account account : accounts) {
             if (account != null) {
-                System.out.println("  - Account Type: " + account.getAccountType() + ", Balance: $" + String.format("%.2f", account.getBalance()));
+                System.out.println("  - Account Type: " + account.getAccountType() + ", Balance: $" + App.formatMoney(account.getBalance()));
             }
         }
         System.out.println("==================================");

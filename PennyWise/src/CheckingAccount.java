@@ -67,7 +67,7 @@ public class CheckingAccount extends Account {
     public boolean withdraw(double amount) {
         // SELECTION: Check if withdrawal exceeds overdraft limit
         double totalAvailable = getBalance() + overdraftLimit;
-        System.out.println("Attempting withdrawal of $" + String.format("%.2f", amount) + " - Available funds (including overdraft): $" + String.format("%.2f", totalAvailable));
+        System.out.println("Attempting withdrawal of $" + App.formatMoney(amount) + " - Available funds (including overdraft): $" + App.formatMoney(totalAvailable));
         if (amount > 0 && amount <= totalAvailable) {
             setBalance(getBalance() - amount);
             // Record transaction using parent method
@@ -100,9 +100,9 @@ public class CheckingAccount extends Account {
      */
     public void displayCheckingInfo() {
         super.displayAccountInfo();
-        System.out.println("Overdraft Limit: $" + String.format("%.2f", overdraftLimit));
-        System.out.println("Overdraft Fee: $" + String.format("%.2f", overdraftFee));
-        System.out.println("Available Funds (including overdraft): $" + String.format("%.2f", getAvailableFunds()));
+        System.out.println("Overdraft Limit: $" + App.formatMoney(overdraftLimit));
+        System.out.println("Overdraft Fee: $" + App.formatMoney(overdraftFee));
+        System.out.println("Available Funds (including overdraft): $" + App.formatMoney(getAvailableFunds()));
         
         // SELECTION: Display overdraft status
         if (isInOverdraft()) {

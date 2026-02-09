@@ -220,7 +220,7 @@ public abstract class Account {
         System.out.println("\n========== Account Information ==========");
         System.out.println("Account Number: " + accountNumber);
         System.out.println("Account Type: " + accountType);
-        System.out.println("Current Balance: $" + String.format("%.2f", balance));
+        System.out.println("Current Balance: $" + App.formatMoney(balance));
         System.out.println("Total Transactions: " + transactionCount);
         System.out.println("=========================================");
     }

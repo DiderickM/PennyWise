@@ -48,7 +48,7 @@ public class SavingsAccount extends Account {
         // SELECTION: if-else to validate interest amount
         if (interest > 0) {
             deposit(interest);
-            System.out.println("Interest applied: $" + String.format("%.2f", interest));
+            System.out.println("Interest applied: $" + App.formatMoney(interest));
         }
     }
 
@@ -116,6 +116,6 @@ public class SavingsAccount extends Account {
         super.displayAccountInfo();
         System.out.println("Interest Rate: " + String.format("%.2f", interestRate * 100) + "%");
         double projectedBalance = projectFutureBalance(12);
-        System.out.println("Projected Balance (12 months): $" + String.format("%.2f", projectedBalance));
+        System.out.println("Projected Balance (12 months): $" + App.formatMoney(projectedBalance));
     }
 }
