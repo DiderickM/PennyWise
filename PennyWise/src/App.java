@@ -244,7 +244,7 @@ public class App {
                         if (account.withdraw(amount)) {
                             System.out.println("Withdrawal successful! New balance: $" + String.format("%.2f", account.getBalance()));
                         } else {
-                            System.out.println("Insufficient funds or invalid amount.");
+                            System.out.println("Insufficient funds, invalid amount or other invalid input.");
                         }
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid input.");

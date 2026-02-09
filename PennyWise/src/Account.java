@@ -89,7 +89,6 @@ public abstract class Account {
      */
     public boolean withdraw(double amount) {
         // SELECTION: if-else statement to validate withdrawal
-        System.out.println("IK BEN HIER");
         if (amount > 0 && balance >= amount) {
             balance -= amount;
             System.out.println("Withdrawal successful - requested: $" + String.format("%.2f", amount));

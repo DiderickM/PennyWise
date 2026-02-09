@@ -105,9 +105,10 @@ public class Admin extends User {
             System.out.println("4. Delete User Account");
             if (hasSuperPrivileges()) {
                 System.out.println("5. Generate System-wide Report");
-                System.out.println("6. Manage Administrators");
+                System.out.println("6. Apply Account Features (Interest) to All Savings Accounts");
+                System.out.println("7. Manage Administrators");
             }
-            System.out.println("7. Logout");
+            System.out.println("8. Logout");
             System.out.print("Select option: ");
 
             String choice = scanner.nextLine();
@@ -121,10 +122,14 @@ public class Admin extends User {
                     else System.out.println("You don't have permission for this action.");
                 }
                 case "6" -> {
-                    if (hasSuperPrivileges()) manageAdmins(scanner);
+                    if (hasSuperPrivileges()) applyAccountFeaturesToAllSavings();
                     else System.out.println("You don't have permission for this action.");
                 }
                 case "7" -> {
+                    if (hasSuperPrivileges()) manageAdmins(scanner);
+                    else System.out.println("You don't have permission for this action.");
+                }
+                case "8" -> {
                     inAdmin = false;
                     System.out.println("Admin logged out.");
                 }
@@ -393,5 +398,46 @@ public class Admin extends User {
             case "4" -> System.out.println("Admin management cancelled.");
             default -> System.out.println("Invalid option.");
         }
+    }
+
+    /**
+     * VOID METHOD: Applies account features (like interest) to all savings accounts.
+     * Super admin only - processes interest calculations for all savings accounts.
+     */
+    private void applyAccountFeaturesToAllSavings() {
+        System.out.println("\n========== Applying Account Features to All Savings Accounts ==========");
+        int savingsAccountCount = 0;
+        double totalInterestApplied = 0;
+
+        // LOOPS: for loop to iterate through all users
+        for (int i = 0; i < App.getUserCount(); i++) {
+            User u = App.getUser(i);
+            if (u instanceof RegularUser user) {
+                Account account = user.getAccount();
+                // SELECTION: Check if account is a SavingsAccount
+                if (account instanceof SavingsAccount savingsAccount) {
+                    double balanceBefore = account.getBalance();
+                    // Apply account-specific features (interest in this case)
+                    savingsAccount.applyAccountFeatures();
+                    double balanceAfter = account.getBalance();
+                    double interestEarned = balanceAfter - balanceBefore;
+                    
+                    System.out.println("User: " + user.getUsername());
+                    System.out.println("  Account: " + account.getAccountNumber());
+                    System.out.println("  Balance Before: $" + String.format("%.2f", balanceBefore));
+                    System.out.println("  Interest Applied: $" + String.format("%.2f", interestEarned));
+                    System.out.println("  Balance After: $" + String.format("%.2f", balanceAfter));
+                    
+                    savingsAccountCount++;
+                    totalInterestApplied += interestEarned;
+                }
+            }
+        }
+
+        // Display summary
+        System.out.println("\n--- Summary ---");
+        System.out.println("Total Savings Accounts Processed: " + savingsAccountCount);
+        System.out.println("Total Interest Applied System-wide: $" + String.format("%.2f", totalInterestApplied));
+        System.out.println("====================================================================");
     }
 }
