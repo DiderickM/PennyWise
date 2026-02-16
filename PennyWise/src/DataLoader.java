@@ -28,15 +28,21 @@ public class DataLoader extends DataPersistence {
         String accountType;
         String accountNumber;
         double balance;
-        double param1; // interestRate for Savings, overdraftLimit for Checking
-        double param2; // unused for Savings, overdraftFee for Checking
+        double interestRateOrOverdraftLimit; // interest rate for Savings, overdraft limit for Checking
+        double overdraftFee; // unused for Savings, overdraft fee for Checking
+        int maxWithdrawalsPerMonth; // max withdrawals per month for Savings, unused for Checking
         
-        AccountData(String type, String number, double bal, double p1, double p2) {
+        AccountData(String type, String number, double bal, double interestRateOrOverdraftLimit, double overdraftFee) {
+            this(type, number, bal, interestRateOrOverdraftLimit, overdraftFee, 3); // Default to 3 withdrawals
+        }
+        
+        AccountData(String type, String number, double bal, double interestRateOrOverdraftLimit, double overdraftFee, int maxWithdrawalsPerMonth) {
             this.accountType = type;
             this.accountNumber = number;
             this.balance = bal;
-            this.param1 = p1;
-            this.param2 = p2;
+            this.interestRateOrOverdraftLimit = interestRateOrOverdraftLimit;
+            this.overdraftFee = overdraftFee;
+            this.maxWithdrawalsPerMonth = maxWithdrawalsPerMonth;
         }
     }
     
@@ -67,13 +73,16 @@ public class DataLoader extends DataPersistence {
     
     /**
      * POLYMORPHIC IMPLEMENTATION: Performs the load operation.
-     * Loads users, accounts, and transactions from files.
+     * Loads configuration first, then users, accounts, and transactions from files.
      * 
      * @return true if all loads successful, false otherwise
      * @throws IOException if file operations fail
      */
     @Override
     protected boolean performOperation() throws IOException {
+        // Load configuration first
+        DataConfiguration.loadConfiguration();
+        
         // Load in sequence: transactions first, then accounts, then users
         loadTransactions();
         loadAccounts();
@@ -194,16 +203,20 @@ public class DataLoader extends DataPersistence {
                 String accountNumber = parts[2];
                 double balance = Double.parseDouble(parts[3]);
                 
-                double param1 = 0, param2 = 0;
+                double interestRateOrOverdraftLimit = 0, overdraftFee = 0;
+                int maxWithdrawalsPerMonth = 3; // Default max withdrawals
                 
                 if (accountType.equals("SAVINGS") && parts.length >= 5) {
-                    param1 = Double.parseDouble(parts[4]); // interestRate
+                    interestRateOrOverdraftLimit = Double.parseDouble(parts[4]); // interestRate
+                    if (parts.length >= 6) {
+                        maxWithdrawalsPerMonth = Integer.parseInt(parts[5]); // maxWithdrawalsPerMonth
+                    }
                 } else if (accountType.equals("CHECKING") && parts.length >= 6) {
-                    param1 = Double.parseDouble(parts[4]); // overdraftLimit
-                    param2 = Double.parseDouble(parts[5]); // overdraftFee
+                    interestRateOrOverdraftLimit = Double.parseDouble(parts[4]); // overdraftLimit
+                    overdraftFee = Double.parseDouble(parts[5]); // overdraftFee
                 }
                 
-                AccountData accData = new AccountData(accountType, accountNumber, balance, param1, param2);
+                AccountData accData = new AccountData(accountType, accountNumber, balance, interestRateOrOverdraftLimit, overdraftFee, maxWithdrawalsPerMonth);
                 
                 // Store in map for later association with user
                 userAccountsMap.putIfAbsent(userId, new ArrayList<>());
@@ -226,7 +239,7 @@ public class DataLoader extends DataPersistence {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\\|");
                 if (parts.length < 4) continue;
-                
+
                 String accountNumber = parts[0];
                 double amount = Double.parseDouble(parts[1]);
                 String type = parts[2];
@@ -250,9 +263,9 @@ public class DataLoader extends DataPersistence {
         Account account = null;
         
         if (data.accountType.equals("SAVINGS")) {
-            account = new SavingsAccount(data.accountNumber, 0, data.param1);
+            account = new SavingsAccount(data.accountNumber, 0, data.interestRateOrOverdraftLimit, data.maxWithdrawalsPerMonth);
         } else if (data.accountType.equals("CHECKING")) {
-            account = new CheckingAccount(data.accountNumber, 0, data.param1, data.param2);
+            account = new CheckingAccount(data.accountNumber, 0, data.interestRateOrOverdraftLimit, data.overdraftFee);
         }
         
         // Set the balance directly (after creating with 0 to avoid initial deposit transaction)

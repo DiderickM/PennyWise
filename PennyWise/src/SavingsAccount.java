@@ -11,8 +11,9 @@
  * Savings accounts earn interest and may have withdrawal restrictions.
  */
 public class SavingsAccount extends Account {
-    // ENCAPSULATION: Private field for interest rate
+    // ENCAPSULATION: Private fields for savings account features
     private double interestRate; // e.g., 0.03 for 3%
+    private int maxWithdrawalsPerMonth; // Maximum withdrawals allowed per calendar month
 
     /**
      * Constructor to initialize a SavingsAccount.
@@ -24,6 +25,22 @@ public class SavingsAccount extends Account {
     public SavingsAccount(String accountNumber, double initialBalance, double interestRate) {
         super(accountNumber, initialBalance, "SAVINGS");
         this.interestRate = interestRate;
+        // Use default max withdrawals from system configuration
+        this.maxWithdrawalsPerMonth = SystemConfiguration.getInstance().getDefaultSavingsMaxWithdrawals();
+    }
+
+    /**
+     * Constructor to initialize a SavingsAccount with custom max withdrawals.
+     * 
+     * @param accountNumber Unique account identifier
+     * @param initialBalance Initial account balance
+     * @param interestRate Annual interest rate (as decimal, e.g., 0.03 for 3%)
+     * @param maxWithdrawalsPerMonth Maximum withdrawals allowed per month
+     */
+    public SavingsAccount(String accountNumber, double initialBalance, double interestRate, int maxWithdrawalsPerMonth) {
+        super(accountNumber, initialBalance, "SAVINGS");
+        this.interestRate = interestRate;
+        this.maxWithdrawalsPerMonth = maxWithdrawalsPerMonth;
     }
 
     // ENCAPSULATION: Getter and Setter for interest rate
@@ -33,6 +50,17 @@ public class SavingsAccount extends Account {
 
     public void setInterestRate(double interestRate) {
         this.interestRate = interestRate;
+    }
+
+    // ENCAPSULATION: Getter and Setter for max withdrawals per month
+    public int getMaxWithdrawalsPerMonth() {
+        return maxWithdrawalsPerMonth;
+    }
+
+    public void setMaxWithdrawalsPerMonth(int maxWithdrawalsPerMonth) {
+        if (maxWithdrawalsPerMonth > 0) {
+            this.maxWithdrawalsPerMonth = maxWithdrawalsPerMonth;
+        }
     }
 
     /**
@@ -54,15 +82,15 @@ public class SavingsAccount extends Account {
 
     /**
      * POLYMORPHISM IMPLEMENTATION: Override withdraw with withdrawal limit.
-     * Savings accounts limit withdrawals per month.
+     * Savings accounts limit withdrawals per month based on maxWithdrawalsPerMonth.
      */
     @Override
     public boolean withdraw(double amount) {
         // SELECTION: Conditional logic for withdrawal restrictions
         int monthlyWithdrawals = countWithdrawalsThisMonth();
         
-        if (monthlyWithdrawals >= 3) {
-            System.out.println("Monthly withdrawal limit (3) reached!");
+        if (monthlyWithdrawals >= maxWithdrawalsPerMonth) {
+            System.out.println("Monthly withdrawal limit (" + maxWithdrawalsPerMonth + ") reached!");
             return false;
         }
         
@@ -115,6 +143,8 @@ public class SavingsAccount extends Account {
     public void displaySavingsInfo() {
         super.displayAccountInfo();
         System.out.println("Interest Rate: " + String.format("%.2f", interestRate * 100) + "%");
+        System.out.println("Max Withdrawals per Month: " + maxWithdrawalsPerMonth);
+        System.out.println("Withdrawals this month: " + countWithdrawalsThisMonth());
         double projectedBalance = projectFutureBalance(12);
         System.out.println("Projected Balance (12 months): $" + App.formatMoney(projectedBalance));
     }

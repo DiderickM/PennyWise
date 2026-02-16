@@ -114,9 +114,12 @@ public class Admin extends User {
                 System.out.println("6. Apply Account Features (Interest) to All Savings Accounts");
                 System.out.println("7. Apply Account Features (Overdraft Fees) to All Checking Accounts");
                 System.out.println("8. Manage Administrators (Simulated)");
-                System.out.println("9. [DANGER] Delete All Stored Data");
+                System.out.println("9. Manage System Configuration");
+                System.out.println("10. [DANGER] Delete All Stored Data");
+                System.out.println("11. Logout");
+            } else {
+                System.out.println("5. Logout");
             }
-            System.out.println("10. Logout");
             System.out.print("Select option: ");
 
             String choice = scanner.nextLine();
@@ -142,12 +145,23 @@ public class Admin extends User {
                     else System.out.println("You don't have permission for this action.");
                 }
                 case "9" -> {
-                    if (hasSuperPrivileges()) deleteAllStoredData(scanner);
+                    if (hasSuperPrivileges()) manageSystemConfiguration(scanner);
                     else System.out.println("You don't have permission for this action.");
                 }
                 case "10" -> {
-                    inAdmin = false;
-                    System.out.println("Admin logged out.");
+                    if (hasSuperPrivileges()) deleteAllStoredData(scanner);
+                    else {
+                        inAdmin = false;
+                        System.out.println("Admin logged out.");
+                    }
+                }
+                case "11" -> {
+                    if (hasSuperPrivileges()) {
+                        inAdmin = false;
+                        System.out.println("Admin logged out.");
+                    } else {
+                        System.out.println("Invalid option.");
+                    }
                 }
                 default -> System.out.println("Invalid option.");
             }
@@ -581,6 +595,298 @@ public class Admin extends User {
             System.out.println("Current session data remains active until you exit.");
         } else {
             System.out.println("Error: Failed to delete data files.");
+        }
+    }
+    
+    /**
+     * VOID METHOD: Manage system-wide configuration settings.
+     * SUPER ADMIN ONLY - Allows configuration of default account parameters.
+     */
+    private void manageSystemConfiguration(Scanner scanner) {
+        boolean inConfigMenu = true;
+        while (inConfigMenu) {
+            SystemConfiguration config = SystemConfiguration.getInstance();
+            config.displaySettings();
+            
+            System.out.println("\n--- System Configuration Menu ---");
+            System.out.println("1. Set Default Savings Interest Rate");
+            System.out.println("2. Set Specific Savings Account Interest Rate");
+            System.out.println("3. Set Default Checking Overdraft Limit");
+            System.out.println("4. Set Specific Checking Account Overdraft Limit");
+            System.out.println("5. Set Default Checking Overdraft Fee");
+            System.out.println("6. Set Default Max Withdrawals per Month (Savings)");
+            System.out.println("7. Set Specific Savings Account Max Withdrawals");
+            System.out.println("8. View Configuration");
+            System.out.println("9. Save and Exit Configuration Menu");
+            System.out.print("Select option: ");
+            
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> setDefaultInterestRate(scanner);
+                case "2" -> setSavingsAccountInterestRate(scanner);
+                case "3" -> setDefaultOverdraftLimit(scanner);
+                case "4" -> setCheckingAccountOverdraftLimit(scanner);
+                case "5" -> setDefaultOverdraftFee(scanner);
+                case "6" -> setDefaultMaxWithdrawals(scanner);
+                case "7" -> setSavingsAccountMaxWithdrawals(scanner);
+                case "8" -> config.displaySettings();
+                case "9" -> {
+                    inConfigMenu = false;
+                    DataStorage.saveAllData();
+                    System.out.println("Configuration saved successfully!");
+                }
+                default -> System.out.println("Invalid option.");
+            }
+        }
+    }
+    
+    /**
+     * VOID METHOD: Set the default interest rate for all new savings accounts.
+     */
+    private void setDefaultInterestRate(Scanner scanner) {
+        System.out.print("Enter new default interest rate (as percentage, e.g., 3.5 for 3.5%): ");
+        try {
+            double rate = App.getDoubleInput(scanner) / 100.0; // Convert percentage to decimal
+            if (rate >= 0) {
+                SystemConfiguration.getInstance().setDefaultSavingsInterestRate(rate);
+                System.out.println("Default savings interest rate set to: " + String.format("%.2f", rate * 100) + "%");
+            } else {
+                System.out.println("Interest rate must be non-negative.");
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid input.");
+        }
+    }
+    
+    /**
+     * VOID METHOD: Set the interest rate for a specific savings account.
+     */
+    private void setSavingsAccountInterestRate(Scanner scanner) {
+        System.out.print("Enter username of account holder: ");
+        String username = scanner.nextLine();
+        RegularUser user = findRegularUserByUsername(username);
+        
+        if (user != null) {
+            Account[] accounts = user.getAccounts();
+            if (App.hasNoAccounts(accounts)) {
+                System.out.println("User has no accounts.");
+                return;
+            }
+            
+            // Find savings accounts
+            int savingsIndex = -1;
+            for (int i = 0; i < accounts.length; i++) {
+                if (accounts[i] instanceof SavingsAccount) {
+                    if (savingsIndex == -1) savingsIndex = i;
+                    System.out.println((savingsIndex + 1) + ". Savings Account: " + accounts[i].getAccountNumber() + 
+                                     " (Rate: " + String.format("%.2f", ((SavingsAccount) accounts[i]).getInterestRate() * 100) + "%)");
+                }
+            }
+            
+            if (savingsIndex == -1) {
+                System.out.println("User has no savings accounts.");
+                return;
+            }
+            
+            System.out.print("Select account: ");
+            try {
+                int choice = (int) App.getDoubleInput(scanner) - 1;
+                if (choice >= 0 && choice < accounts.length && accounts[choice] instanceof SavingsAccount) {
+                    SavingsAccount savingsAccount = (SavingsAccount) accounts[choice];
+                    System.out.print("Enter new interest rate (as percentage, e.g., 5 for 5%): ");
+                    double rate = App.getDoubleInput(scanner) / 100.0;
+                    if (rate >= 0) {
+                        savingsAccount.setInterestRate(rate);
+                        System.out.println("Interest rate updated to: " + String.format("%.2f", rate * 100) + "%");
+                    } else {
+                        System.out.println("Interest rate must be non-negative.");
+                    }
+                } else {
+                    System.out.println("Invalid selection.");
+                }
+            } catch (Exception e) {
+                System.out.println("Invalid input.");
+            }
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+    
+    /**
+     * VOID METHOD: Set the default overdraft limit for all new checking accounts.
+     */
+    private void setDefaultOverdraftLimit(Scanner scanner) {
+        System.out.print("Enter new default overdraft limit ($): ");
+        try {
+            double limit = App.getDoubleInput(scanner);
+            if (limit >= 0) {
+                SystemConfiguration.getInstance().setDefaultCheckingOverdraftLimit(limit);
+                System.out.println("Default checking overdraft limit set to: $" + App.formatMoney(limit));
+            } else {
+                System.out.println("Overdraft limit must be non-negative.");
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid input.");
+        }
+    }
+    
+    /**
+     * VOID METHOD: Set the overdraft limit for a specific checking account.
+     */
+    private void setCheckingAccountOverdraftLimit(Scanner scanner) {
+        System.out.print("Enter username of account holder: ");
+        String username = scanner.nextLine();
+        RegularUser user = findRegularUserByUsername(username);
+        
+        if (user != null) {
+            Account[] accounts = user.getAccounts();
+            if (App.hasNoAccounts(accounts)) {
+                System.out.println("User has no accounts.");
+                return;
+            }
+            
+            // Find checking accounts
+            int checkingCount = 0;
+            System.out.println("\n--- Checking Accounts ---");
+            for (int i = 0; i < accounts.length; i++) {
+                if (accounts[i] instanceof CheckingAccount) {
+                    CheckingAccount checkingAccount = (CheckingAccount) accounts[i];
+                    System.out.println((checkingCount + 1) + ". " + accounts[i].getAccountNumber() + 
+                                     " (Overdraft Limit: $" + App.formatMoney(checkingAccount.getOverdraftLimit()) + ")");
+                    checkingCount++;
+                }
+            }
+            
+            if (checkingCount == 0) {
+                System.out.println("User has no checking accounts.");
+                return;
+            }
+            
+            System.out.print("Select account: ");
+            try {
+                int choice = (int) App.getDoubleInput(scanner) - 1;
+                int accountIndex = 0;
+                for (int i = 0; i < accounts.length; i++) {
+                    if (accounts[i] instanceof CheckingAccount) {
+                        if (accountIndex == choice) {
+                            CheckingAccount checkingAccount = (CheckingAccount) accounts[i];
+                            System.out.print("Enter new overdraft limit ($): ");
+                            double limit = App.getDoubleInput(scanner);
+                            if (limit >= 0) {
+                                checkingAccount.setOverdraftLimit(limit);
+                                System.out.println("Overdraft limit updated to: $" + App.formatMoney(limit));
+                            } else {
+                                System.out.println("Overdraft limit must be non-negative.");
+                            }
+                            return;
+                        }
+                        accountIndex++;
+                    }
+                }
+                System.out.println("Invalid selection.");
+            } catch (Exception e) {
+                System.out.println("Invalid input.");
+            }
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+    
+    /**
+     * VOID METHOD: Set the default overdraft fee for all new checking accounts.
+     */
+    private void setDefaultOverdraftFee(Scanner scanner) {
+        System.out.print("Enter new default overdraft fee ($): ");
+        try {
+            double fee = App.getDoubleInput(scanner);
+            if (fee >= 0) {
+                SystemConfiguration.getInstance().setDefaultCheckingOverdraftFee(fee);
+                System.out.println("Default overdraft fee set to: $" + App.formatMoney(fee));
+            } else {
+                System.out.println("Overdraft fee must be non-negative.");
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid input.");
+        }
+    }
+    
+    /**
+     * VOID METHOD: Set the default maximum withdrawals per month for savings accounts.
+     */
+    private void setDefaultMaxWithdrawals(Scanner scanner) {
+        System.out.print("Enter new default maximum withdrawals per month: ");
+        try {
+            int max = (int) App.getDoubleInput(scanner);
+            if (max > 0) {
+                SystemConfiguration.getInstance().setDefaultSavingsMaxWithdrawals(max);
+                System.out.println("Default maximum withdrawals per month set to: " + max);
+            } else {
+                System.out.println("Maximum withdrawals must be greater than 0.");
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid input.");
+        }
+    }
+    
+    /**
+     * VOID METHOD: Set the maximum withdrawals per month for a specific savings account.
+     */
+    private void setSavingsAccountMaxWithdrawals(Scanner scanner) {
+        System.out.print("Enter username of account holder: ");
+        String username = scanner.nextLine();
+        RegularUser user = findRegularUserByUsername(username);
+        
+        if (user != null) {
+            Account[] accounts = user.getAccounts();
+            if (App.hasNoAccounts(accounts)) {
+                System.out.println("User has no accounts.");
+                return;
+            }
+            
+            // Find savings accounts
+            int savingsCount = 0;
+            System.out.println("\n--- Savings Accounts ---");
+            for (int i = 0; i < accounts.length; i++) {
+                if (accounts[i] instanceof SavingsAccount) {
+                    SavingsAccount savingsAccount = (SavingsAccount) accounts[i];
+                    System.out.println((savingsCount + 1) + ". " + accounts[i].getAccountNumber() + 
+                                     " (Max Withdrawals: " + savingsAccount.getMaxWithdrawalsPerMonth() + ")");
+                    savingsCount++;
+                }
+            }
+            
+            if (savingsCount == 0) {
+                System.out.println("User has no savings accounts.");
+                return;
+            }
+            
+            System.out.print("Select account: ");
+            try {
+                int choice = (int) App.getDoubleInput(scanner) - 1;
+                int accountIndex = 0;
+                for (Account account : accounts) {
+                    if (account instanceof SavingsAccount) {
+                        if (accountIndex == choice) {
+                            SavingsAccount savingsAccount = (SavingsAccount) account;
+                            System.out.print("Enter new maximum withdrawals per month: ");
+                            int max = (int) App.getDoubleInput(scanner);
+                            if (max > 0) {
+                                savingsAccount.setMaxWithdrawalsPerMonth(max);
+                                System.out.println("Maximum withdrawals updated to: " + max);
+                            } else {
+                                System.out.println("Maximum withdrawals must be greater than 0.");
+                            }
+                            return;
+                        }
+                        accountIndex++;
+                    }
+                }
+                System.out.println("Invalid selection.");
+            } catch (Exception e) {
+                System.out.println("Invalid input.");
+            }
+        } else {
+            System.out.println("User not found.");
         }
     }
 }

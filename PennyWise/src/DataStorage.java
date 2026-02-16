@@ -29,7 +29,7 @@ public class DataStorage extends DataPersistence {
     
     /**
      * POLYMORPHIC IMPLEMENTATION: Performs the save operation.
-     * Saves users, accounts, and transactions to files.
+     * Saves users, accounts, transactions, and configuration to files.
      * 
      * @return true if all saves successful, false otherwise
      * @throws IOException if file operations fail
@@ -39,6 +39,7 @@ public class DataStorage extends DataPersistence {
         saveUsers();
         saveAccounts();
         saveTransactions();
+        DataConfiguration.saveConfig(); // Also save configuration
         return true;
     }
     
@@ -107,11 +108,12 @@ public class DataStorage extends DataPersistence {
                             if (account != null) {
                                 if (account instanceof SavingsAccount) {
                                     SavingsAccount sa = (SavingsAccount) account;
-                                    // Format: userId|SAVINGS|accountNumber|balance|interestRate
+                                    // Format: userId|SAVINGS|accountNumber|balance|interestRate|maxWithdrawals
                                     writer.println(user.getUserId() + "|SAVINGS|" + 
                                                  account.getAccountNumber() + "|" + 
                                                  account.getBalance() + "|" + 
-                                                 sa.getInterestRate());
+                                                 sa.getInterestRate() + "|" +
+                                                 sa.getMaxWithdrawalsPerMonth());
                                 } else if (account instanceof CheckingAccount) {
                                     CheckingAccount ca = (CheckingAccount) account;
                                     // Format: userId|CHECKING|accountNumber|balance|overdraftLimit|overdraftFee
@@ -162,7 +164,7 @@ public class DataStorage extends DataPersistence {
             }
         }
     }
-    
+
     /**
      * Deletes all stored data files.
      * This is used by the admin to reset the system.
