@@ -8,14 +8,16 @@ Group Project Proposal: PennyWise Financial Manager
 
 Project Description 
 
-Our group has chosen to develop PennyWise, a robust financial management system designed to handle balances and transactions for multiple users. The software will serve two primary roles: Users and Administrators. 
+Our group has chosen to develop financial software, specifically a system designed to display balances and handle transactions for multiple users mimicking a bank or financial manager.  
 
-For the general user, the system will allow for new account registration and login. Once registered, users can conduct transactions (deposits and withdrawals), view their current balances, and edit their account profiles. To ensure high utility, we will implement searching and filtering features that allow users to sort through their transaction history by date or amount. 
+General users of the software should be able to create new accounts and log in. Once registered, users are presented with multiple options. They should be able to conduct transactions, view their balances, and edit their profile.  
 
-The Admin component will grant elevated permissions to view the entire system's records. Admins will have the authority to modify existing information, such as correcting transaction errors or updating user account statuses, ensuring data integrity across the platform. 
+Besides general users, there will be an admin component. This admin has elevated permissions to view the entire system’s records, modify existing accounts, correct balances, and update users.  
 
 Why We Picked This Topic 
 
-We selected the Financial Software theme because it provides a perfect framework to demonstrate all seven required technical elements. The logic of banking naturally lends itself to Inheritance and Polymorphism. Furthermore, the necessity of protecting sensitive financial data allows us to showcase Encapsulation by restricting direct access to private account variables. The project offers a practical, real-world application of Java that is both challenging and highly structured. 
+We selected the Financial Software theme, and specifically banking, because it lends itself to demonstrate all seven required technical elements described in the group project instructions. Different account- and saving types could allow us to demonstrate inheritance and polymorphism. Furthermore, the necessity of protecting sensitive financial data allows us to showcase Encapsulation by restricting direct access to private account variables. 
 
-Diderick Magermans (667451DM) 
+Code 
+
+The code for PennyWise can be found on GitHub: https://github.com/DiderickM/PennyWise 
