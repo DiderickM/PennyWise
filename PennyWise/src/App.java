@@ -277,8 +277,9 @@ public class App {
                     }
                 }
                 System.out.println((accounts.length+1) + ". Add New Account");
-                System.out.println((accounts.length+2) + ". Logout");
-                System.out.print("Select account (1-" + (accounts.length+2) + "): ");
+                System.out.println((accounts.length+2) + ". View Profile");
+                System.out.println((accounts.length+3) + ". Logout");
+                System.out.print("Select account (1-" + (accounts.length+3) + "): ");
                 
                 try {
                     int accountChoice = Integer.parseInt(scanner.nextLine());
@@ -290,6 +291,10 @@ public class App {
                         addNewAccountToUser(scanner, user);
                         continue;
                     } else if (accountChoice == accounts.length + 2) {
+                        // View profile
+                        user.displayProfile();
+                        continue;
+                    } else if (accountChoice == accounts.length + 3) {
                         // Logout
                         System.out.println("Logged out successfully.");
                         break;
@@ -316,18 +321,17 @@ public class App {
             System.out.println("2. Deposit Money");
             System.out.println("3. Withdraw Money");
             System.out.println("4. View Transaction History");
-            System.out.println("5. View Profile");
-            System.out.println("6. Transfer Money");
+            System.out.println("5. Transfer Money");
             // Display account-specific options based on account type
             if (selectedAccount instanceof CheckingAccount) {
-                System.out.println("7. View Checking Account Details");
-                System.out.println("8. View Overdraft History");
-                System.out.println("9. " + (accounts.length > 1 ? "Back to Account Selection" : "Logout"));
-            } else if (selectedAccount instanceof SavingsAccount) {
-                System.out.println("7. View Savings Account Details");
+                System.out.println("6. View Checking Account Details");
+                System.out.println("7. View Overdraft History");
                 System.out.println("8. " + (accounts.length > 1 ? "Back to Account Selection" : "Logout"));
-            } else {
+            } else if (selectedAccount instanceof SavingsAccount) {
+                System.out.println("6. View Savings Account Details");
                 System.out.println("7. " + (accounts.length > 1 ? "Back to Account Selection" : "Logout"));
+            } else {
+                System.out.println("6. " + (accounts.length > 1 ? "Back to Account Selection" : "Logout"));
             }
             int maxOption = (selectedAccount instanceof CheckingAccount) ? 9 : ((selectedAccount instanceof SavingsAccount) ? 8 : 7);
             System.out.print("Select option (1-" + maxOption + "): ");
@@ -362,8 +366,7 @@ public class App {
                     }
                 }
                 case "4" -> user.viewTransactionHistory(selectedAccountIndex);
-                case "5" -> user.displayProfile();
-                case "6" -> {
+                case "5" -> {
                     System.out.println("\n--- Transfer Money ---");
                     if (selectedAccount instanceof CheckingAccount) {
                         System.out.println("1. Transfer between your accounts");
@@ -444,7 +447,7 @@ public class App {
                         default -> System.out.println("Invalid option.");
                     }
                 }
-                case "7" -> {
+                case "6" -> {
                     switch (selectedAccount) {
                         case CheckingAccount checkingAccount -> checkingAccount.displayCheckingInfo();
                         case SavingsAccount savingsAccount -> savingsAccount.displaySavingsInfo();
@@ -457,7 +460,7 @@ public class App {
                         }
                     }
                 }
-                case "8" -> {
+                case "7" -> {
                     if (selectedAccount instanceof CheckingAccount checkingAccount) {
                         checkingAccount.displayOverdraftHistory();
                     } else if (selectedAccount instanceof SavingsAccount) {
@@ -470,7 +473,7 @@ public class App {
                         System.out.println("Invalid option.");
                     }
                 }
-                case "9" -> {
+                case "8" -> {
                     if (selectedAccount instanceof CheckingAccount) {
                         if (accounts.length == 1) {
                             inAccount = false;
