@@ -17,6 +17,11 @@ import java.util.Scanner;
  * 
  * Please select an option (1-3): 1
  * 
+ * --- Regular User Mode ---
+ * 1. Register New Account
+ * 2. Login
+ * Select option (1-2): 1
+ * 
  * --- Registration ---
  * Enter User ID: user001
  * Enter Username: john_doe
@@ -28,7 +33,6 @@ import java.util.Scanner;
  * 2. Checking Account (with overdraft)
  * 
  * Select account type (1-2): 1
- * 
  * 
  * ... (Menu continues with more options: another account, deposit, withdraw, view transactions, etc.)
  * =========================================
@@ -237,12 +241,11 @@ public class App {
             
             if (hasNoAccounts(accounts)) {
                 System.out.println("\nYou have no accounts. Please add an account first.");
-                inAccount = false;
                 break;
             }
             
             // If only one account, use it directly. Otherwise, let user choose.
-            Account selectedAccount = null;
+            Account selectedAccount;
             int selectedAccountIndex = 0;
             
             if (accounts.length > 1) {
@@ -268,7 +271,6 @@ public class App {
                         continue;
                     } else if (accountChoice == accounts.length + 2) {
                         // Logout
-                        inAccount = false;
                         System.out.println("Logged out successfully.");
                         break;
                     } else {
@@ -376,15 +378,15 @@ public class App {
                     }
                 }
                 case "7" -> {
-                    if (selectedAccount instanceof CheckingAccount checkingAccount) {
-                        checkingAccount.displayCheckingInfo();
-                    } else if (selectedAccount instanceof SavingsAccount savingsAccount) {
-                        savingsAccount.displaySavingsInfo();
-                    } else {
-                        // Back or logout
-                        if (accounts.length == 1) {
-                            inAccount = false;
-                            System.out.println("Logged out successfully.");
+                    switch (selectedAccount) {
+                        case CheckingAccount checkingAccount -> checkingAccount.displayCheckingInfo();
+                        case SavingsAccount savingsAccount -> savingsAccount.displaySavingsInfo();
+                        default -> {
+                            // Back or logout
+                            if (accounts.length == 1) {
+                                inAccount = false;
+                                System.out.println("Logged out successfully.");
+                            }
                         }
                     }
                 }
