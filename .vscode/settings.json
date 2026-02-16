@@ -1,0 +1,7 @@
+{
+    "java.project.sourcePaths": ["PennyWise/src"],
+    "java.project.outputPath": "PennyWise/bin",
+    "java.project.referencedLibraries": [
+        "PennyWise/lib/**/*.jar"
+    ]
+}
