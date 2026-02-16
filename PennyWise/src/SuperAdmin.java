@@ -136,6 +136,7 @@ public class SuperAdmin extends Admin {
         System.out.println("Checking Accounts: " + checkingAccountCount);
         System.out.println("Total System Balance: $" + InputValidator.formatMoney(totalBalance));
         System.out.println("Total Transactions: " + totalTransactions);
+        System.out.println("Default savings percentage: " + String.format("%.2f", SystemConfiguration.getInstance().getDefaultSavingsInterestRate() * 100) + "%");
         System.out.println("Average Balance per User: $" + InputValidator.formatMoney(UserManager.getUserCount() > 0 ? totalBalance / UserManager.getUserCount() : 0));
         System.out.println("==================================================");
     }

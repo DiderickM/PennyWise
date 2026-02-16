@@ -241,8 +241,8 @@ public class AccountManager {
      */
     public static void displayAccountTypeMenu() {
         System.out.println("Select Account Type:");
-        System.out.println("1. Savings Account (" + InputValidator.formatPercentage(SystemConfiguration.getInstance().getDefaultSavingsInterestRate()) + " interest)");
-        System.out.println("2. Checking Account (with overdraft)");
+        System.out.println("1. Savings Account (" + InputValidator.formatPercentage(SystemConfiguration.getInstance().getDefaultSavingsInterestRate()) + " interest and " + InputValidator.formatMoney(SystemConfiguration.getInstance().getDefaultMaxSavingsWithdrawals()) + " max monthly withdrawals)");
+        System.out.println("2. Checking Account (with overdraft fee of: $" + InputValidator.formatMoney(SystemConfiguration.getInstance().getDefaultCheckingOverdraftFee()) + "/" + InputValidator.formatMoney(SystemConfiguration.getInstance().getDefaultCheckingOverdraftLimit()) + " overdraft limit)");
     }
     
     /**
@@ -270,6 +270,77 @@ public class AccountManager {
         }
         
         return count;
+    }
+    
+    /**
+     * VALUE RETURNING METHOD: Filters accounts to return only checking accounts.
+     * 
+     * @param accounts Array of all accounts
+     * @return Array containing only checking accounts
+     */
+    public static Account[] getCheckingAccounts(Account[] accounts) {
+        if (accounts == null) {
+            return new Account[0];
+        }
+        
+        // Count checking accounts
+        int count = 0;
+        for (Account account : accounts) {
+            if (account instanceof CheckingAccount) {
+                count++;
+            }
+        }
+        
+        // Create array with checking accounts only
+        Account[] checkingAccounts = new Account[count];
+        int index = 0;
+        for (Account account : accounts) {
+            if (account instanceof CheckingAccount) {
+                checkingAccounts[index++] = account;
+            }
+        }
+        
+        return checkingAccounts;
+    }
+    
+    /**
+     * VALUE RETURNING METHOD: Selects a checking account from the filtered list.
+     * Only displays and allows selection of checking accounts.
+     * 
+     * @param scanner Scanner for user input
+     * @param checkingAccounts Array of checking accounts
+     * @param prompt Prompt message
+     * @return Selected checking account or null
+     */
+    public static Account selectCheckingAccount(Scanner scanner, Account[] checkingAccounts, String prompt) {
+        if (checkingAccounts == null || checkingAccounts.length == 0) {
+            return null;
+        }
+        
+        if (checkingAccounts.length == 1) {
+            System.out.println("Only one checking account available. Auto-selecting it.");
+            return checkingAccounts[0]; // Auto-select if only one checking account
+        }
+        
+        // Display checking accounts only
+        System.out.println("\n--- Select Checking Account ---");
+        for (int i = 0; i < checkingAccounts.length; i++) {
+            if (checkingAccounts[i] != null) {
+                System.out.println((i + 1) + ". [" + checkingAccounts[i].getAccountNumber() + "] " +
+                                 checkingAccounts[i].getAccountType() +
+                                 " - Balance: $" + InputValidator.formatMoney(checkingAccounts[i].getBalance()));
+            }
+        }
+        
+        System.out.print(prompt + " (1-" + checkingAccounts.length + "): ");
+        int choice = InputValidator.getIntInput(scanner);
+        
+        if (InputValidator.isValidMenuChoice(choice, 1, checkingAccounts.length)) {
+            return checkingAccounts[choice - 1];
+        }
+        
+        System.out.println("Invalid selection.");
+        return null;
     }
     
     // Private constructor to prevent instantiation

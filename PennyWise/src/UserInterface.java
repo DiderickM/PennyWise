@@ -165,19 +165,30 @@ public class UserInterface {
         boolean userLoggedIn = true;
         
         while (userLoggedIn) {
+            // Check if user has any checking accounts for external transfers
+            boolean hasCheckingAccount = hasCheckingAccount(user);
+            
             System.out.println("\n--- Account Menu ---");
             System.out.println("1. View Dashboard");
             System.out.println("2. Create New Account");
             System.out.println("3. Deposit");
             System.out.println("4. Withdraw");
             System.out.println("5. Transfer (Between Your Accounts)");
-            System.out.println("6. Transfer (To Another User)");
-            System.out.println("7. View Transaction History");
-            System.out.println("8. Edit Profile");
-            System.out.println("9. Logout");
-            System.out.print("Select option (1-9): ");
+            if (hasCheckingAccount) {
+                System.out.println("6. Transfer (To Another User)");
+            }
+            System.out.println((hasCheckingAccount ? "7" : "6") + ". View Transaction History");
+            System.out.println((hasCheckingAccount ? "8" : "7") + ". Edit Profile");
+            System.out.println((hasCheckingAccount ? "9" : "8") + ". Close Account");
+            System.out.println((hasCheckingAccount ? "10" : "9") + ". Logout");
+            System.out.print("Select option (1-" + (hasCheckingAccount ? "10" : "9") + "): ");
             
             int choice = InputValidator.getIntInput(scanner);
+            
+            // Adjust choice if no checking account (shift down by 1 for options 6+)
+            if (!hasCheckingAccount && choice >= 6) {
+                choice++; // Map 6->7, 7->8, 8->9, 9->10
+            }
             
             switch (choice) {
                 case 1 -> user.displayDashboard();
@@ -185,16 +196,42 @@ public class UserInterface {
                 case 3 -> handleDeposit(user);
                 case 4 -> handleWithdraw(user);
                 case 5 -> handleInternalTransfer(user);
-                case 6 -> handleExternalTransfer(user);
+                case 6 -> {
+                    if (hasCheckingAccount) {
+                        handleExternalTransfer(user);
+                    } else {
+                        System.out.println("Invalid option. Please try again.");
+                    }
+                }
                 case 7 -> viewTransactionHistory(user);
                 case 8 -> editProfile(user);
-                case 9 -> {
+                case 9 -> handleCloseAccount(user);
+                case 10 -> {
                     userLoggedIn = false;
                     System.out.println("Logged out successfully.");
                 }
                 default -> System.out.println("Invalid option. Please try again.");
             }
         }
+    }
+    
+    /**
+     * Checks if the user has at least one checking account.
+     * @param user The RegularUser to check
+     * @return true if user has at least one checking account, false otherwise
+     */
+    private boolean hasCheckingAccount(RegularUser user) {
+        Account[] accounts = user.getAccounts();
+        if (accounts == null) {
+            return false;
+        }
+        
+        for (Account account : accounts) {
+            if (account instanceof CheckingAccount) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
@@ -362,18 +399,29 @@ public class UserInterface {
     
     /**
      * Handles external transfer to another user's account.
+     * Only checking accounts can transfer to external accounts.
      * @param user The RegularUser making the transfer
      */
     private void handleExternalTransfer(RegularUser user) {
-        if (AccountManager.hasNoAccounts(user.getAccounts())) {
+        Account[] accounts = user.getAccounts();
+        
+        if (AccountManager.hasNoAccounts(accounts)) {
             System.out.println("No accounts available.");
             return;
         }
         
+        // Filter to get only checking accounts
+        Account[] checkingAccounts = AccountManager.getCheckingAccounts(accounts);
+        
+        if (checkingAccounts.length == 0) {
+            System.out.println("You need a checking account to transfer to external accounts.");
+            System.out.println("Savings accounts are restricted to internal transfers only.");
+            return;
+        }
+        
         System.out.println("\n--- External Transfer ---");
-        System.out.println("Select your account:");
-        Account[] accounts = user.getAccounts();
-        Account fromAccount = AccountManager.selectAccount(scanner, accounts, "Your account:");
+        System.out.println("Select your checking account:");
+        Account fromAccount = AccountManager.selectCheckingAccount(scanner, checkingAccounts, "Your account:");
         
         if (fromAccount == null) {
             return;
@@ -390,9 +438,19 @@ public class UserInterface {
             return;
         }
         
-        // Prevent transfer to own account
-        if (toAccount.getAccountNumber().equals(fromAccount.getAccountNumber())) {
-            System.out.println("Cannot transfer to the same account. Use internal transfer instead.");
+        // Check if destination account belongs to current user
+        Account[] userAccounts = user.getAccounts();
+        for (Account account : userAccounts) {
+            if (account != null && account.getAccountNumber().equals(destAccountNumber)) {
+                System.out.println("Cannot transfer to your own account. Use internal transfer instead.");
+                return;
+            }
+        }
+        
+        // Only allow transfers to checking accounts
+        if (!(toAccount instanceof CheckingAccount)) {
+            System.out.println("Error: Can only transfer to checking accounts.");
+            System.out.println("Savings accounts cannot receive external transfers.");
             return;
         }
         
@@ -420,6 +478,98 @@ public class UserInterface {
         } else {
             System.out.println("Invalid amount. Must be positive.");
         }
+    }
+    
+    /**
+     * Handles closing/deleting an account.
+     * Transfers remaining balance to another account if needed.
+     * @param user The RegularUser closing the account
+     */
+    private void handleCloseAccount(RegularUser user) {
+        Account[] accounts = user.getAccounts();
+        
+        if (AccountManager.hasNoAccounts(accounts)) {
+            System.out.println("No accounts available.");
+            return;
+        }
+        
+        if (accounts.length < 2) {
+            System.out.println("Error: You must maintain at least one account.");
+            System.out.println("Create another account before closing this one.");
+            return;
+        }
+        
+        System.out.println("\n--- Close Account ---");
+        System.out.println("Select the account to close:");
+        Account accountToClose = AccountManager.selectAccount(scanner, accounts, "Account to close:");
+        
+        if (accountToClose == null) {
+            return;
+        }
+        
+        // Check if balance is negative
+        if (accountToClose.getBalance() < 0) {
+            System.out.println("Error: Cannot close account with a negative balance of $" + 
+                             InputValidator.formatMoney(accountToClose.getBalance()));
+            System.out.println("Please deposit funds to cover the negative balance first.");
+            return;
+        }
+        
+        // If there's a positive balance, ask where to transfer it
+        if (accountToClose.getBalance() > 0) {
+            System.out.println("\nThis account has a balance of $" + InputValidator.formatMoney(accountToClose.getBalance()));
+            System.out.println("Select the account to transfer this balance to:");
+            
+            // Find index of account to close
+            int closeIndex = -1;
+            for (int i = 0; i < accounts.length; i++) {
+                if (accounts[i] == accountToClose) {
+                    closeIndex = i;
+                    break;
+                }
+            }
+            
+            // Select destination account (excluding the one being closed)
+            int destIndex = AccountManager.selectAccountExcluding(scanner, accounts, closeIndex, 
+                                                                  "Destination account:");
+            
+            if (destIndex == -1) {
+                System.out.println("Account closure cancelled.");
+                return;
+            }
+            
+            Account destAccount = accounts[destIndex];
+            double balanceToTransfer = accountToClose.getBalance();
+            
+            // Transfer with special message
+            accountToClose.recordTransaction(balanceToTransfer, "ACCOUNT CLOSURE TRANSFER", 
+                                            java.time.LocalDate.now().toString());
+            destAccount.recordTransaction(balanceToTransfer, "ACCOUNT CLOSURE TRANSFER" + " (from " + accountToClose.getAccountNumber() + ")", 
+                                         java.time.LocalDate.now().toString());
+            destAccount.setBalance(destAccount.getBalance() + balanceToTransfer);
+            accountToClose.setBalance(0);
+            
+            System.out.println("\nTransfer from account closure completed!");
+            System.out.println("From: " + accountToClose.getAccountNumber() + " (Amount: $" + 
+                             InputValidator.formatMoney(balanceToTransfer) + ")");
+            System.out.println("To: " + destAccount.getAccountNumber() + " (New balance: $" + 
+                             InputValidator.formatMoney(destAccount.getBalance()) + ")");
+        }
+        
+        // Remove the account from user's accounts
+        Account[] newAccounts = new Account[accounts.length - 1];
+        int index = 0;
+        for (int i = 0; i < accounts.length; i++) {
+            if (accounts[i] != accountToClose) {
+                newAccounts[index++] = accounts[i];
+            }
+        }
+        user.setAccounts(newAccounts);
+        
+        System.out.println("\nAccount " + accountToClose.getAccountNumber() + " has been closed successfully.");
+        
+        // Save data after closing account
+        DataStorage.saveAllData();
     }
     
     /**

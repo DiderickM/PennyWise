@@ -80,22 +80,40 @@ public class RegularUser extends User {
     /**
      * POLYMORPHISM IMPLEMENTATION: RegularUser displays their personal dashboard.
      * This overrides the abstract displayDashboard() method from User.
-     * Displays all accounts owned by the user.
+     * Displays all accounts owned by the user with detailed information.
      */
     @Override
     public void displayDashboard() {
         System.out.println("\n========== Regular User Dashboard ==========");
         System.out.println("Welcome, " + getUsername() + "!");
+        System.out.println("Email: " + getEmail());
         Account[] accounts = getAccounts();
         if (accounts != null && accounts.length > 0) {
-            System.out.println("Your Accounts ("+accounts.length+"):");
+            System.out.println("\nYour Accounts (" + accounts.length + "):");
+            double totalBalance = 0;
+            
             for (int i = 0; i < accounts.length; i++) {
                 if (accounts[i] != null) {
-                    System.out.println("  [" + accounts[i].getAccountNumber() + "] " + 
-                                     accounts[i].getAccountType() + 
-                                     " - Balance: $" + InputValidator.formatMoney(accounts[i].getBalance()));
+                    System.out.println("\n  Account " + (i + 1) + ":");
+                    System.out.println("    Account Number: " + accounts[i].getAccountNumber());
+                    System.out.println("    Type: " + accounts[i].getAccountType());
+                    System.out.println("    Balance: $" + InputValidator.formatMoney(accounts[i].getBalance()));
+                    
+                    if (accounts[i] instanceof SavingsAccount) {
+                        SavingsAccount savings = (SavingsAccount) accounts[i];
+                        System.out.println("    Interest Rate: " + InputValidator.formatPercentage(savings.getInterestRate()));
+                        System.out.println("    Max Withdrawals/Month: " + savings.getMaxWithdrawalsPerMonth());
+                    } else if (accounts[i] instanceof CheckingAccount) {
+                        CheckingAccount checking = (CheckingAccount) accounts[i];
+                        System.out.println("    Overdraft Limit: $" + InputValidator.formatMoney(checking.getOverdraftLimit()));
+                        System.out.println("    Overdraft Fee: $" + InputValidator.formatMoney(checking.getOverdraftFee()));
+                    }
+                    
+                    totalBalance += accounts[i].getBalance();
                 }
             }
+            
+            System.out.println("\n  Total Balance: $" + InputValidator.formatMoney(totalBalance));
         } else {
             System.out.println("No accounts associated with this user.");
         }
