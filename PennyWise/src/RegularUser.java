@@ -91,8 +91,9 @@ public class RegularUser extends User {
             System.out.println("Your Accounts ("+accounts.length+"):");
             for (int i = 0; i < accounts.length; i++) {
                 if (accounts[i] != null) {
-                    System.out.println("  [" + i + "] Account Type: " + accounts[i].getAccountType() + 
-                                     ", Balance: $" + App.formatMoney(accounts[i].getBalance()));
+                    System.out.println("  [" + accounts[i].getAccountNumber() + "] " + 
+                                     accounts[i].getAccountType() + 
+                                     " - Balance: $" + App.formatMoney(accounts[i].getBalance()));
                 }
             }
         } else {
@@ -157,6 +158,42 @@ public class RegularUser extends User {
             return false;
         }
         
+        return sourceAccount.transfer(amount, targetAccount);
+    }
+
+    /**
+     * VALUE RETURNING METHOD: Transfers money from this user to another user.
+     * Only allows transfers from a CheckingAccount.
+     *
+     * @param sourceIndex Index of source account (must be checking)
+     * @param targetUser Target user
+     * @param targetIndex Index of target user's account
+     * @param amount Amount to transfer
+     * @return true if transfer successful, false otherwise
+     */
+    public boolean transferToOtherUser(int sourceIndex, RegularUser targetUser, int targetIndex, double amount) {
+        Account sourceAccount = getAccountByIndex(sourceIndex);
+        if (sourceAccount == null) {
+            System.out.println("Source account not found.");
+            return false;
+        }
+
+        if (!(sourceAccount instanceof CheckingAccount)) {
+            System.out.println("Transfers to other users are only allowed from a checking account.");
+            return false;
+        }
+
+        if (targetUser == null || targetUser == this) {
+            System.out.println("Target user is invalid.");
+            return false;
+        }
+
+        Account targetAccount = targetUser.getAccountByIndex(targetIndex);
+        if (targetAccount == null) {
+            System.out.println("Target account not found.");
+            return false;
+        }
+
         return sourceAccount.transfer(amount, targetAccount);
     }
 }

@@ -114,8 +114,9 @@ public class Admin extends User {
                 System.out.println("6. Apply Account Features (Interest) to All Savings Accounts");
                 System.out.println("7. Apply Account Features (Overdraft Fees) to All Checking Accounts");
                 System.out.println("8. Manage Administrators (Simulated)");
+                System.out.println("9. [DANGER] Delete All Stored Data");
             }
-            System.out.println("9. Logout");
+            System.out.println("10. Logout");
             System.out.print("Select option: ");
 
             String choice = scanner.nextLine();
@@ -141,6 +142,10 @@ public class Admin extends User {
                     else System.out.println("You don't have permission for this action.");
                 }
                 case "9" -> {
+                    if (hasSuperPrivileges()) deleteAllStoredData(scanner);
+                    else System.out.println("You don't have permission for this action.");
+                }
+                case "10" -> {
                     inAdmin = false;
                     System.out.println("Admin logged out.");
                 }
@@ -191,18 +196,21 @@ public class Admin extends User {
                     String newUsername = scanner.nextLine();
                     user.setUsername(newUsername);
                     System.out.println("Username updated successfully!");
+                    DataStorage.saveAllData(); // Save after user modification
                 }
                 case "2" -> {
                     System.out.print("Enter new email: ");
                     String newEmail = scanner.nextLine();
                     user.setEmail(newEmail);
                     System.out.println("Email updated successfully!");
+                    DataStorage.saveAllData(); // Save after user modification
                 }
                 case "3" -> {
                     System.out.print("Enter new password: ");
                     String newPassword = scanner.nextLine();
                     user.setPassword(newPassword);
                     System.out.println("Password updated successfully!");
+                    DataStorage.saveAllData(); // Save after user modification
                 }
                 case "4" -> System.out.println("Modification cancelled.");
                 default -> System.out.println("Invalid option.");
@@ -262,6 +270,7 @@ public class Admin extends User {
                     if (amount > 0) {
                         account.setBalance(account.getBalance() + amount);
                         System.out.println("Amount added. New Balance: $" + App.formatMoney(account.getBalance()));
+                        DataStorage.saveAllData(); // Save after balance adjustment
                     } else {
                         System.out.println("Invalid amount.");
                     }
@@ -272,6 +281,7 @@ public class Admin extends User {
                     if (amount > 0) {
                         account.setBalance(account.getBalance() - amount);
                         System.out.println("Amount subtracted. New Balance: $" + App.formatMoney(account.getBalance()));
+                        DataStorage.saveAllData(); // Save after balance adjustment
                     } else {
                         System.out.println("Invalid amount.");
                     }
@@ -282,6 +292,7 @@ public class Admin extends User {
                     if (amount >= 0) {
                         account.setBalance(amount);
                         System.out.println("Balance set to: $" + App.formatMoney(account.getBalance()));
+                        DataStorage.saveAllData(); // Save after balance adjustment
                     } else {
                         System.out.println("Balance must be non-negative.");
                     }
@@ -475,6 +486,9 @@ public class Admin extends User {
         System.out.println("Total Savings Accounts Processed: " + savingsAccountCount);
         System.out.println("Total Interest Applied System-wide: $" + App.formatMoney(totalInterestApplied));
         System.out.println("====================================================================");
+        
+        // Save data after applying interest
+        DataStorage.saveAllData();
     }
 
     /**
@@ -521,5 +535,52 @@ public class Admin extends User {
         System.out.println("Total Checking Accounts Processed: " + checkingAccountCount);
         System.out.println("Total Overdraft Fees Applied System-wide: $" + App.formatMoney(totalOverdraftFeesApplied));
         System.out.println("====================================================================");
+        
+        // Save data after applying fees
+        DataStorage.saveAllData();
+    }
+    
+    /**
+     * VOID METHOD: Deletes all stored data files.
+     * SUPER ADMIN ONLY - This is a dangerous operation that clears all persisted data.
+     * Requires double confirmation before proceeding.
+     */
+    private void deleteAllStoredData(Scanner scanner) {
+        System.out.println("\n========================================");
+        System.out.println("WARNING: DELETE ALL STORED DATA");
+        System.out.println("========================================");
+        System.out.println("This action will permanently delete:");
+        System.out.println("- All saved user accounts");
+        System.out.println("- All account balances");
+        System.out.println("- All transaction history");
+        System.out.println("\nCurrent session data will remain until you exit.");
+        System.out.println("However, this data will NOT be saved on next exit.");
+        System.out.println("========================================\n");
+        
+        System.out.print("Are you ABSOLUTELY SURE you want to delete all data? (type 'DELETE' to confirm): ");
+        String confirmation1 = scanner.nextLine();
+        
+        if (!confirmation1.equals("DELETE")) {
+            System.out.println("Operation cancelled.");
+            return;
+        }
+        
+        System.out.print("\nFinal confirmation - Type 'YES' to proceed: ");
+        String confirmation2 = scanner.nextLine();
+        
+        if (!confirmation2.equalsIgnoreCase("YES")) {
+            System.out.println("Operation cancelled.");
+            return;
+        }
+        
+        // Proceed with deletion
+        System.out.println("\nDeleting all stored data...");
+        if (DataStorage.deleteAllData()) {
+            System.out.println("All stored data has been permanently deleted!");
+            System.out.println("The system will start fresh on next launch.");
+            System.out.println("Current session data remains active until you exit.");
+        } else {
+            System.out.println("Error: Failed to delete data files.");
+        }
     }
 }

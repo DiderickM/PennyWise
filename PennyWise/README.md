@@ -10,13 +10,19 @@
 1. [Project Overview](#project-overview)
 2. [Features](#features)
 3. [System Architecture](#system-architecture)
-4. [Technical Concepts Demonstrated](#technical-concepts-demonstrated)
-5. [Detailed Class Structure](#detailed-class-structure)
-6. [How to Compile and Run](#how-to-compile-and-run)
-7. [User Guide](#user-guide)
-8. [Admin Guide](#admin-guide)
-10. [Project Scope and Requirements](#project-scope-and-requirements)
-11. [Future Enhancements](#future-enhancements)
+4. [Class Quick Reference](#class-quick-reference)
+5. [Design Patterns & Architectural Concepts](#design-patterns--architectural-concepts)
+6. [Technical Concepts Demonstrated](#technical-concepts-demonstrated)
+7. [Detailed Class Structure](#detailed-class-structure)
+8. [How to Compile and Run](#how-to-compile-and-run)
+9. [User Guide](#user-guide)
+10. [Admin Guide](#admin-guide)
+11. [Data Persistence](#data-persistence)
+12. [Implementation Summary](#implementation-summary)
+13. [Project Scope and Requirements](#project-scope-and-requirements)
+14. [Future Enhancements](#future-enhancements)
+15. [Conclusion](#conclusion)
+12. [Future Enhancements](#future-enhancements)
 
 ---
 
@@ -119,49 +125,93 @@ The PennyWise system aims to:
 
 ### High-Level Design Diagram
 
-The system follows a hierarchical architecture:
+The system follows a hierarchical architecture with data persistence layers:
 
 ```
-                          User (Abstract)
-                         /              \
-                    RegularUser      Admin
-                        |               |
-                    Account          Admin-only
-                    /      \         Features
-              Savings   Checking
-              Account    Account
-
-                    Transaction
-                   (Value Object)
+                              App (Main Driver)
+                                    |
+                  __________________|
+                 |                  |
+            DataPersistence    User (Abstract)
+           (Abstract Base)      /           \
+             /         \   RegularUser   Admin (extends User)
+        DataLoader   DataStorage |
+          (Load)      (Save)     | 
+                                 |
+                           Account (Abstract)
+                             /              \
+                  SavingsAccount    CheckingAccount
+                           
+                                Transaction
+                             (Value Object)
 ```
+
+**Persistence Layer:**
+- `DataPersistence`: Abstract base class with template method pattern
+- `DataLoader`: Loads data from files on startup
+- `DataStorage`: Saves data to files during operation
+
+**User Hierarchy:**
+- `User`: Abstract base with common user properties
+- `RegularUser`: Extends User, manages personal accounts
+- `Admin`: Extends User, manages entire system
+
+**Account Hierarchy:**
+- `Account`: Abstract base with core banking operations
+- `SavingsAccount`: Earns interest, withdrawal limits
+- `CheckingAccount`: Overdraft protection, fees
+
+**Other Components:**
+- `Transaction`: Immutable value object for audit trail
 
 ### Data Flow Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│                    App (Main)                    │
-│            Entry Point & Session Manager        │
-└─────────────────────────────────────────────────┘
-              ↓                 ↓
-        ┌─────────┐         ┌──────────┐
-        │ Regular │         │  Admin   │
-        │  Mode   │         │  Mode    │
-        └─────────┘         └──────────┘
-             ↓                   ↓
-    ┌──────────────┐    ┌──────────────────────┐
-    │ RegularUser  │    │  Admin Operations    │
-    │   Object     │    │  (Users, Reports)    │
-    └──────────────┘    └──────────────────────┘
-             ↓
-    ┌──────────────────┐
-    │  Account Object  │
-    │ (Savings/Check)  │
-    └──────────────────┘
-             ↓
-    ┌──────────────────┐
-    │ Transactions     │
-    │    Array [100]   │
-    └──────────────────┘
+                    ┌──────────────────────────────┐
+                    │       File System            │
+                    │  data/users.txt              │
+                    │  data/accounts.txt           │
+                    │  data/transactions.txt       │
+                    └──────────┬───────────────────┘
+                              ↑ / ↓
+                    ┌──────────────────────────────┐
+                    │   DataPersistence (Abstract) │
+                    │    (Template Method)         │
+                    ├──────────────────────────────┤
+                    │    DataLoader │ DataStorage  │
+                    │    (Load)     │  (Save)      │
+                    └──────┬────────────────┬──────┘
+                          ↑ / ↓            ↑ / ↓
+                    
+                    ┌─────────────────────────────────┐
+                    │         App (Main)              │
+                    │   Entry Point & Session Manager │
+                    └─────────────────────────────────┘
+                           ↓                 ↓
+                    ┌──────────────┐    ┌──────────────┐
+                    │ Regular      │    │ Admin        │
+                    │ User Mode    │    │ Mode         │
+                    └──────────────┘    └──────────────┘
+                           ↓                   ↓
+                    ┌──────────────┐    ┌──────────────────┐
+                    │ RegularUser  │    │ Admin            │
+                    │ Object       │    │ Operations       │
+                    └──────────────┘    └──────────────────┘
+                           ↓
+                    ┌─────────────────────────┐
+                    │   Account Object        │
+                    │ (Savings/Checking)      │
+                    └─────────────────────────┘
+                           ↓
+                    ┌─────────────────────────┐
+                    │ Transactions Array      │
+                    │    [100 slots]          │
+                    └─────────────────────────┘
+
+Data Flow:
+1. Startup: File System → DataLoader → App.users[]
+2. Operation: App.users[] ↔ Account ↔ Transaction[]
+3. Shutdown: App.users[] → DataStorage → File System
 ```
 
 ### State Management
@@ -364,27 +414,167 @@ User input handling throughout:
 **Input Scenarios:**
 - Main menu selection (number input with exception handling)
 - User registration (string inputs for ID, username, password, email)
-- Account selection (type selection 1-2)
+- Account selection (type selection 1-2 for Savings/Checking)
 - Login credentials verification
 - Deposit amount entry with NumberFormatException handling
 - Withdrawal amount entry with amount validation
+- Transfer destination and amount selection
 - Admin operations with various numeric and string inputs
 - Menu navigation throughout sessions
 - Balance adjustment amounts
 - User information modifications
+- Confirmation inputs (yes/no, DELETE, YES for deletions)
 
 **Input Validation:**
 - NumberFormatException catching for invalid numeric input
-- Range validation for menu selections
+- Range validation for menu selections (1-3, 1-2, etc.)
 - Positive amount validation for transactions
 - Email format consideration
 - Password strength handling (simulated)
+- String matching for confirmation prompts
 
 **Error Handling:**
 - Try-catch blocks for numeric input validation
 - Null pointer checking for user retrieval
 - Array bounds checking before access
 - Transaction amount validation
+- Insufficient funds validation
+- Withdrawal limit enforcement (savings accounts)
+- Overdraft limit enforcement (checking accounts)
+
+**User Interaction Flow:**
+1. Scanner initialization in main
+2. Menu display with numbered options
+3. Input retrieval via scanner.nextLine() or scanner.next()
+4. Input parsing and validation
+5. Error messages for invalid input
+6. Confirmation prompts for destructive operations
+7. Session logging
+
+---
+
+## Class Quick Reference
+
+| Class | Purpose | Key Feature |
+|-------|---------|-------------|
+| `App.java` | Main driver, session manager | Entry point with data persistence |
+| `User.java` | Abstract base user | Defines displayDashboard() contract |
+| `RegularUser.java` | Regular account holder | Manages multiple accounts |
+| `Admin.java` | System administrator | BASIC/SUPER privilege levels |
+| `Account.java` | Abstract account base | Core banking operations |
+| `SavingsAccount.java` | Savings account | 3% interest, 3 withdrawals/month |
+| `CheckingAccount.java` | Checking account | Overdraft protection, fees |
+| `Transaction.java` | Immutable transaction object | Audit trail for accounts |
+| `DataPersistence.java` | Abstract persistence base | Template Method Pattern |
+| `DataStorage.java` | Saves to files | Persists users/accounts/transactions |
+| `DataLoader.java` | Loads from files | Reconstructs application state |
+
+---
+
+
+
+## Design Patterns & Architectural Concepts
+
+### 1. **Template Method Pattern (DataPersistence)**
+
+**Location:** `DataPersistence.java` with implementations in `DataLoader.java` and `DataStorage.java`
+
+**Purpose:** Defines the skeleton of persistence algorithm while letting subclasses fill in specific steps
+
+**Structure:**
+```
+DataPersistence (Abstract)
+├── execute() [TEMPLATE METHOD]
+│   1. validatePreconditions() [ABSTRACT]
+│   2. prepareOperation() [HOOK]
+│   3. performOperation() [ABSTRACT]
+│   4. cleanupOperation() [HOOK]
+│   5. handleError()
+├── DataLoader [CONCRETE]
+│   └── performOperation() → Load from files
+└── DataStorage [CONCRETE]
+    └── performOperation() → Save to files
+```
+
+**Benefits:**
+- Code reuse between DataLoader and DataStorage
+- Consistent algorithm structure
+- Easy to add new persistence strategies
+- Ensures both classes use same file paths
+
+### 2. **Inheritance Hierarchy (User Base Classes)**
+
+**Pattern:** Polymorphic hierarchy with abstract base class
+
+```
+User (Abstract)
+├── RegularUser
+│   └── Can own multiple accounts
+│       ├── SavingsAccount (parent: Account)
+│       └── CheckingAccount (parent: Account)
+└── Admin
+    └── System management privileges
+        ├── BASIC level
+        └── SUPER level
+```
+
+**Polymorphic Methods:**
+- `displayDashboard()` - Different for each user type
+- `getUsername()`, `setPassword()` - Inherited common behavior
+
+### 3. **Inheritance Hierarchy (Account Base Classes)**
+
+**Pattern:** Polymorphic hierarchy with specialized behavior
+
+```
+Account (Abstract)
+├── SavingsAccount
+│   ├── Overrides: withdraw() [add withdrawal limit]
+│   ├── Overrides: applyAccountFeatures() [apply interest]
+│   └── Special: projectFutureBalance()
+└── CheckingAccount
+    ├── Overrides: withdraw() [allow overdraft]
+    ├── Overrides: applyAccountFeatures() [apply fees]
+    └── Special: isInOverdraft(), getAvailableFunds()
+```
+
+**Polymorphic Methods:**
+- `withdraw()` - Different rules per account type
+- `applyAccountFeatures()` - Interest vs. fees
+- `deposit()` - Same implementation (inherited)
+
+### 4. **Value Object Pattern (Transaction)**
+
+**Location:** `Transaction.java`
+
+**Characteristics:**
+- Immutable after creation (no setters)
+- Encapsulates transaction data
+- Equality based on values
+- Used in collections (transaction arrays)
+
+**Benefits:**
+- Thread-safe (immutable)
+- Simple to use and understand
+- Perfect for audit trails
+
+### 5. **Encapsulation with Controlled Access**
+
+**Pattern:** Private fields with public getters/setters
+
+```java
+// Example: Account encapsulation
+private String accountNumber;  // Private
+private double balance;        // Private
+public double getBalance() {}  // Controlled access
+public void setBalance(double b) {} // Validation possible
+```
+
+**Protected Access for Subclasses:**
+```java
+protected void recordTransaction() {}  // Available to SavingsAccount, CheckingAccount
+protected Date getCurrentDate() {}     // Available to subclasses
+```
 
 ---
 
@@ -411,73 +601,140 @@ User input handling throughout:
 
 **Purpose:** Represents standard financial account holders with transaction capabilities
 
-**Key Methods:**
-- `displayDashboard()` - Shows user dashboard with account info
-- `getBalance()` - Returns current account balance
-- `viewTransactionHistory()` - Displays all transactions from account
+**Parent Class:** Extends User
 
-**Relationships:**
-- Extends User
-- Contains Account (composition)
-- Has-a relationship to Account instance
+**Key Constructors:**
+- `RegularUser(userId, username, password, email)` - User without initial accounts
+- `RegularUser(userId, username, password, email, account)` - User with initial account
+
+**Key Methods:**
+- `displayDashboard()` - Shows user dashboard with all account info
+- `getBalance()` - Returns balance of first account (deprecated)
+- `getAccountByIndex(int)` - Returns account at specified index
+- `getAccount()` - Returns first account (backward compatibility)
+- `setAccount(Account)` - Sets first account (backward compatibility)
+- `viewTransactionHistory()` - Displays all transactions from account
+- `addAccount(Account)` - Adds new account to user's account list
+- `getAccounts()` - Returns array of all user accounts
 
 **Features:**
-- User registration and login
-- Account type selection during registration
-- Transaction access through account interface
+- Multiple account support (array of accounts)
+- View all account details on dashboard
+- Access individual accounts by index
+- Transaction history viewing
+- Account management during session
 
----
+**Relationships:**
+- Extends User (inherits userId, username, password, email)
+- Composition with Account (has-a relationship)
+- Can have multiple Account instances (SavingsAccount or CheckingAccount)
 
-### Admin.java
+**Auto-Save Integration:**
+- Registration triggers save (via App.registerRegularUser)
+- Each account operation triggers save (deposit, withdraw, transfer)
+- Account creation triggers save
 
-**Purpose:** Provides system administration and oversight capabilities
+---### Admin.java
+
+**Purpose:** Provides system administration and oversight capabilities with privileged operations
+
+**Parent Class:** Extends User
+
+**Key Properties:**
+- adminLevel: "BASIC" or "SUPER" (privilege level)
 
 **Key Methods:**
 - `displayDashboard()` - Shows admin dashboard with privileges
 - `hasSuperPrivileges()` - Checks for SUPER level access
 - `launchAdmin()` - Static method for admin session initialization
 - `runAdminSession()` - Interactive admin menu and operations
-- Various admin operation methods:
-  - `displayAllUsers()` - List all users
-  - `modifyUserInformation()` - Edit user details
-  - `adjustAccountBalance()` - Correct balances
-  - `deleteUserAccount()` - Remove users
-  - `generateSystemReport()` - System-wide analytics
-  - `applyAccountFeaturesToAllSavings()` - Batch interest application
-  - `applyAccountFeaturesToAllChecking()` - Batch fee application
-  - `manageAdmins()` - Create/modify admin accounts
+- `displayAdminCapabilities()` - Lists available operations
+
+**Admin Operation Methods:**
+- `displayAllUsers()` - List all users with IDs
+- `modifyUserInformation()` - Edit user details (username, email, password)
+- `adjustAccountBalance()` - Correct balances (add, subtract, set exact)
+- `deleteUserAccount()` - Remove users from system
+- `generateSystemReport()` - System-wide analytics (SUPER only)
+- `applyAccountFeaturesToAllSavings()` - Batch interest application (SUPER only)
+- `applyAccountFeaturesToAllChecking()` - Batch fee application (SUPER only)
+- `manageAdmins()` - ⚠️ **Limited Implementation** - Shows demo behavior, newly created admins not persisted (SUPER only)
+- `deleteAllStoredData()` - Delete all persisted data (SUPER only)
+
+**⚠️ Implementation Notes:**
+The `manageAdmins()` method has simulated/demo behavior:
+- Displays the hardcoded demo admin
+- Allows creation of new admins with validation
+- Shows confirmation messages
+- **Limitation:** Newly created admins are not saved to files or persisted across sessions
+- In a production system, new admins would be stored in the user array and data persistence files
+
+All other admin features are fully implemented with complete data persistence.
 
 **Privilege Levels:**
-- BASIC: Basic user and account management
+- BASIC: User and account management
 - SUPER: All features plus advanced reporting and admin management
 
----
+**Auto-Save Integration:**
+Each admin operation automatically triggers data persistence:
+- After modifying user information (3 save points: username, email, password)
+- After adjusting account balance (3 save points: add, subtract, set)
+- After applying interest to savings accounts
+- After applying fees to checking accounts
+- After deleting user accounts
+- After deleting all data
 
-### Account.java (Abstract)
+**Demo Credentials:**
+```
+Username: admin
+Password: admin123
+Level: SUPER
+Email: admin@pennywise.com
+```
+
+---### Account.java (Abstract)
 
 **Purpose:** Base class for all account types with core banking operations
 
+**Parent Class:** Java Object
+
 **Key Properties:**
-- accountNumber: Unique account identifier
+- accountNumber: Unique account identifier (e.g., SA-user001-1)
 - balance: Current account balance
 - accountType: Type designation (SAVINGS/CHECKING)
-- transactions: Array of Transaction objects (100 capacity)
+- transactions: Array of Transaction objects (capacity 100)
 - transactionCount: Current number of transactions
 
+**Key Constructors:**
+- `Account(accountNumber, initialBalance, accountType)` - Creates account with initial balance
+
 **Key Methods:**
-- `deposit()` - Add funds to account
-- `withdraw()` - Remove funds with subclass-specific rules
-- `checkBalance()` - Return current balance
-- `recordTransaction()` - Audit trail recording
-- `displayTransactionHistory()` - Full transaction display
+- `deposit(double)` - Add funds to account (value-returning boolean)
+- `withdraw(double)` - Remove funds with subclass-specific rules (value-returning boolean)
+- `checkBalance()` - Return current balance (value-returning double)
+- `recordTransaction(amount, type, date)` - Create audit trail entry (protected)
+- `displayTransactionHistory()` - Full transaction display (void)
 - `applyAccountFeatures()` - Abstract method for account-specific operations
-- `displayAccountInfo()` - Account overview
+- `displayAccountInfo()` - Account overview (void)
+- `getTransaction(int)` - Retrieve transaction by index
+- `getCurrentDate()` - Get formatted current date
 
 **Transaction Recording:**
-- Every transaction (deposit, withdrawal, initial balance) is recorded
-- Each transaction stores: amount, type (DEPOSIT/WITHDRAWAL), date
+- Every transaction (deposit, withdrawal, transfer, initial) is recorded
+- Each transaction stores: amount, type (DEPOSIT/WITHDRAWAL/TRANSFER), date
 - Maximum 100 transactions per account
-- Accessible for audit and reporting
+- Transactions array is protected for subclass access
+- Transactions are persisted to `data/transactions.txt`
+
+**ENCAPSULATION:**
+- Private: accountNumber, balance, transactions, transactionCount
+- Protected: recordTransaction(), getCurrentDate() for subclass access
+- Public: getters/setters for controlled access
+
+**POLYMORPHISM:**
+- `withdraw()` - Overridden by SavingsAccount and CheckingAccount
+- `applyAccountFeatures()` - Abstract, implemented by subclasses
+- `displayAccountInfo()` - Can be overridden for account-type-specific display
 
 ---
 
@@ -485,24 +742,52 @@ User input handling throughout:
 
 **Purpose:** Specialized account type emphasizing wealth accumulation with interest benefits
 
-**Key Features:**
-- **Interest Calculation:** Automatic monthly interest application (annual rate / 12)
-- **Withdrawal Limits:** Maximum 3 withdrawals per month
-- **Interest Projection:** Calculate 12-month projected balance
-- **Compound Interest:** Support for interest-on-interest calculations
+**Parent Class:** Extends Account
+
+**Key Properties:**
+- interestRate: Annual interest rate as decimal (e.g., 0.03 for 3%)
+- Inherited: accountNumber, balance, transactions, transactionCount
+
+**Key Constructors:**
+- `SavingsAccount(accountNumber, initialBalance, interestRate)`
 
 **Key Methods:**
-- `applyAccountFeatures()` - Apply monthly interest to balance
-- `withdraw()` - Enforce monthly withdrawal limit before allowing operation
-- `countWithdrawalsThisMonth()` - Count current month's withdrawals
-- `projectFutureBalance()` - Project balance after N months with compound interest
+- `applyAccountFeatures()` - Apply monthly interest to balance (POLYMORPHIC)
+- `withdraw(double)` - Enforce monthly withdrawal limit before allowing (POLYMORPHIC)
+- `countWithdrawalsThisMonth()` - Count current month's withdrawals (value-returning int)
+- `projectFutureBalance(int months)` - Project balance after N months with compound interest
 - `displaySavingsInfo()` - Show account details including interest rate and projection
+- `getInterestRate()` - Get annual interest rate
+- `setInterestRate(double)` - Set annual interest rate
 
-**Polymorphic Behavior:**
-- Overrides `withdraw()` to add withdrawal limit
+**Key Features:**
+- **Interest Calculation:** Automatic monthly interest application (annual rate / 12)
+  - Applied when admin runs "Apply Account Features to All Savings"
+  - Compounds monthly: Interest = Balance × (annualRate / 12)
+  - Interest is added as a DEPOSIT transaction
+  
+- **Withdrawal Limits:** Maximum 3 withdrawals per calendar month
+  - Resets on month boundary
+  - Attempts beyond limit are rejected with message
+  - Encourages saving behavior
+  
+- **Interest Projection:** Calculate 12-month projected balance
+  - Shows compound interest effects
+  - Useful for financial planning
+  - Displayed on dashboard
+
+- **Default Interest Rate:** 3% annual (0.03)
+
+**POLYMORPHIC BEHAVIOR:**
+- Overrides `withdraw()` to add monthly withdrawal limit check
 - Overrides `applyAccountFeatures()` to calculate and apply interest
 - Different withdrawal rules than parent class
 - Different feature application than checking accounts
+
+**Auto-Save Integration:**
+- Admin interest application triggers save
+- Withdrawal attempts (successful or not) trigger saves
+- Monthly withdrawal limit is checked each time
 
 ---
 
@@ -510,21 +795,57 @@ User input handling throughout:
 
 **Purpose:** High-frequency transaction account with overdraft protection
 
-**Key Features:**
-- **Overdraft Protection:** Borrow up to overdraft limit when balance negative
-- **Overdraft Fees:** Assessment when account goes negative
-- **Available Funds:** Balance + overdraft limit for transactions
-- **Overdraft Status:** Real-time status display
+**Parent Class:** Extends Account
+
+**Key Properties:**
+- overdraftLimit: Maximum negative balance allowed (default $500)
+- overdraftFee: Fee charged when overdraft is used (default $35)
+- Inherited: accountNumber, balance, transactions, transactionCount
+
+**Key Constructors:**
+- `CheckingAccount(accountNumber, initialBalance, overdraftLimit, overdraftFee)`
 
 **Key Methods:**
-- `applyAccountFeatures()` - Apply overdraft fees if account negative
-- `withdraw()` - Allow overdraft protection up to limit
-- `isInOverdraft()` - Check if account is in negative balance
-- `getAvailableFunds()` - Calculate total available (balance + limit)
+- `applyAccountFeatures()` - Apply overdraft fees if account negative (POLYMORPHIC)
+- `withdraw(double)` - Allow overdraft protection up to limit (POLYMORPHIC)
+- `isInOverdraft()` - Check if account is in negative balance (value-returning boolean)
+- `getAvailableFunds()` - Calculate total available (balance + limit) (value-returning double)
 - `displayCheckingInfo()` - Show overdraft details and status
 - `displayOverdraftHistory()` - Show withdrawal transaction history
+- `getOverdraftLimit()` - Get overdraft limit
+- `setOverdraftLimit(double)` - Set overdraft limit
+- `getOverdraftFee()` - Get overdraft fee amount
+- `setOverdraftFee(double)` - Set overdraft fee amount
 
-**Polymorphic Behavior:**
+**Key Features:**
+- **Overdraft Protection:** Borrow up to overdraft limit when balance negative
+  - Available Funds = Balance + Overdraft Limit
+  - Example: -$100 balance + $500 limit = $400 available
+  - No denial of transactions up to limit
+  - Flexibility for immediate expenses
+  
+- **Overdraft Fees:** Assessment when account goes negative
+  - Triggered when admin runs "Apply Account Features to All Checking"
+  - Fee ($35 default) is deducted from balance
+  - Applied as WITHDRAWAL transaction
+  - Multiple overdraft uses accumulate fees
+  
+- **Available Funds Indicator:**
+  - Shows total drawable balance
+  - Calculation: Current Balance + Overdraft Limit
+  - Updated in real-time on account details
+  - Helps users understand spending capacity
+
+- **Overdraft Status Display:**
+  - NORMAL: Balance >= $0
+  - OVERDRAFT: Balance < $0
+  - Displayed on dashboard and in account info
+
+- **Default Values:**
+  - Overdraft Limit: $500
+  - Overdraft Fee: $35
+
+**POLYMORPHIC BEHAVIOR:**
 - Overrides `withdraw()` to allow overdraft up to limit
 - Overrides `applyAccountFeatures()` to apply overdraft fees
 - Different withdrawal rules (allows negative up to limit)
@@ -553,32 +874,217 @@ User input handling throughout:
 
 ---
 
-### App.java (Main/Driver)
+### DataPersistence.java (Abstract Base)
 
-**Purpose:** Application entry point and main flow controller
+**Purpose:** Abstract base class that defines the template method pattern for all data persistence operations
+
+**Design Pattern:** Template Method Pattern
+- Defines the algorithm structure for persistence operations
+- Ensures DataLoader and DataStorage follow consistent steps
+- Demonstrates POLYMORPHISM through abstract methods
+
+**File Locations (Shared Constants):**
+```
+DATA_DIR = "data"
+USERS_FILE = "data/users.txt"
+ACCOUNTS_FILE = "data/accounts.txt"
+TRANSACTIONS_FILE = "data/transactions.txt"
+```
+
+**Key Methods:**
+- `execute()` - Template method that orchestrates persistence operation
+  1. Validate preconditions
+  2. Prepare operation (ensure data directory exists)
+  3. Perform actual operation (implemented by subclasses)
+  4. Cleanup after operation
+  5. Handle any errors
+
+**Abstract Methods (Implemented by Subclasses):**
+- `validatePreconditions()` - Checks if operation can proceed
+- `performOperation()` - Actual persistence logic (DataLoader loads, DataStorage saves)
+- `getOperationName()` - Returns descriptive operation name
+
+**Hook Methods:**
+- `prepareOperation()` - Ensures data directory exists
+- `cleanupOperation(boolean)` - Post-operation cleanup (optional override)
+- `handleError(Exception)` - Error handling
+
+**Key Feature:** Ensures both DataLoader and DataStorage use identical file paths and stay synchronized
+
+---
+
+### DataStorage.java
+
+**Purpose:** Handles saving all application data to persistent storage in text files
+
+**Location:** `PennyWise/src/DataStorage.java` (202 lines)
+
+**Parent Class:** Extends DataPersistence
+
+**Key Responsibilities:**
+- Saves users (regular and admin) to `data/users.txt`
+- Saves accounts (savings and checking) to `data/accounts.txt`
+- Saves transaction history to `data/transactions.txt`
+- Auto-creates `data/` directory if needed
+- Implements abstract methods from DataPersistence
+
+**Key Methods:**
+- `saveAllData()` - Main entry point (calls execute())
+- `saveUsers()` - Saves all users in pipe-delimited format
+- `saveAccounts()` - Saves all accounts with parameters
+- `saveTransactions()` - Saves all transactions with details
+- `deleteAllData()` - Deletes all stored data files (admin only)
+- `dataExists()` - Checks if saved data exists
+
+**POLYMORPHIC IMPLEMENTATIONS:**
+- `validatePreconditions()` - Returns true (can save even with 0 users)
+- `performOperation()` - Saves users, accounts, and transactions
+- `getOperationName()` - Returns "Data Save"
+
+**File Format Details:**
+
+Users:
+```
+REGULAR|userId|username|password|email
+ADMIN|userId|username|password|email|adminLevel
+```
+
+Accounts:
+```
+userId|SAVINGS|accountNumber|balance|interestRate
+userId|CHECKING|accountNumber|balance|overdraftLimit|overdraftFee
+```
+
+Transactions:
+```
+accountNumber|amount|type|date
+```
+
+**Usage Example:**
+```java
+DataStorage.saveAllData();  // Saves all current data to files
+DataStorage.deleteAllData(); // Deletes all stored files (admin only)
+```
+
+---
+
+### DataLoader.java
+
+**Purpose:** Handles loading all application data from files on program startup
+
+**Location:** `PennyWise/src/DataLoader.java` (280 lines)
+
+**Parent Class:** Extends DataPersistence
+
+**Key Responsibilities:**
+- Reads and parses data files on startup
+- Reconstructs User objects (RegularUser and Admin)
+- Rebuilds Account objects (SavingsAccount, CheckingAccount)
+- Restores complete transaction history
+- Maintains relationships between users, accounts, and transactions
+- Uses temporary Maps to organize data during loading
+
+**Helper Classes:**
+- `AccountData` - Stores account information during loading process
+- `TransactionData` - Stores transaction information during loading process
+
+**Key Methods:**
+- `loadAllData()` - Main entry point (calls execute())
+- `loadUsers()` - Reads and parses users from file
+- `loadAccounts()` - Reads and parses accounts from file
+- `loadTransactions()` - Reads and parses transactions from file
+- `reconstructionPhase()` - Rebuilds object relationships from parsed data
+
+**POLYMORPHIC IMPLEMENTATIONS:**
+- `validatePreconditions()` - Checks if data files exist
+- `performOperation()` - Loads users, accounts, and transactions
+- `getOperationName()` - Returns "Data Load"
+
+**Data Reconstruction Process:**
+
+1. **Parse Users:** Read users.txt and create RegularUser/Admin objects
+2. **Parse Accounts:** Read accounts.txt and organize by userId
+3. **Parse Transactions:** Read transactions.txt and organize by accountNumber
+4. **Reconstruction Phase:**
+   - For each user, attach their accounts
+   - For each account, attach its transactions
+   - Rebuild complete object hierarchy
+
+**Temporary Data Structures:**
+```java
+Map<String, List<AccountData>> userAccountsMap
+Map<String, List<TransactionData>> accountTransactionsMap
+```
+
+**Usage Example:**
+```java
+if (DataStorage.dataExists()) {
+    if (DataLoader.loadAllData()) {
+        System.out.println("Data loaded successfully!");
+    }
+}
+```
+
+---
+
+### App.java (Main/Driver - Updated)
+
+**Purpose:** Application entry point and main flow controller with data persistence integration
+
+**Key Changes for Data Persistence:**
+
+**Startup:**
+```java
+if (DataStorage.dataExists()) {
+    System.out.println("Loading saved data...");
+    if (DataLoader.loadAllData()) {
+        System.out.println("Data loaded successfully! (" + userCount + " users)");
+    }
+}
+```
+
+**Shutdown:**
+```java
+System.out.println("Saving data before exit...");
+DataStorage.saveAllData();
+System.out.println("Application terminated.");
+```
+
+**Auto-Save Points (9 total):**
+1. After user registration
+2. After account creation
+3. After deposit
+4. After withdrawal
+5. After internal transfer
+6. After external transfer
+7. After user addition
+8. After user deletion
+9. Before program exit
 
 **Key Static Members:**
 - `users[]` - Array storing all registered users (capacity 100)
 - `userCount` - Current number of registered users
 
 **Key Methods:**
-- `main()` - Application entry point
+- `main()` - Application entry point with data loading/saving
 - `displayWelcome()` - Welcome screen
 - `displayMainMenu()` - Main menu display
 - `regularUserMode()` - Regular user flow
 - `loginRegularUser()` - User authentication
-- `registerRegularUser()` - New user registration
-- `userAccountMenu()` - User transaction menu
+- `registerRegularUser()` - New user registration with auto-save
+- `userAccountMenu()` - User transaction menu with auto-save options
 - `findRegularUser()` - User lookup
 - User accessor methods for controlled array access
+- `formatMoney()` - Static utility for currency formatting
 
-**Application Flow:**
-1. Display welcome message
-2. Main menu loop (1: Regular User, 2: Admin, 3: Exit)
-3. Route to appropriate mode
-4. Display mode-specific menu
-5. Execute selected operations
-6. Return to main menu or exit
+**Application Flow With Data Persistence:**
+1. Check if data exists
+2. Load persisted data (users, accounts, transactions)
+3. Display welcome message
+4. Main menu loop (1: Regular User, 2: Admin, 3: Exit)
+5. Route to appropriate mode
+6. After each operation: Save data automatically
+7. On exit: Save data and terminate
 
 ---
 
@@ -594,25 +1100,40 @@ User input handling throughout:
 ```
 PennyWise/
 ├── src/
-│   ├── Account.java
-│   ├── Admin.java
-│   ├── App.java
-│   ├── CheckingAccount.java
-│   ├── RegularUser.java
-│   ├── SavingsAccount.java
-│   ├── Transaction.java
-│   └── User.java
-├── bin/          (compiled .class files)
-└── README.md
+│   ├── Account.java              (Abstract base account)
+│   ├── SavingsAccount.java       (Savings account with interest)
+│   ├── CheckingAccount.java      (Checking account with overdraft)
+│   ├── User.java                 (Abstract base user)
+│   ├── RegularUser.java          (Regular account holder)
+│   ├── Admin.java                (System administrator)
+│   ├── Transaction.java          (Transaction value object)
+│   ├── App.java                  (Main driver class with persistence)
+│   ├── DataPersistence.java      (Abstract base for persistence)
+│   ├── DataLoader.java           (Loads data from files)
+│   ├── DataStorage.java          (Saves data to files)
+│   ├── DataPersistence.java      (Shared constants & template method)
+│   └── TransferTest.java         (Testing class)
+├── bin/                          (Compiled .class files)
+├── data/                         (Auto-created directory for persistent data)
+│   ├── users.txt                 (Saved user data)
+│   ├── accounts.txt              (Saved account data)
+│   └── transactions.txt          (Saved transaction history)
+├── README.md                     (This file)
+└── lib/                          (External libraries, if any)
 ```
 
 ### Compilation
 
-**Option 1: From PennyWise/PennyWise Directory**
+**Option 1: From PennyWise/PennyWise Directory (Recommended)**
 
 ```bash
 javac -d bin src/*.java
 ```
+
+This compiles all Java files including:
+- Core classes (User, Account, RegularUser, Admin, Transaction)
+- Data persistence classes (DataPersistence, DataLoader, DataStorage)
+- Main application driver (App)
 
 **Option 2: Compile Specific Files**
 
@@ -620,7 +1141,8 @@ javac -d bin src/*.java
 cd PennyWise/PennyWise
 javac -d bin src/App.java src/Account.java src/SavingsAccount.java \
   src/CheckingAccount.java src/User.java src/RegularUser.java \
-  src/Admin.java src/Transaction.java
+  src/Admin.java src/Transaction.java src/DataPersistence.java \
+  src/DataLoader.java src/DataStorage.java
 ```
 
 ### Execution
@@ -630,9 +1152,20 @@ cd PennyWise/PennyWise
 java -cp bin App
 ```
 
+**First Run Behavior:**
+- System checks if `data/` directory exists
+- Since no saved data exists, starts with empty user list
+- Ready for new user registration
+
+**Subsequent Runs:**
+- System checks if `data/` directory exists and contains data
+- Loads all saved users, accounts, and transaction history
+- Displays count of loaded users
+- System state is restored from previous session
+
 ### Expected Output
 
-The application will display:
+**First time running:**
 ```
 =========================================
   Welcome to PennyWise Financial Manager!
@@ -644,6 +1177,18 @@ The application will display:
 3. Exit
 
 Please select an option (1-3):
+```
+
+**After running once and saving data:**
+```
+Loading saved data...
+Data loaded successfully! (3 users)
+=========================================
+  Welcome to PennyWise Financial Manager!
+=========================================
+
+--- Main Menu ---
+...
 ```
 
 ---
@@ -879,6 +1424,14 @@ Users can create additional accounts at any time without logging out:
 
 ### Admin Menu Options
 
+**📌 Note on Feature Implementation:**
+Most admin features are fully functional and integrated with data persistence. However, some advanced features are partially implemented with simulated behavior:
+- **Option 8 (Manage Administrators):** Admin creation displays confirmation but does not persist across sessions. In a full implementation, newly created admins would be stored in the user array and data files. Currently, only the hardcoded demo admin (username: admin, password: admin123) is available.
+
+All other options (1-7, 9-10) are fully implemented with complete data persistence integration.
+
+---
+
 #### Option 1: View All Users
 **Purpose:** Display list of all registered users in the system
 
@@ -1007,7 +1560,29 @@ Users can create additional accounts at any time without logging out:
 
 **Use case:** Admin team coordination, privilege delegation
 
-#### Option 9: Logout
+#### Option 9: [DANGER] Delete All Stored Data (Super Admin Only)
+**Purpose:** Completely reset the system and remove all stored data
+
+**Security Measures:**
+1. **Privilege Check:** Only SUPER admins can access
+2. **Warning Display:** Shows what will be deleted
+3. **First Confirmation:** Must type "DELETE" exactly
+4. **Second Confirmation:** Must type "YES" to confirm
+5. **Feedback:** Clear messages about success/failure
+
+**What Gets Deleted:**
+- `data/users.txt` - All user accounts
+- `data/accounts.txt` - All account information
+- `data/transactions.txt` - All transaction history
+
+**What Remains:**
+- Current session data stays active until exit
+- Data won't be saved on next exit
+- Clean slate on next program start
+
+**Use case:** System reset, testing, cleanup
+
+#### Option 10: Logout
 **Purpose:** End admin session and return to main menu
 
 **Effect:**
@@ -1015,6 +1590,139 @@ Users can create additional accounts at any time without logging out:
 - Returns to main menu
 - Session data preserved
 
+---
+
+## Data Persistence
+
+### Overview
+
+PennyWise includes a complete data persistence system that saves all application data to files. This means you can stop and restart the program without losing any user data, accounts, or transaction history.
+
+### Key Features
+
+#### Automatic Data Persistence
+Data is automatically saved after:
+- User registration
+- Account creation
+- Deposits and withdrawals
+- Money transfers
+- Admin modifications (balance adjustments, user info changes)
+- Account feature applications (interest, fees)
+- User deletion
+- Program exit
+
+#### On Program Start
+1. Application checks if `data/` directory exists
+2. If saved data is found, loads:
+   - All users (RegularUser objects)
+   - All accounts with current balances
+   - Complete transaction history
+3. Displays count of loaded users
+
+#### On Program Exit
+- Data is saved one final time
+- All current state is preserved for next session
+
+### File Formats
+
+#### users.txt
+```
+REGULAR|userId|username|password|email
+ADMIN|userId|username|password|email|adminLevel
+```
+
+#### accounts.txt
+```
+userId|SAVINGS|accountNumber|balance|interestRate
+userId|CHECKING|accountNumber|balance|overdraftLimit|overdraftFee
+```
+
+#### transactions.txt
+```
+accountNumber|amount|type|date
+```
+
+### Benefits
+
+✅ **Persistence** - No data loss between sessions  
+✅ **Testing** - Easy to reset and start over  
+✅ **Debugging** - Text files are human-readable  
+✅ **Safety** - Multiple confirmations for destructive operations  
+✅ **Automatic** - No manual save required  
+✅ **Complete** - Saves users, accounts, and transactions  
+
+### Testing the Persistence System
+
+1. **Create data:**
+   - Register 2-3 users with multiple accounts
+   - Perform various transactions
+   - Exit the program
+
+2. **Verify persistence:**
+   - Restart the program
+   - Check that all users are loaded
+   - Login and verify balances are correct
+   - Check transaction history is intact
+
+3. **Test reset:**
+   - Login as admin
+   - Use "Delete All Stored Data" option
+   - Confirm deletion
+   - Exit and restart
+   - Verify system starts with no users
+
+---
+
+### Application Flow with Persistence
+
+```
+┌─────────────────────────────────────┐
+│     Program Starts                  │
+│                                     │
+│  1. Check if data/ exists           │
+│  2. If yes, load all data:          │
+│     - Users                         │
+│     - Accounts                      │
+│     - Transactions                  │
+│  3. Display main menu               │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│   User Performs Operations          │
+│                                     │
+│  - Register                         │
+│  - Login                            │
+│  - Deposit/Withdraw                 │
+│  - Transfer                         │
+│  - Admin operations                 │
+│                                     │
+│  After EACH operation:              │
+│  → DataStorage.saveAllData()        │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│     Program Exits                   │
+│                                     │
+│  1. Save all data one final time   │
+│  2. Display goodbye message         │
+│  3. Terminate                       │
+└─────────────────────────────────────┘
+```
+
+### Data Persistence Trigger Points
+
+✓ User registration  
+✓ Account creation  
+✓ Deposit transaction  
+✓ Withdrawal transaction  
+✓ Transfer (internal)  
+✓ Transfer (external)  
+✓ User deletion (admin)  
+✓ User info modification (admin)  
+✓ Balance adjustment (admin)  
+✓ Apply interest (admin)  
+✓ Apply fees (admin)  
+✓ Program exit  
 ---
 
 ## Project Scope and Requirements
@@ -1066,10 +1774,7 @@ Users can create additional accounts at any time without logging out:
 
 ## Future Enhancements 
 
-### : Advanced Features
-
 #### Data Persistence
-- File-based storage (serialization)
 - Database integration (SQL)
 - Data export to CSV/JSON
 - Account recovery from backup
@@ -1107,8 +1812,6 @@ Users can create additional accounts at any time without logging out:
 - Audit trail enhancements
 - Regulatory reporting generation
 
-### : Enterprise Features
-
 #### Multi-user Account Management
 - Joint accounts with dual authorized users
 - Guardian accounts for minors
@@ -1134,17 +1837,6 @@ Users can create additional accounts at any time without logging out:
 ## Conclusion
 
 PennyWise Financial Manager demonstrates a complete, well-architected financial software system that showcases all required object-oriented programming concepts in a practical, real-world context. The system is designed to be extensible, maintainable, and scalable for future enhancements.
-
-The project successfully balances educational objectives with practical functionality, providing clear demonstrations of:
-- Clean code architecture
-- Proper encapsulation and data protection
-- Polymorphic design patterns
-- Comprehensive user interface
-- Administrative oversight capabilities
-
-This codebase serves as an excellent foundation for further development and learning in enterprise software development practices.
-Note4: Submit the final version of your project by Wednesday, March 18th, at 9:00am through
-Canvas.
 
 ##### Gradeing (Checklist)
 

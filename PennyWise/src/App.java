@@ -85,6 +85,16 @@ public class App {
      * VALUE RETURNING METHOD: Main method - entry point of the application.
      */
     public static void main(String[] args) {
+        // Load saved data on startup
+        if (DataStorage.dataExists()) {
+            System.out.println("Loading saved data...");
+            if (DataLoader.loadAllData()) {
+                System.out.println("Data loaded successfully! (" + userCount + " users)");
+            } else {
+                System.out.println("Warning: Failed to load some data.");
+            }
+        }
+        
         try (Scanner scanner = new Scanner(System.in)) {
             // Display welcome message
             displayWelcome();
@@ -103,6 +113,13 @@ public class App {
                         case 1 -> regularUserMode(scanner);
                         case 2 -> Admin.launchAdmin(scanner);// All admin logic moved to Admin class
                         case 3 -> {
+                            // Save data before exiting
+                            System.out.println("Saving data...");
+                            if (DataStorage.saveAllData()) {
+                                System.out.println("Data saved successfully!");
+                            } else {
+                                System.out.println("Warning: Failed to save some data.");
+                            }
                             running = false;
                             System.out.println("\nThank you for using PennyWise. Goodbye!");
                         }
@@ -199,6 +216,8 @@ public class App {
         if (addRegularUser(newUser)) {
             System.out.println("Registration successful! Welcome, " + username + "!");
             System.out.println("You have " + accountCount + " account(s).");
+            // Save data after registration
+            DataStorage.saveAllData();
         } else {
             System.out.println("Maximum user limit reached.");
         }
@@ -252,7 +271,8 @@ public class App {
                 System.out.println("\n--- Select Account ---");
                 for (int i = 0; i < accounts.length; i++) {
                     if (accounts[i] != null) {
-                        System.out.println((i+1) + ". " + accounts[i].getAccountType() + 
+                        System.out.println((i+1) + ". [" + accounts[i].getAccountNumber() + "] " + 
+                                         accounts[i].getAccountType() + 
                                          " - Balance: $" + formatMoney(accounts[i].getBalance()));
                     }
                 }
@@ -322,6 +342,7 @@ public class App {
                     double amount = getDoubleInput(scanner);
                     if (amount > 0 && selectedAccount.deposit(amount)) {
                         System.out.println("Deposit successful! New balance: $" + formatMoney(selectedAccount.getBalance()));
+                        DataStorage.saveAllData(); // Save after transaction
                     } else if (amount > 0) {
                         System.out.println("Invalid deposit amount.");
                     } else {
@@ -333,6 +354,7 @@ public class App {
                     double amount = getDoubleInput(scanner);
                     if (amount > 0 && selectedAccount.withdraw(amount)) {
                         System.out.println("Withdrawal successful! New balance: $" + formatMoney(selectedAccount.getBalance()));
+                        DataStorage.saveAllData(); // Save after transaction
                     } else if (amount > 0) {
                         System.out.println("Insufficient funds, invalid amount or other invalid input.");
                     } else {
@@ -342,39 +364,84 @@ public class App {
                 case "4" -> user.viewTransactionHistory(selectedAccountIndex);
                 case "5" -> user.displayProfile();
                 case "6" -> {
-                    // Transfer between accounts
-                    if (accounts.length < 2) {
-                        System.out.println("You need at least 2 accounts to transfer money.");
+                    System.out.println("\n--- Transfer Money ---");
+                    if (selectedAccount instanceof CheckingAccount) {
+                        System.out.println("1. Transfer between your accounts");
+                        System.out.println("2. Transfer to another user");
+                        System.out.print("Select option (1-2): ");
                     } else {
-                        System.out.println("\n--- Transfer Money ---");
-                        System.out.println("Transferring FROM: " + selectedAccount.getAccountType() + 
-                                         " (Balance: $" + formatMoney(selectedAccount.getBalance()) + ")");
-                        
-                        // Display other accounts
-                        System.out.println("\nAvailable accounts to transfer TO:");
-                        for (int i = 0; i < accounts.length; i++) {
-                            if (i != selectedAccountIndex && accounts[i] != null) {
-                                System.out.println((i+1) + ". " + accounts[i].getAccountType() + 
-                                                 " - Balance: $" + formatMoney(accounts[i].getBalance()));
+                        System.out.println("1. Transfer between your accounts");
+                        System.out.print("Select option (1): ");
+                    }
+                    String transferChoice = scanner.nextLine();
+
+                    switch (transferChoice) {
+                        case "1" -> {
+                            if (accounts.length < 2) {
+                                System.out.println("You need at least 2 accounts to transfer money.");
+                                break;
+                            }
+
+                            System.out.println("Transferring FROM: " + selectedAccount.getAccountType() +
+                                             " (Account: " + selectedAccount.getAccountNumber() +
+                                             ", Balance: $" + formatMoney(selectedAccount.getBalance()) + ")");
+
+                            System.out.println("\nAvailable accounts to transfer TO:");
+                            for (int i = 0; i < accounts.length; i++) {
+                                if (i != selectedAccountIndex && accounts[i] != null) {
+                                    System.out.println((i + 1) + ". " + accounts[i].getAccountType() +
+                                                     " (Account: " + accounts[i].getAccountNumber() + ")" +
+                                                     " - Balance: $" + formatMoney(accounts[i].getBalance()));
+                                }
+                            }
+
+                            System.out.print("Select target account (1-" + accounts.length + "): ");
+                            int targetIndex = (int) getDoubleInput(scanner) - 1;
+                            if (targetIndex >= 0 && targetIndex < accounts.length &&
+                                targetIndex != selectedAccountIndex && accounts[targetIndex] != null) {
+                                System.out.print("Enter transfer amount: $");
+                                double amount = getDoubleInput(scanner);
+
+                                if (amount > 0 && user.transferBetweenAccounts(selectedAccountIndex, targetIndex, amount)) {
+                                    System.out.println("Transfer successful!");
+                                    System.out.println("Source account balance: $" + formatMoney(selectedAccount.getBalance()));
+                                    System.out.println("Target account balance: $" + formatMoney(accounts[targetIndex].getBalance()));
+                                    DataStorage.saveAllData(); // Save after transfer
+                                } else if (amount <= 0) {
+                                    System.out.println("Invalid input.");
+                                }
+                            } else {
+                                System.out.println("Invalid target account.");
                             }
                         }
-                        
-                        System.out.print("Select target account (1-" + accounts.length + "): ");
-                        int targetIndex = (int) getDoubleInput(scanner) - 1;
-                        if (targetIndex >= 0 && targetIndex < accounts.length && targetIndex != selectedAccountIndex && accounts[targetIndex] != null) {
+                        case "2" -> {
+                            if (!(selectedAccount instanceof CheckingAccount)) {
+                                System.out.println("Transfers to other users are only allowed from a checking account.");
+                                break;
+                            }
+
+                            RegularUser targetUser = selectUserByAccountNumber(scanner, user);
+                            if (targetUser == null) break;
+
+                            int targetIndex = selectTargetAccountIndex(scanner, targetUser);
+                            if (targetIndex < 0) break;
+
                             System.out.print("Enter transfer amount: $");
                             double amount = getDoubleInput(scanner);
-                            
-                            if (amount > 0 && user.transferBetweenAccounts(selectedAccountIndex, targetIndex, amount)) {
+
+                            if (amount > 0 && user.transferToOtherUser(selectedAccountIndex, targetUser, targetIndex, amount)) {
                                 System.out.println("Transfer successful!");
                                 System.out.println("Source account balance: $" + formatMoney(selectedAccount.getBalance()));
-                                System.out.println("Target account balance: $" + formatMoney(accounts[targetIndex].getBalance()));
+                                Account targetAccount = targetUser.getAccountByIndex(targetIndex);
+                                if (targetAccount != null) {
+                                    System.out.println("Target account balance: $" + formatMoney(targetAccount.getBalance()));
+                                }
+                                DataStorage.saveAllData(); // Save after transfer
                             } else if (amount <= 0) {
                                 System.out.println("Invalid input.");
                             }
-                        } else {
-                            System.out.println("Invalid target account.");
                         }
+                        default -> System.out.println("Invalid option.");
                     }
                 }
                 case "7" -> {
@@ -433,6 +500,7 @@ public class App {
         Account newAccount = createAccount(userId, accountChoice, accountCount);
         user.addAccount(newAccount);
         System.out.println("Account added successfully!");
+        DataStorage.saveAllData(); // Save after adding account
     }
 
     /**
@@ -492,6 +560,7 @@ public class App {
         }
         users[userCount - 1] = null;
         userCount--;
+        DataStorage.saveAllData(); // Save after removing user
         return true;
     }
 
@@ -565,5 +634,61 @@ public class App {
      */
     public static boolean hasNoAccounts(Account[] accounts) {
         return accounts == null || accounts.length == 0;
+    }
+
+    private static RegularUser selectUserByAccountNumber(Scanner scanner, RegularUser currentUser) {
+        System.out.println("\n--- Transfer to Another User ---");
+        System.out.print("Enter recipient account number: ");
+        String accountNumber = scanner.nextLine().trim();
+
+        if (accountNumber.isEmpty()) {
+            System.out.println("Account number cannot be empty.");
+            return null;
+        }
+
+        // Search for the account number across all users
+        for (int i = 0; i < userCount; i++) {
+            if (users[i] instanceof RegularUser user && user != currentUser) {
+                Account[] accounts = user.getAccounts();
+                if (!hasNoAccounts(accounts)) {
+                    for (Account account : accounts) {
+                        if (account != null && account.getAccountNumber().equals(accountNumber)) {
+                            System.out.println("Recipient found: " + user.getUsername() + " (" + account.getAccountType() + ")");
+                            return user;
+                        }
+                    }
+                }
+            }
+        }
+
+        System.out.println("Account number not found or belongs to current user.");
+        return null;
+    }
+
+    private static int selectTargetAccountIndex(Scanner scanner, RegularUser targetUser) {
+        Account[] targetAccounts = targetUser.getAccounts();
+        if (hasNoAccounts(targetAccounts)) {
+            System.out.println("Target user has no accounts.");
+            return -1;
+        }
+
+        if (targetAccounts.length > 1) {
+            System.out.println("\n--- Select Target Account ---");
+            for (int i = 0; i < targetAccounts.length; i++) {
+                Account account = targetAccounts[i];
+                System.out.println((i + 1) + ". [" + account.getAccountNumber() + "] " + 
+                                 account.getAccountType() +
+                                 " - Balance: $" + formatMoney(account.getBalance()));
+            }
+            System.out.print("Select target account (1-" + targetAccounts.length + "): ");
+            int index = (int) getDoubleInput(scanner) - 1;
+            if (index >= 0 && index < targetAccounts.length) {
+                return index;
+            }
+            System.out.println("Invalid target account.");
+            return -1;
+        }
+
+        return 0;
     }
 }
