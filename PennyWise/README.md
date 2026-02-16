@@ -49,6 +49,7 @@ The PennyWise system aims to:
 - Demonstrate enterprise-level software design patterns
 - Showcase proper code organization, documentation, and best practices
 - Provide a scalable foundation for additional financial features
+- Follow clean architecture principles with separation of concerns
 
 ---
 
@@ -146,20 +147,36 @@ The system follows a hierarchical architecture with data persistence layers:
                              (Value Object)
 ```
 
-**Persistence Layer:**
-- `DataPersistence`: Abstract base class with template method pattern
-- `DataLoader`: Loads data from files on startup
-- `DataStorage`: Saves data to files during operation
+**Presentation & UI Layer:**
+- `UserInterface`: Handles all user interaction and menu displays
+- `InputValidator`: Centralized input validation and parsing
 
-**User Hierarchy:**
+**Business Logic Layer:**
+- `UserManager`: Manages user storage, authentication, and CRUD operations
+- `AccountManager`: Handles account creation, selection, and operations
+- `PasswordUtil`: Secure password hashing using SHA-256 with salt
+
+**Domain Model Layer:**
 - `User`: Abstract base with common user properties
 - `RegularUser`: Extends User, manages personal accounts
-- `Admin`: Extends User, manages entire system
+- `Admin`: Extends User, basic system administration
+- `SuperAdmin`: Extends Admin, elevated privileges (reports, configuration)
 
 **Account Hierarchy:**
 - `Account`: Abstract base with core banking operations
 - `SavingsAccount`: Earns interest, withdrawal limits
 - `CheckingAccount`: Overdraft protection, fees
+
+**Configuration & Utilities:**
+- `AppConstants`: Centralized constants and magic number elimination
+- `SystemConfiguration`: System-wide settings (Singleton pattern)
+- `Transaction`: Immutable value object for audit trail
+
+**Persistence Layer:**
+- `DataPersistence`: Abstract base class with template method pattern
+- `DataLoader`: Loads data from files on startup
+- `DataStorage`: Saves data to files during operation
+- `DataConfiguration`: Configuration for data file paths
 
 **Other Components:**
 - `Transaction`: Immutable value object for audit trail
@@ -455,16 +472,47 @@ User input handling throughout:
 
 ## Class Quick Reference
 
+### Core Application Classes
+
 | Class | Purpose | Key Feature |
 |-------|---------|-------------|
-| `App.java` | Main driver, session manager | Entry point with data persistence |
+| `App.java` | Main driver, entry point | Orchestrates application flow and delegates to managers |
+| `UserInterface.java` | Presentation layer | Handles all UI/menu displays and user interaction |
+| `UserManager.java` | User management | User CRUD operations and authentication |
+| `AccountManager.java` | Account management | Account creation, selection, and validation |
+| `InputValidator.java` | Input validation | Centralized parsing and validation logic |
+
+### Security & Configuration
+
+| Class | Purpose | Key Feature |
+|-------|---------|-------------|
+| `PasswordUtil.java` | Password security | SHA-256 hashing with salt for secure storage |
+| `SystemConfiguration.java` | System settings | Singleton pattern for configurable defaults |
+| `AppConstants.java` | Constants | Eliminates magic numbers, centralized values |
+| `DataConfiguration.java` | Data paths | Configuration for persistence file locations |
+
+### Domain Model - Users
+
+| Class | Purpose | Key Feature |
+|-------|---------|-------------|
 | `User.java` | Abstract base user | Defines displayDashboard() contract |
 | `RegularUser.java` | Regular account holder | Manages multiple accounts |
-| `Admin.java` | System administrator | BASIC/SUPER privilege levels |
+| `Admin.java` | Basic administrator | User and account management capabilities |
+| `SuperAdmin.java` | Elevated administrator | Extends Admin with reports and system config |
+
+### Domain Model - Accounts
+
+| Class | Purpose | Key Feature |
+|-------|---------|-------------|
 | `Account.java` | Abstract account base | Core banking operations |
 | `SavingsAccount.java` | Savings account | 3% interest, 3 withdrawals/month |
 | `CheckingAccount.java` | Checking account | Overdraft protection, fees |
 | `Transaction.java` | Immutable transaction object | Audit trail for accounts |
+
+### Data Persistence
+
+| Class | Purpose | Key Feature |
+|-------|---------|-------------|
 | `DataPersistence.java` | Abstract persistence base | Template Method Pattern |
 | `DataStorage.java` | Saves to files | Persists users/accounts/transactions |
 | `DataLoader.java` | Loads from files | Reconstructs application state |
@@ -634,55 +682,124 @@ protected Date getCurrentDate() {}     // Available to subclasses
 - Each account operation triggers save (deposit, withdraw, transfer)
 - Account creation triggers save
 
----### Admin.java
+---
 
-**Purpose:** Provides system administration and oversight capabilities with privileged operations
+### Admin.java
+
+**Purpose:** Provides basic system administration capabilities with user and account management
 
 **Parent Class:** Extends User
 
-**Key Properties:**
-- adminLevel: "BASIC" or "SUPER" (privilege level)
+**Architecture Note:** In the new architecture, Admin is a basic administrator class with core management functions. SuperAdmin extends Admin with elevated privileges.
 
 **Key Methods:**
-- `displayDashboard()` - Shows admin dashboard with privileges
-- `hasSuperPrivileges()` - Checks for SUPER level access
-- `launchAdmin()` - Static method for admin session initialization
-- `runAdminSession()` - Interactive admin menu and operations
-- `displayAdminCapabilities()` - Lists available operations
+- `displayDashboard()` - Shows admin dashboard (POLYMORPHIC override)
+- `launchAdmin()` - Static method for admin authentication and session initialization
+- `runAdminSession()` - Interactive admin menu (basic 5-option menu)
+- `displayAdminCapabilities()` - Lists available operations (POLYMORPHIC, overridden in SuperAdmin)
 
-**Admin Operation Methods:**
-- `displayAllUsers()` - List all users with IDs
-- `modifyUserInformation()` - Edit user details (username, email, password)
-- `adjustAccountBalance()` - Correct balances (add, subtract, set exact)
-- `deleteUserAccount()` - Remove users from system
-- `generateSystemReport()` - System-wide analytics (SUPER only)
-- `applyAccountFeaturesToAllSavings()` - Batch interest application (SUPER only)
-- `applyAccountFeaturesToAllChecking()` - Batch fee application (SUPER only)
-- `manageAdmins()` - ⚠️ **Limited Implementation** - Shows demo behavior, newly created admins not persisted (SUPER only)
-- `deleteAllStoredData()` - Delete all persisted data (SUPER only)
+**Basic Admin Operation Methods:**
+- `displayAllUsers()` - List all users with IDs and usernames
+- `modifyUserInformation()` - Edit user details (username, email, password with hashing)
+- `adjustAccountBalance()` - Correct balances (add, subtract, set exact amount)
+- `deleteUserAccount()` - Remove users from system with confirmation
 
-**⚠️ Implementation Notes:**
-The `manageAdmins()` method has simulated/demo behavior:
-- Displays the hardcoded demo admin
-- Allows creation of new admins with validation
-- Shows confirmation messages
-- **Limitation:** Newly created admins are not saved to files or persisted across sessions
-- In a production system, new admins would be stored in the user array and data persistence files
+**Key Features:**
+- Secure authentication using PasswordUtil for password verification
+- All password changes use SHA-256 hashing
+- Auto-save integration on all user modifications
+- Comprehensive user management capabilities
+- Read-only access to transaction history
 
-All other admin features are fully implemented with complete data persistence.
+**Admin Session Menu:**
+```
+1. View All Users
+2. Modify User Information
+3. Adjust Account Balance
+4. Delete User Account
+5. Logout
+```
 
-**Privilege Levels:**
-- BASIC: User and account management
-- SUPER: All features plus advanced reporting and admin management
+**Authentication:**
+- Uses hashed password storage
+- Verifies credentials using PasswordUtil.verifyPassword()
+- Demo credentials: username "admin", password "admin123"
 
 **Auto-Save Integration:**
 Each admin operation automatically triggers data persistence:
-- After modifying user information (3 save points: username, email, password)
-- After adjusting account balance (3 save points: add, subtract, set)
-- After applying interest to savings accounts
-- After applying fees to checking accounts
+- After modifying user information
+- After adjusting account balance
 - After deleting user accounts
-- After deleting all data
+
+---
+
+### SuperAdmin.java
+
+**Purpose:** Extends Admin with elevated privileges for system-wide operations and configuration
+
+**Parent Class:** Extends Admin
+
+**Type:** Specialized administrator with full system access
+
+**Key Inheritance:**
+- Inherits all Admin methods (displayAllUsers, modifyUserInformation, etc.)
+- Overrides `displayDashboard()` - Shows "Super Admin Dashboard" with enhanced messaging
+- Overrides `displayAdminCapabilities()` - Shows all 10 capabilities
+- Overrides `runAdminSession()` - Provides extended 11-option menu
+
+**Exclusive SuperAdmin Methods:**
+- `generateSystemReport()` - Comprehensive system-wide financial analytics
+- `applyAccountFeaturesToAllSavings()` - Batch interest application to all savings accounts
+- `applyAccountFeaturesToAllChecking()` - Batch overdraft fee application to all checking accounts
+- `manageAdmins()` - Administrator management (simulated demo)
+- `manageSystemConfiguration()` - Modify system defaults (interest rates, overdraft limits, fees)
+- `deleteAllStoredData()` - Nuclear option to reset entire system (requires double confirmation)
+
+**SuperAdmin Session Menu:**
+```
+1. View All Users
+2. Modify User Information
+3. Adjust Account Balance
+4. Delete User Account
+5. Generate System-wide Report
+6. Apply Account Features (Interest) to All Savings Accounts
+7. Apply Account Features (Overdraft Fees) to All Checking Accounts
+8. Manage Administrators (Simulated)
+9. Manage System Configuration
+10. [DANGER] Delete All Stored Data
+11. Logout
+```
+
+**System-wide Report Includes:**
+- Total number of users
+- Total number of accounts (savings and checking breakdown)
+- Total balance across all accounts
+- Average balance per user
+- Total transaction count
+- Per-user account details with transaction counts
+
+**Configuration Management:**
+SuperAdmin can modify system-wide defaults through SystemConfiguration:
+- Default savings interest rate
+- Default checking overdraft limit
+- Default checking overdraft fee
+- Default maximum withdrawals per month for savings accounts
+
+**Batch Operations:**
+- Interest Application: Iterates through all users, applies monthly interest to savings accounts
+- Fee Application: Assesses overdraft fees to checking accounts with negative balance
+- Both operations provide detailed per-account feedback and summary statistics
+
+**Security Features:**
+- Double confirmation for destructive operations (DELETE ALL DATA)
+- All password modifications use secure hashing
+- Comprehensive audit trail through transaction history
+
+**⚠️ Implementation Note:**
+The `manageAdmins()` method currently has simulated behavior for demonstration purposes:
+- Displays demo admin information
+- Allows creation of new admins with validation
+- **Limitation:** Newly created admins are not persisted across sessions
 
 **Demo Credentials:**
 ```

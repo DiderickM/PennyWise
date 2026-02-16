@@ -100,7 +100,7 @@ public abstract class User {
         for (Account account : accounts) {
             if (account != null) {
                 System.out.println("  [" + account.getAccountNumber() + "] " + 
-                                 account.getAccountType() + " - Balance: $" + App.formatMoney(account.getBalance()));
+                                 account.getAccountType() + " - Balance: $" + InputValidator.formatMoney(account.getBalance()));
             }
         }
         System.out.println("==================================");

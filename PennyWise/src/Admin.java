@@ -60,10 +60,12 @@ public class Admin extends User {
         System.out.print("Enter Admin Password: ");
         String password = scanner.nextLine();
 
-        // For demo, create a default super admin
-        Admin admin = new SuperAdmin("admin001", "admin", "admin123", "admin@pennywise.com");
+        // For demo, create a default super admin with hashed password
+        // In production, this would be loaded from a secure admin database
+        String adminPassword = PasswordUtil.hashPassword("admin123");
+        Admin admin = new SuperAdmin("admin001", "admin", adminPassword, "admin@pennywise.com");
 
-        if (username.equals(admin.getUsername()) && password.equals(admin.getPassword())) {
+        if (username.equals(admin.getUsername()) && PasswordUtil.verifyPassword(password, admin.getPassword())) {
             admin.displayDashboard();
             admin.runAdminSession(scanner);
         } else {
@@ -100,26 +102,16 @@ public class Admin extends User {
         }
     }
 
-    // ---------------- Admin helper methods (moved from App) -----------------
+    // ---------------- Admin helper methods ----------------
 
     protected void displayAllUsers() {
-        System.out.println("\n========== All Users ==========");
-        if (App.getUserCount() == 0) {
-            System.out.println("No users registered.");
-        } else {
-            for (int i = 0; i < App.getUserCount(); i++) {
-                User u = App.getUser(i);
-                if (u != null) {
-                    System.out.println((i + 1) + ". " + u.getUsername() + " (ID: " + u.getUserId() + ")");
-                }
-            }
-        }
-        System.out.println("==============================");
+        // Delegate to UserManager for displaying all users
+        UserManager.displayAllUsers();
     }
 
     protected RegularUser findRegularUserByUsername(String username) {
         // Prefer App-provided accessor for RegularUser lookup
-        return App.getRegularUserByUsername(username);
+        return UserManager.getRegularUserByUsername(username);
     }
 
     protected void modifyUserInformation(Scanner scanner) {
@@ -152,9 +144,9 @@ public class Admin extends User {
                     DataStorage.saveAllData(); // Save after user modification
                 }
                 case "3" -> {
-                    System.out.print("Enter new password: ");
-                    String newPassword = scanner.nextLine();
-                    user.setPassword(newPassword);
+                    String newPassword = InputValidator.getValidatedPassword(scanner, "Enter new password: ");
+                    // Hash the password before storing
+                    user.setPassword(PasswordUtil.hashPassword(newPassword));
                     System.out.println("Password updated successfully!");
                     DataStorage.saveAllData(); // Save after user modification
                 }
@@ -173,7 +165,7 @@ public class Admin extends User {
 
         if (user != null) {
             Account[] accounts = user.getAccounts();
-            if (App.hasNoAccounts(accounts)) {
+            if (AccountManager.hasNoAccounts(accounts)) {
                 System.out.println("User has no accounts.");
                 return;
             }
@@ -185,11 +177,11 @@ public class Admin extends User {
                 for (int i = 0; i < accounts.length; i++) {
                     if (accounts[i] != null) {
                         System.out.println((i+1) + ". " + accounts[i].getAccountType() + 
-                                         " - Balance: $" + App.formatMoney(accounts[i].getBalance()));
+                                         " - Balance: $" + InputValidator.formatMoney(accounts[i].getBalance()));
                     }
                 }
                 System.out.print("Select account (1-" + accounts.length + "): ");
-                int accountChoice = (int) App.getDoubleInput(scanner) - 1;
+                int accountChoice = InputValidator.getValidatedInteger(scanner, "Select account (1-" + accounts.length + "): ", 1, accounts.length) - 1;
                 if (accountChoice >= 0 && accountChoice < accounts.length && accounts[accountChoice] != null) {
                     account = accounts[accountChoice];
                 } else {
@@ -201,7 +193,7 @@ public class Admin extends User {
             }
             
             System.out.println("\n--- Adjust Account Balance ---");
-            System.out.println("Current Balance: $" + App.formatMoney(account.getBalance()));
+            System.out.println("Current Balance: $" + InputValidator.formatMoney(account.getBalance()));
             System.out.println("1. Add Amount");
             System.out.println("2. Subtract Amount");
             System.out.println("3. Set Exact Balance");
@@ -212,10 +204,10 @@ public class Admin extends User {
             switch (choice) {
                 case "1" -> {
                     System.out.print("Enter amount to add: $");
-                    double amount = App.getDoubleInput(scanner);
+                    double amount = InputValidator.getValidatedDouble(scanner, "Invalid amount. Please enter a valid number.");
                     if (amount > 0) {
                         account.setBalance(account.getBalance() + amount);
-                        System.out.println("Amount added. New Balance: $" + App.formatMoney(account.getBalance()));
+                        System.out.println("Amount added. New Balance: $" + InputValidator.formatMoney(account.getBalance()));
                         DataStorage.saveAllData(); // Save after balance adjustment
                     } else {
                         System.out.println("Invalid amount.");
@@ -223,10 +215,10 @@ public class Admin extends User {
                 }
                 case "2" -> {
                     System.out.print("Enter amount to subtract: $");
-                    double amount = App.getDoubleInput(scanner);
+                    double amount = InputValidator.getValidatedDouble(scanner, "Invalid amount. Please enter a valid number.");
                     if (amount > 0) {
                         account.setBalance(account.getBalance() - amount);
-                        System.out.println("Amount subtracted. New Balance: $" + App.formatMoney(account.getBalance()));
+                        System.out.println("Amount subtracted. New Balance: $" + InputValidator.formatMoney(account.getBalance()));
                         DataStorage.saveAllData(); // Save after balance adjustment
                     } else {
                         System.out.println("Invalid amount.");
@@ -234,10 +226,10 @@ public class Admin extends User {
                 }
                 case "3" -> {
                     System.out.print("Enter exact balance amount: $");
-                    double amount = App.getDoubleInput(scanner);
+                    double amount = InputValidator.getValidatedDouble(scanner, "Invalid amount. Please enter a valid number.");
                     if (amount >= 0) {
                         account.setBalance(amount);
-                        System.out.println("Balance set to: $" + App.formatMoney(account.getBalance()));
+                        System.out.println("Balance set to: $" + InputValidator.formatMoney(account.getBalance()));
                         DataStorage.saveAllData(); // Save after balance adjustment
                     } else {
                         System.out.println("Balance must be non-negative.");
@@ -256,8 +248,8 @@ public class Admin extends User {
         String username = scanner.nextLine();
 
         int userIndex = -1;
-        for (int i = 0; i < App.getUserCount(); i++) {
-            User u = App.getUser(i);
+        for (int i = 0; i < UserManager.getUserCount(); i++) {
+            User u = UserManager.getUser(i);
             if (u instanceof RegularUser user) {
                 if (user.getUsername().equals(username)) {
                     userIndex = i;
@@ -270,7 +262,10 @@ public class Admin extends User {
             System.out.print("Are you sure you want to delete user '" + username + "'? (yes/no): ");
             String confirmation = scanner.nextLine();
             if (confirmation.equalsIgnoreCase("yes")) {
-                boolean removed = App.removeRegularUserByUsername(username);
+                boolean removed = UserManager.removeRegularUser(username);
+                if (removed) {
+                    DataStorage.saveAllData(); // Save after removing user
+                }
                 if (removed) System.out.println("User '" + username + "' has been deleted successfully.");
                 else System.out.println("Failed to delete user.");
             } else {

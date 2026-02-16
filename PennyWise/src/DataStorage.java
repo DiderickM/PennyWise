@@ -71,10 +71,10 @@ public class DataStorage extends DataPersistence {
      */
     private static void saveUsers() throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(USERS_FILE))) {
-            int userCount = App.getUserCount();
+            int userCount = UserManager.getUserCount();
             
             for (int i = 0; i < userCount; i++) {
-                User user = App.getUser(i);
+                User user = UserManager.getUser(i);
                 if (user != null) {
                     if (user instanceof RegularUser) {
                         // Format: REGULAR|userId|username|password|email
@@ -103,10 +103,10 @@ public class DataStorage extends DataPersistence {
      */
     private static void saveAccounts() throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(ACCOUNTS_FILE))) {
-            int userCount = App.getUserCount();
+            int userCount = UserManager.getUserCount();
             
             for (int i = 0; i < userCount; i++) {
-                User user = App.getUser(i);
+                User user = UserManager.getUser(i);
                 if (user != null && user instanceof RegularUser) {
                     Account[] accounts = user.getAccounts();
                     if (accounts != null) {
@@ -143,10 +143,10 @@ public class DataStorage extends DataPersistence {
      */
     private static void saveTransactions() throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(TRANSACTIONS_FILE))) {
-            int userCount = App.getUserCount();
+            int userCount = UserManager.getUserCount();
             
             for (int i = 0; i < userCount; i++) {
-                User user = App.getUser(i);
+                User user = UserManager.getUser(i);
                 if (user != null && user instanceof RegularUser) {
                     Account[] accounts = user.getAccounts();
                     if (accounts != null) {

@@ -23,7 +23,7 @@ public class SavingsAccount extends Account {
      * @param interestRate Annual interest rate (as decimal, e.g., 0.03 for 3%)
      */
     public SavingsAccount(String accountNumber, double initialBalance, double interestRate) {
-        super(accountNumber, initialBalance, "SAVINGS");
+        super(accountNumber, initialBalance, AppConstants.ACCOUNT_TYPE_SAVINGS);
         this.interestRate = interestRate;
         // Use default max withdrawals from system configuration
         this.maxWithdrawalsPerMonth = SystemConfiguration.getInstance().getDefaultSavingsMaxWithdrawals();
@@ -38,7 +38,7 @@ public class SavingsAccount extends Account {
      * @param maxWithdrawalsPerMonth Maximum withdrawals allowed per month
      */
     public SavingsAccount(String accountNumber, double initialBalance, double interestRate, int maxWithdrawalsPerMonth) {
-        super(accountNumber, initialBalance, "SAVINGS");
+        super(accountNumber, initialBalance, AppConstants.ACCOUNT_TYPE_SAVINGS);
         this.interestRate = interestRate;
         this.maxWithdrawalsPerMonth = maxWithdrawalsPerMonth;
     }
@@ -76,7 +76,7 @@ public class SavingsAccount extends Account {
         // SELECTION: if-else to validate interest amount
         if (interest > 0) {
             deposit(interest);
-            System.out.println("Interest applied: $" + App.formatMoney(interest));
+            System.out.println("Interest applied: $" + InputValidator.formatMoney(interest));
         }
     }
 
@@ -109,7 +109,7 @@ public class SavingsAccount extends Account {
         // LOOPS: for loop to iterate through transactions
         for (int i = 0; i < getTransactionCount(); i++) {
             Transaction t = getTransaction(i);
-            if (t != null && t.getType().equals("WITHDRAWAL")) {
+            if (t != null && t.getType().equals(AppConstants.TRANSACTION_WITHDRAWAL)) {
                 String transMonth = t.getDate().substring(0, 2) + "/" + t.getDate().substring(6);
                 if (transMonth.equals(currentMonth)) {
                     count++;
@@ -142,10 +142,10 @@ public class SavingsAccount extends Account {
      */
     public void displaySavingsInfo() {
         super.displayAccountInfo();
-        System.out.println("Interest Rate: " + String.format("%.2f", interestRate * 100) + "%");
+        System.out.println("Interest Rate: " + InputValidator.formatPercentage(interestRate));
         System.out.println("Max Withdrawals per Month: " + maxWithdrawalsPerMonth);
         System.out.println("Withdrawals this month: " + countWithdrawalsThisMonth());
         double projectedBalance = projectFutureBalance(12);
-        System.out.println("Projected Balance (12 months): $" + App.formatMoney(projectedBalance));
+        System.out.println("Projected Balance (12 months): $" + InputValidator.formatMoney(projectedBalance));
     }
 }

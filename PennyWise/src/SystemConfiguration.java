@@ -26,13 +26,13 @@ public class SystemConfiguration {
     
     /**
      * Private constructor for Singleton pattern.
-     * Initializes with default values.
+     * Initializes with default values from AppConstants.
      */
     private SystemConfiguration() {
-        this.defaultSavingsInterestRate = 0.03;  // 3% default
-        this.defaultCheckingOverdraftLimit = 500.00;  // $500 default
-        this.defaultCheckingOverdraftFee = 35.00;  // $35 default
-        this.defaultSavingsMaxWithdrawals = 3;  // 3 withdrawals per month default
+        this.defaultSavingsInterestRate = AppConstants.DEFAULT_SAVINGS_INTEREST_RATE;
+        this.defaultCheckingOverdraftLimit = AppConstants.DEFAULT_CHECKING_OVERDRAFT_LIMIT;
+        this.defaultCheckingOverdraftFee = AppConstants.DEFAULT_CHECKING_OVERDRAFT_FEE;
+        this.defaultSavingsMaxWithdrawals = AppConstants.DEFAULT_SAVINGS_MAX_WITHDRAWALS;
     }
     
     /**
@@ -96,8 +96,8 @@ public class SystemConfiguration {
     public void displaySettings() {
         System.out.println("\n========== System Configuration ==========");
         System.out.println("Default Savings Interest Rate: " + String.format("%.2f", defaultSavingsInterestRate * 100) + "%");
-        System.out.println("Default Checking Overdraft Limit: $" + App.formatMoney(defaultCheckingOverdraftLimit));
-        System.out.println("Default Checking Overdraft Fee: $" + App.formatMoney(defaultCheckingOverdraftFee));
+        System.out.println("Default Checking Overdraft Limit: $" + InputValidator.formatMoney(defaultCheckingOverdraftLimit));
+        System.out.println("Default Checking Overdraft Fee: $" + InputValidator.formatMoney(defaultCheckingOverdraftFee));
         System.out.println("Default Savings Max Withdrawals/Month: " + defaultSavingsMaxWithdrawals);
         System.out.println("=========================================");
     }

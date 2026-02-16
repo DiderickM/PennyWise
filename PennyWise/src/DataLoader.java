@@ -174,7 +174,7 @@ public class DataLoader extends DataPersistence {
                         }
                     }
                     
-                    App.addRegularUser(user);
+                    UserManager.addRegularUser(user);
                 } else if (userType.equals("ADMIN")) {
                     // Admin users are hardcoded, skip loading from file
                     // Or you could load them if you want persistent admin accounts

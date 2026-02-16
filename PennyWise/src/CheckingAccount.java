@@ -24,7 +24,7 @@ public class CheckingAccount extends Account {
      * @param overdraftFee Fee charged for overdraft usage
      */
     public CheckingAccount(String accountNumber, double initialBalance, double overdraftLimit, double overdraftFee) {
-        super(accountNumber, initialBalance, "CHECKING");
+        super(accountNumber, initialBalance, AppConstants.ACCOUNT_TYPE_CHECKING);
         this.overdraftLimit = overdraftLimit;
         this.overdraftFee = overdraftFee;
     }
@@ -67,11 +67,11 @@ public class CheckingAccount extends Account {
     public boolean withdraw(double amount) {
         // SELECTION: Check if withdrawal exceeds overdraft limit
         double totalAvailable = getBalance() + overdraftLimit;
-        System.out.println("Attempting withdrawal of $" + App.formatMoney(amount) + " - Available funds (including overdraft): $" + App.formatMoney(totalAvailable));
+        System.out.println("Attempting withdrawal of $" + InputValidator.formatMoney(amount) + " - Available funds (including overdraft): $" + InputValidator.formatMoney(totalAvailable));
         if (amount > 0 && amount <= totalAvailable) {
             setBalance(getBalance() - amount);
             // Record transaction using parent method
-            recordTransaction(amount, "WITHDRAWAL", getCurrentDate());
+            recordTransaction(amount, AppConstants.TRANSACTION_WITHDRAWAL, getCurrentDate());
             // SELECTION: Check if overdraft is now in use
             if (getBalance() < 0) {
                 System.out.println("WARNING: Account is in overdraft!");
@@ -100,9 +100,9 @@ public class CheckingAccount extends Account {
      */
     public void displayCheckingInfo() {
         super.displayAccountInfo();
-        System.out.println("Overdraft Limit: $" + App.formatMoney(overdraftLimit));
-        System.out.println("Overdraft Fee: $" + App.formatMoney(overdraftFee));
-        System.out.println("Available Funds (including overdraft): $" + App.formatMoney(getAvailableFunds()));
+        System.out.println("Overdraft Limit: $" + InputValidator.formatMoney(overdraftLimit));
+        System.out.println("Overdraft Fee: $" + InputValidator.formatMoney(overdraftFee));
+        System.out.println("Available Funds (including overdraft): $" + InputValidator.formatMoney(getAvailableFunds()));
         
         // SELECTION: Display overdraft status
         if (isInOverdraft()) {

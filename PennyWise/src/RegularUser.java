@@ -93,7 +93,7 @@ public class RegularUser extends User {
                 if (accounts[i] != null) {
                     System.out.println("  [" + accounts[i].getAccountNumber() + "] " + 
                                      accounts[i].getAccountType() + 
-                                     " - Balance: $" + App.formatMoney(accounts[i].getBalance()));
+                                     " - Balance: $" + InputValidator.formatMoney(accounts[i].getBalance()));
                 }
             }
         } else {

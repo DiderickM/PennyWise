@@ -104,19 +104,19 @@ public class SuperAdmin extends Admin {
         int checkingAccountCount = 0;
 
         System.out.println("\n--- User Account Summary ---");
-        if (App.getUserCount() == 0) {
+        if (UserManager.getUserCount() == 0) {
             System.out.println("No users in system.");
         } else {
-            for (int i = 0; i < App.getUserCount(); i++) {
-                User u = App.getUser(i);
+            for (int i = 0; i < UserManager.getUserCount(); i++) {
+                User u = UserManager.getUser(i);
                 if (u instanceof RegularUser user) {
                     Account[] accounts = user.getAccounts();
-                    if (!App.hasNoAccounts(accounts)) {
+                    if (!AccountManager.hasNoAccounts(accounts)) {
                         int accountIndex = 1;
                         for (Account account : accounts) {
                             if (account != null) {
                                 System.out.println((i + 1) + "." + accountIndex + " " + user.getUsername() + " - Account: " + account.getAccountType());
-                                System.out.println("   Balance: $" + App.formatMoney(account.getBalance()));
+                                System.out.println("   Balance: $" + InputValidator.formatMoney(account.getBalance()));
                                 System.out.println("   Transactions: " + account.getTransactionCount());
                                 totalBalance += account.getBalance();
                                 totalTransactions += account.getTransactionCount();
@@ -131,12 +131,12 @@ public class SuperAdmin extends Admin {
         }
 
         System.out.println("\n--- Financial Summary ---");
-        System.out.println("Total Users: " + App.getUserCount());
+        System.out.println("Total Users: " + UserManager.getUserCount());
         System.out.println("Savings Accounts: " + savingsAccountCount);
         System.out.println("Checking Accounts: " + checkingAccountCount);
-        System.out.println("Total System Balance: $" + App.formatMoney(totalBalance));
+        System.out.println("Total System Balance: $" + InputValidator.formatMoney(totalBalance));
         System.out.println("Total Transactions: " + totalTransactions);
-        System.out.println("Average Balance per User: $" + App.formatMoney(App.getUserCount() > 0 ? totalBalance / App.getUserCount() : 0));
+        System.out.println("Average Balance per User: $" + InputValidator.formatMoney(UserManager.getUserCount() > 0 ? totalBalance / UserManager.getUserCount() : 0));
         System.out.println("==================================================");
     }
 
@@ -213,11 +213,11 @@ public class SuperAdmin extends Admin {
         double totalInterestApplied = 0;
 
         // LOOPS: for loop to iterate through all users
-        for (int i = 0; i < App.getUserCount(); i++) {
-            User u = App.getUser(i);
+        for (int i = 0; i < UserManager.getUserCount(); i++) {
+            User u = UserManager.getUser(i);
             if (u instanceof RegularUser user) {
                 Account[] accounts = user.getAccounts();
-                if (!App.hasNoAccounts(accounts)) {
+                if (!AccountManager.hasNoAccounts(accounts)) {
                     for (Account account : accounts) {
                         // SELECTION: Check if account is a SavingsAccount
                         if (account instanceof SavingsAccount savingsAccount) {
@@ -229,9 +229,9 @@ public class SuperAdmin extends Admin {
 
                             System.out.println("User: " + user.getUsername());
                             System.out.println("  Account: " + account.getAccountNumber());
-                            System.out.println("  Balance Before: $" + App.formatMoney(balanceBefore));
-                            System.out.println("  Interest Applied: $" + App.formatMoney(interestEarned));
-                            System.out.println("  Balance After: $" + App.formatMoney(balanceAfter));
+                            System.out.println("  Balance Before: $" + InputValidator.formatMoney(balanceBefore));
+                            System.out.println("  Interest Applied: $" + InputValidator.formatMoney(interestEarned));
+                            System.out.println("  Balance After: $" + InputValidator.formatMoney(balanceAfter));
 
                             savingsAccountCount++;
                             totalInterestApplied += interestEarned;
@@ -244,7 +244,7 @@ public class SuperAdmin extends Admin {
         // Display summary
         System.out.println("\n--- Summary ---");
         System.out.println("Total Savings Accounts Processed: " + savingsAccountCount);
-        System.out.println("Total Interest Applied System-wide: $" + App.formatMoney(totalInterestApplied));
+        System.out.println("Total Interest Applied System-wide: $" + InputValidator.formatMoney(totalInterestApplied));
         System.out.println("====================================================================");
 
         // Save data after applying interest
@@ -261,11 +261,11 @@ public class SuperAdmin extends Admin {
         double totalOverdraftFeesApplied = 0;
 
         // LOOPS: for loop to iterate through all users
-        for (int i = 0; i < App.getUserCount(); i++) {
-            User u = App.getUser(i);
+        for (int i = 0; i < UserManager.getUserCount(); i++) {
+            User u = UserManager.getUser(i);
             if (u instanceof RegularUser user) {
                 Account[] accounts = user.getAccounts();
-                if (!App.hasNoAccounts(accounts)) {
+                if (!AccountManager.hasNoAccounts(accounts)) {
                     for (Account account : accounts) {
                         // SELECTION: Check if account is a CheckingAccount
                         if (account instanceof CheckingAccount checkingAccount) {
@@ -277,10 +277,10 @@ public class SuperAdmin extends Admin {
 
                             System.out.println("User: " + user.getUsername());
                             System.out.println("  Account: " + account.getAccountNumber());
-                            System.out.println("  Balance Before: $" + App.formatMoney(balanceBefore));
+                            System.out.println("  Balance Before: $" + InputValidator.formatMoney(balanceBefore));
                             System.out.println("  Overdraft Status: " + (checkingAccount.isInOverdraft() ? "IN OVERDRAFT" : "NORMAL"));
-                            System.out.println("  Fees Applied: $" + App.formatMoney(feesApplied));
-                            System.out.println("  Balance After: $" + App.formatMoney(balanceAfter));
+                            System.out.println("  Fees Applied: $" + InputValidator.formatMoney(feesApplied));
+                            System.out.println("  Balance After: $" + InputValidator.formatMoney(balanceAfter));
 
                             checkingAccountCount++;
                             totalOverdraftFeesApplied += feesApplied;
@@ -293,7 +293,7 @@ public class SuperAdmin extends Admin {
         // Display summary
         System.out.println("\n--- Summary ---");
         System.out.println("Total Checking Accounts Processed: " + checkingAccountCount);
-        System.out.println("Total Overdraft Fees Applied System-wide: $" + App.formatMoney(totalOverdraftFeesApplied));
+        System.out.println("Total Overdraft Fees Applied System-wide: $" + InputValidator.formatMoney(totalOverdraftFeesApplied));
         System.out.println("====================================================================");
 
         // Save data after applying fees
@@ -392,7 +392,7 @@ public class SuperAdmin extends Admin {
     private void setDefaultInterestRate(Scanner scanner) {
         System.out.print("Enter new default interest rate (as percentage, e.g., 3.5 for 3.5%): ");
         try {
-            double rate = App.getDoubleInput(scanner) / 100.0; // Convert percentage to decimal
+            double rate = InputValidator.getDoubleInput(scanner) / 100.0; // Convert percentage to decimal
             if (rate >= 0) {
                 SystemConfiguration.getInstance().setDefaultSavingsInterestRate(rate);
                 System.out.println("Default savings interest rate set to: " + String.format("%.2f", rate * 100) + "%");
@@ -414,7 +414,7 @@ public class SuperAdmin extends Admin {
 
         if (user != null) {
             Account[] accounts = user.getAccounts();
-            if (App.hasNoAccounts(accounts)) {
+            if (AccountManager.hasNoAccounts(accounts)) {
                 System.out.println("User has no accounts.");
                 return;
             }
@@ -436,11 +436,11 @@ public class SuperAdmin extends Admin {
 
             System.out.print("Select account: ");
             try {
-                int choice = (int) App.getDoubleInput(scanner) - 1;
+                int choice = (int) InputValidator.getValidatedDouble(scanner, "Invalid account selection. Please enter a valid number.") - 1;
                 if (choice >= 0 && choice < accounts.length && accounts[choice] instanceof SavingsAccount) {
                     SavingsAccount savingsAccount = (SavingsAccount) accounts[choice];
                     System.out.print("Enter new interest rate (as percentage, e.g., 5 for 5%): ");
-                    double rate = App.getDoubleInput(scanner) / 100.0;
+                    double rate = InputValidator.getValidatedDouble(scanner, "Invalid interest rate. Please enter a valid number.") / 100.0;
                     if (rate >= 0) {
                         savingsAccount.setInterestRate(rate);
                         System.out.println("Interest rate updated to: " + String.format("%.2f", rate * 100) + "%");
@@ -464,10 +464,10 @@ public class SuperAdmin extends Admin {
     private void setDefaultOverdraftLimit(Scanner scanner) {
         System.out.print("Enter new default overdraft limit ($): ");
         try {
-            double limit = App.getDoubleInput(scanner);
+            double limit = InputValidator.getValidatedDouble(scanner, "Invalid overdraft limit. Please enter a valid number.");
             if (limit >= 0) {
                 SystemConfiguration.getInstance().setDefaultCheckingOverdraftLimit(limit);
-                System.out.println("Default checking overdraft limit set to: $" + App.formatMoney(limit));
+                System.out.println("Default checking overdraft limit set to: $" + InputValidator.formatMoney(limit));
             } else {
                 System.out.println("Overdraft limit must be non-negative.");
             }
@@ -486,7 +486,7 @@ public class SuperAdmin extends Admin {
 
         if (user != null) {
             Account[] accounts = user.getAccounts();
-            if (App.hasNoAccounts(accounts)) {
+            if (AccountManager.hasNoAccounts(accounts)) {
                 System.out.println("User has no accounts.");
                 return;
             }
@@ -498,7 +498,7 @@ public class SuperAdmin extends Admin {
                 if (accounts[i] instanceof CheckingAccount) {
                     CheckingAccount checkingAccount = (CheckingAccount) accounts[i];
                     System.out.println((checkingCount + 1) + ". " + accounts[i].getAccountNumber() +
-                                     " (Overdraft Limit: $" + App.formatMoney(checkingAccount.getOverdraftLimit()) + ")");
+                                     " (Overdraft Limit: $" + InputValidator.formatMoney(checkingAccount.getOverdraftLimit()) + ")");
                     checkingCount++;
                 }
             }
@@ -510,17 +510,17 @@ public class SuperAdmin extends Admin {
 
             System.out.print("Select account: ");
             try {
-                int choice = (int) App.getDoubleInput(scanner) - 1;
+                int choice = (int) InputValidator.getValidatedDouble(scanner, "Invalid account selection. Please enter a valid number.") - 1;
                 int accountIndex = 0;
                 for (int i = 0; i < accounts.length; i++) {
                     if (accounts[i] instanceof CheckingAccount) {
                         if (accountIndex == choice) {
                             CheckingAccount checkingAccount = (CheckingAccount) accounts[i];
                             System.out.print("Enter new overdraft limit ($): ");
-                            double limit = App.getDoubleInput(scanner);
+                            double limit = InputValidator.getValidatedDouble(scanner, "Invalid overdraft limit. Please enter a valid number.");
                             if (limit >= 0) {
                                 checkingAccount.setOverdraftLimit(limit);
-                                System.out.println("Overdraft limit updated to: $" + App.formatMoney(limit));
+                                System.out.println("Overdraft limit updated to: $" + InputValidator.formatMoney(limit));
                             } else {
                                 System.out.println("Overdraft limit must be non-negative.");
                             }
@@ -544,10 +544,10 @@ public class SuperAdmin extends Admin {
     private void setDefaultOverdraftFee(Scanner scanner) {
         System.out.print("Enter new default overdraft fee ($): ");
         try {
-            double fee = App.getDoubleInput(scanner);
+            double fee = InputValidator.getValidatedDouble(scanner, "Invalid overdraft fee. Please enter a valid number.");
             if (fee >= 0) {
                 SystemConfiguration.getInstance().setDefaultCheckingOverdraftFee(fee);
-                System.out.println("Default overdraft fee set to: $" + App.formatMoney(fee));
+                System.out.println("Default overdraft fee set to: $" + InputValidator.formatMoney(fee));
             } else {
                 System.out.println("Overdraft fee must be non-negative.");
             }
@@ -562,7 +562,7 @@ public class SuperAdmin extends Admin {
     private void setDefaultMaxWithdrawals(Scanner scanner) {
         System.out.print("Enter new default maximum withdrawals per month: ");
         try {
-            int max = (int) App.getDoubleInput(scanner);
+            int max = (int) InputValidator.getValidatedDouble(scanner, "Invalid maximum withdrawals. Please enter a valid number.");
             if (max > 0) {
                 SystemConfiguration.getInstance().setDefaultSavingsMaxWithdrawals(max);
                 System.out.println("Default maximum withdrawals per month set to: " + max);
@@ -584,7 +584,7 @@ public class SuperAdmin extends Admin {
 
         if (user != null) {
             Account[] accounts = user.getAccounts();
-            if (App.hasNoAccounts(accounts)) {
+            if (AccountManager.hasNoAccounts(accounts)) {
                 System.out.println("User has no accounts.");
                 return;
             }
@@ -608,14 +608,14 @@ public class SuperAdmin extends Admin {
 
             System.out.print("Select account: ");
             try {
-                int choice = (int) App.getDoubleInput(scanner) - 1;
+                int choice = (int)  InputValidator.getValidatedDouble(scanner, "Invalid account selection. Please enter a valid number.") - 1;
                 int accountIndex = 0;
                 for (Account account : accounts) {
                     if (account instanceof SavingsAccount) {
                         if (accountIndex == choice) {
                             SavingsAccount savingsAccount = (SavingsAccount) account;
                             System.out.print("Enter new maximum withdrawals per month: ");
-                            int max = (int) App.getDoubleInput(scanner);
+                            int max = (int) InputValidator.getValidatedDouble(scanner, "Invalid maximum withdrawals. Please enter a valid number.");
                             if (max > 0) {
                                 savingsAccount.setMaxWithdrawalsPerMonth(max);
                                 System.out.println("Maximum withdrawals updated to: " + max);

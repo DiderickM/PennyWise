@@ -32,13 +32,13 @@ public abstract class Account {
         this.balance = initialBalance;
         this.accountType = accountType;
         
-        // Initialize transaction array to store up to 100 transactions
-        this.transactions = new Transaction[100];
+        // Initialize transaction array using constant
+        this.transactions = new Transaction[AppConstants.MAX_TRANSACTIONS_PER_ACCOUNT];
         this.transactionCount = 0;
         
         // Record initial deposit as a transaction
         if (initialBalance > 0) {
-            recordTransaction(initialBalance, "INITIAL DEPOSIT", getCurrentDate());
+            recordTransaction(initialBalance, AppConstants.TRANSACTION_INITIAL_DEPOSIT, getCurrentDate());
         }
     }
 
@@ -80,7 +80,7 @@ public abstract class Account {
         // SELECTION: if-else statement to validate deposit
         if (amount > 0) {
             balance += amount;
-            recordTransaction(amount, "DEPOSIT", getCurrentDate());
+            recordTransaction(amount, AppConstants.TRANSACTION_DEPOSIT, getCurrentDate());
             return true;
         }
         return false;
@@ -97,8 +97,8 @@ public abstract class Account {
         // SELECTION: if-else statement to validate withdrawal
         if (amount > 0 && balance >= amount) {
             balance -= amount;
-            System.out.println("Withdrawal successful - requested: $" + String.format("%.2f", amount));
-            recordTransaction(amount, "WITHDRAWAL", getCurrentDate());
+            System.out.println("Withdrawal successful - requested: $" + InputValidator.formatMoney(amount));
+            recordTransaction(amount, AppConstants.TRANSACTION_WITHDRAWAL, getCurrentDate());
             return true;
         }
         return false;
@@ -138,9 +138,9 @@ public abstract class Account {
         this.balance -= amount;
         targetAccount.balance += amount;
         
-        // Record transactions in both accounts
-        this.recordTransaction(amount, "TRANSFER OUT", getCurrentDate());
-        targetAccount.recordTransaction(amount, "TRANSFER IN", getCurrentDate());
+        // Record transactions in both accounts using constants
+        this.recordTransaction(amount, AppConstants.TRANSACTION_TRANSFER_OUT, getCurrentDate());
+        targetAccount.recordTransaction(amount, AppConstants.TRANSACTION_TRANSFER_IN, getCurrentDate());
         
         return true;
     }
@@ -205,7 +205,7 @@ public abstract class Account {
      * VALUE RETURNING METHOD: Gets current date as string.
      */
     protected String getCurrentDate() {
-        return new java.text.SimpleDateFormat("MM/dd/yyyy").format(new java.util.Date());
+        return new java.text.SimpleDateFormat(AppConstants.DATE_FORMAT).format(new java.util.Date());
     }
 
     /**
@@ -220,7 +220,7 @@ public abstract class Account {
         System.out.println("\n========== Account Information ==========");
         System.out.println("Account Number: " + accountNumber);
         System.out.println("Account Type: " + accountType);
-        System.out.println("Current Balance: $" + App.formatMoney(balance));
+        System.out.println("Current Balance: $" + InputValidator.formatMoney(balance));
         System.out.println("Total Transactions: " + transactionCount);
         System.out.println("=========================================");
     }
