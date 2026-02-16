@@ -1,3 +1,10 @@
+/**
+ * Created on Mon Feb 16 2026
+ *
+ * Copyright (c) 2026 Diderick Magermans
+ */
+
+
 import java.util.Scanner;
 
 /**
@@ -9,8 +16,6 @@ import java.util.Scanner;
  * - Delegation: Delegates business logic to UserManager and AccountManager
  * - Input Validation: Uses InputValidator for all user inputs
  * 
- * @author PennyWise Team
- * @version 2.0
  */
 public class UserInterface {
     private final Scanner scanner;
@@ -550,9 +555,9 @@ public class UserInterface {
         // Remove the account from user's accounts
         Account[] newAccounts = new Account[accounts.length - 1];
         int index = 0;
-        for (int i = 0; i < accounts.length; i++) {
-            if (accounts[i] != accountToClose) {
-                newAccounts[index++] = accounts[i];
+        for (Account account : accounts) {
+            if (account != accountToClose) {
+                newAccounts[index++] = account;
             }
         }
         user.setAccounts(newAccounts);

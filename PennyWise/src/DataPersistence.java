@@ -47,7 +47,7 @@ public abstract class DataPersistence {
             cleanupOperation(result);
             
             return result;
-        } catch (Exception e) {
+        } catch (IOException e) {
             handleError(e);
             return false;
         }

@@ -477,16 +477,16 @@ User input handling throughout:
 | Class | Purpose | Key Feature |
 |-------|---------|-------------|
 | `App.java` | Main driver, entry point | Orchestrates application flow and delegates to managers |
-| `UserInterface.java` | Presentation layer | Handles all UI/menu displays and user interaction |
-| `UserManager.java` | User management | User CRUD operations and authentication |
-| `AccountManager.java` | Account management | Account creation, selection, and validation |
+| `UserInterface.java` | Presentation & UI layer | Separates UI concerns from business logic; displays all menus and prompts using clean architecture principles |
+| `UserManager.java` | User lifecycle management | Encapsulates user storage (static array) and handles user authentication, lookup, registration, and deletion |
+| `AccountManager.java` | Account lifecycle management | Abstracts account creation (based on type selection), account selection from user's portfolio, and unique account number generation |
 | `InputValidator.java` | Input validation | Centralized parsing and validation logic |
 
 ### Security & Configuration
 
 | Class | Purpose | Key Feature |
 |-------|---------|-------------|
-| `PasswordUtil.java` | Password security | SHA-256 hashing with salt for secure storage |
+| `PasswordUtil.java` | Secure password management | SHA-256 hashing with unique random salt per password; prevents rainbow table and dictionary attacks |
 | `SystemConfiguration.java` | System settings | Singleton pattern for configurable defaults |
 | `AppConstants.java` | Constants | Eliminates magic numbers, centralized values |
 | `DataConfiguration.java` | Data paths | Configuration for persistence file locations |

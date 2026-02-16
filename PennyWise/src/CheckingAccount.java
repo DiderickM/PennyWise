@@ -71,7 +71,7 @@ public class CheckingAccount extends Account {
         if (amount > 0 && amount <= totalAvailable) {
             setBalance(getBalance() - amount);
             // Record transaction using parent method
-            recordTransaction(amount, AppConstants.TRANSACTION_WITHDRAWAL, getCurrentDate());
+            super.recordTransaction(amount, AppConstants.TRANSACTION_WITHDRAWAL, super.getCurrentDate());
             // SELECTION: Check if overdraft is now in use
             if (getBalance() < 0) {
                 System.out.println("WARNING: Account is in overdraft!");

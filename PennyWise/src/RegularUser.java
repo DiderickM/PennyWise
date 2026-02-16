@@ -79,14 +79,18 @@ public class RegularUser extends User {
                     System.out.println("    Type: " + accounts[i].getAccountType());
                     System.out.println("    Balance: $" + InputValidator.formatMoney(accounts[i].getBalance()));
                     
-                    if (accounts[i] instanceof SavingsAccount) {
-                        SavingsAccount savings = (SavingsAccount) accounts[i];
-                        System.out.println("    Interest Rate: " + InputValidator.formatPercentage(savings.getInterestRate()));
-                        System.out.println("    Max Withdrawals/Month: " + savings.getMaxWithdrawalsPerMonth());
-                    } else if (accounts[i] instanceof CheckingAccount) {
-                        CheckingAccount checking = (CheckingAccount) accounts[i];
-                        System.out.println("    Overdraft Limit: $" + InputValidator.formatMoney(checking.getOverdraftLimit()));
-                        System.out.println("    Overdraft Fee: $" + InputValidator.formatMoney(checking.getOverdraftFee()));
+                    switch (accounts[i]) {
+                        case SavingsAccount savings -> {
+                            System.out.println("    Interest Rate: " + InputValidator.formatPercentage(savings.getInterestRate()));
+                            System.out.println("    Max Withdrawals/Month: " + savings.getMaxWithdrawalsPerMonth());
+                        }
+                        case CheckingAccount checking -> {
+                            System.out.println("    Overdraft Limit: $" + InputValidator.formatMoney(checking.getOverdraftLimit()));
+                            System.out.println("    Overdraft Fee: $" + InputValidator.formatMoney(checking.getOverdraftFee()));
+                        }
+                        default -> {
+                            System.out.println("    No additional details available for this account type.");
+                        }
                     }
                     
                     totalBalance += accounts[i].getBalance();
@@ -98,30 +102,5 @@ public class RegularUser extends User {
             System.out.println("No accounts associated with this user.");
         }
         System.out.println("===========================================");
-    }
-    
-    /**
-     * VALUE RETURNING METHOD: Transfers money between two of the user's own accounts.
-     * 
-     * @param sourceIndex Index of source account
-     * @param targetIndex Index of target account
-     * @param amount Amount to transfer
-     * @return true if transfer successful, false otherwise
-     */
-    public boolean transferBetweenAccounts(int sourceIndex, int targetIndex, double amount) {
-        Account sourceAccount = getAccountByIndex(sourceIndex);
-        Account targetAccount = getAccountByIndex(targetIndex);
-        
-        if (sourceAccount == null) {
-            System.out.println("Source account not found.");
-            return false;
-        }
-        
-        if (targetAccount == null) {
-            System.out.println("Target account not found.");
-            return false;
-        }
-        
-        return sourceAccount.transfer(amount, targetAccount);
     }
 }

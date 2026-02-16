@@ -423,10 +423,10 @@ public class SuperAdmin extends Admin {
             // Find savings accounts
             int savingsIndex = -1;
             for (int i = 0; i < accounts.length; i++) {
-                if (accounts[i] instanceof SavingsAccount) {
+                if (accounts[i] instanceof SavingsAccount savingsAccount) {
                     if (savingsIndex == -1) savingsIndex = i;
                     System.out.println((savingsIndex + 1) + ". Savings Account: " + accounts[i].getAccountNumber() +
-                                     " (Rate: " + String.format("%.2f", ((SavingsAccount) accounts[i]).getInterestRate() * 100) + "%)");
+                                     " (Rate: " + String.format("%.2f", savingsAccount.getInterestRate() * 100) + "%)");
                 }
             }
 
@@ -495,11 +495,9 @@ public class SuperAdmin extends Admin {
             // Find checking accounts
             int checkingCount = 0;
             System.out.println("\n--- Checking Accounts ---");
-            for (int i = 0; i < accounts.length; i++) {
-                if (accounts[i] instanceof CheckingAccount) {
-                    CheckingAccount checkingAccount = (CheckingAccount) accounts[i];
-                    System.out.println((checkingCount + 1) + ". " + accounts[i].getAccountNumber() +
-                                     " (Overdraft Limit: $" + InputValidator.formatMoney(checkingAccount.getOverdraftLimit()) + ")");
+            for (Account account : accounts) {
+                if (account instanceof CheckingAccount checkingAccount) {
+                    System.out.println((checkingCount + 1) + ". " + account.getAccountNumber() + " (Overdraft Limit: $" + InputValidator.formatMoney(checkingAccount.getOverdraftLimit()) + ")");
                     checkingCount++;
                 }
             }
@@ -513,10 +511,9 @@ public class SuperAdmin extends Admin {
             try {
                 int choice = (int) InputValidator.getValidatedDouble(scanner, "Invalid account selection. Please enter a valid number.") - 1;
                 int accountIndex = 0;
-                for (int i = 0; i < accounts.length; i++) {
-                    if (accounts[i] instanceof CheckingAccount) {
+                for (Account account : accounts) {
+                    if (account instanceof CheckingAccount checkingAccount) {
                         if (accountIndex == choice) {
-                            CheckingAccount checkingAccount = (CheckingAccount) accounts[i];
                             System.out.print("Enter new overdraft limit ($): ");
                             double limit = InputValidator.getValidatedDouble(scanner, "Invalid overdraft limit. Please enter a valid number.");
                             if (limit >= 0) {
@@ -593,10 +590,9 @@ public class SuperAdmin extends Admin {
             // Find savings accounts
             int savingsCount = 0;
             System.out.println("\n--- Savings Accounts ---");
-            for (int i = 0; i < accounts.length; i++) {
-                if (accounts[i] instanceof SavingsAccount) {
-                    SavingsAccount savingsAccount = (SavingsAccount) accounts[i];
-                    System.out.println((savingsCount + 1) + ". " + accounts[i].getAccountNumber() +
+            for (Account account : accounts) {
+                if (account instanceof SavingsAccount savingsAccount) {
+                    System.out.println((savingsCount + 1) + ". " + account.getAccountNumber() +
                                      " (Max Withdrawals: " + savingsAccount.getMaxWithdrawalsPerMonth() + ")");
                     savingsCount++;
                 }
@@ -612,9 +608,8 @@ public class SuperAdmin extends Admin {
                 int choice = (int)  InputValidator.getValidatedDouble(scanner, "Invalid account selection. Please enter a valid number.") - 1;
                 int accountIndex = 0;
                 for (Account account : accounts) {
-                    if (account instanceof SavingsAccount) {
+                    if (account instanceof SavingsAccount savingsAccount) {
                         if (accountIndex == choice) {
-                            SavingsAccount savingsAccount = (SavingsAccount) account;
                             System.out.print("Enter new maximum withdrawals per month: ");
                             int max = (int) InputValidator.getValidatedDouble(scanner, "Invalid maximum withdrawals. Please enter a valid number.");
                             if (max > 0) {

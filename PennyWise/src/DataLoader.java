@@ -32,10 +32,6 @@ public class DataLoader extends DataPersistence {
         double overdraftFee; // unused for Savings, overdraft fee for Checking
         int maxWithdrawalsPerMonth; // max withdrawals per month for Savings, unused for Checking
         
-        AccountData(String type, String number, double bal, double interestRateOrOverdraftLimit, double overdraftFee) {
-            this(type, number, bal, interestRateOrOverdraftLimit, overdraftFee, 3); // Default to 3 withdrawals
-        }
-        
         AccountData(String type, String number, double bal, double interestRateOrOverdraftLimit, double overdraftFee, int maxWithdrawalsPerMonth) {
             this.accountType = type;
             this.accountNumber = number;
@@ -123,7 +119,11 @@ public class DataLoader extends DataPersistence {
         super.handleError(e);
         if (!(e instanceof IOException)) {
             // Print stack trace for unexpected errors
-            e.printStackTrace();
+            if (e instanceof IllegalArgumentException) {
+                System.err.println("Validation error: " + e.getMessage());
+            } else {
+                System.err.println("Unexpected error during data load:");
+            }
         }
     }
     

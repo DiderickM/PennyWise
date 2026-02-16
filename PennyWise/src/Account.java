@@ -174,11 +174,14 @@ public abstract class Account {
      * @param type Transaction type
      * @param date Transaction date
      */
-    protected void recordTransaction(double amount, String type, String date) {
+    protected final void recordTransaction(double amount, String type, String date) {
         // SELECTION: Check if array has space
         if (transactionCount < transactions.length) {
             transactions[transactionCount] = new Transaction(amount, type, date);
             transactionCount++;
+        }else {
+            System.out.println("Transaction history is full. Cannot record more transactions.");
+            throw new RuntimeException("Transaction history limit reached for account " + accountNumber);
         }
     }
 
@@ -225,7 +228,7 @@ public abstract class Account {
     /**
      * VALUE RETURNING METHOD: Gets current date as string.
      */
-    protected String getCurrentDate() {
+    protected final String getCurrentDate() {
         return new java.text.SimpleDateFormat(AppConstants.DATE_FORMAT).format(new java.util.Date());
     }
 

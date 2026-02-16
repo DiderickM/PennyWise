@@ -219,8 +219,8 @@ public class UserManager {
         int count = 0;
         
         for (int i = 0; i < userCount; i++) {
-            if (users[i] instanceof RegularUser) {
-                regularUsers[count++] = (RegularUser) users[i];
+            if (users[i] instanceof RegularUser regularUser) {
+                regularUsers[count++] = regularUser;
             }
         }
         

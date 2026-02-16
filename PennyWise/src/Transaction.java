@@ -10,9 +10,9 @@
  */
 public class Transaction {
     // ENCAPSULATION: Private variables with getters
-    private double amount;
-    private String type; // "DEPOSIT" or "WITHDRAWAL"
-    private String date;
+    private final double amount;
+    private final String type; // "DEPOSIT" or "WITHDRAWAL"
+    private final String date;
 
     /**
      * Constructor to initialize a transaction.
