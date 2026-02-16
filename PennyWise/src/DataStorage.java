@@ -65,7 +65,9 @@ public class DataStorage extends DataPersistence {
     
     /**
      * Saves all users to the users file.
-     * Format: userType|userId|username|password|email|adminLevel
+     * Format: REGULAR|userId|username|password|email
+     *         ADMIN|userId|username|password|email
+     *         SUPERADMIN|userId|username|password|email
      */
     private static void saveUsers() throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(USERS_FILE))) {
@@ -79,12 +81,16 @@ public class DataStorage extends DataPersistence {
                         writer.println("REGULAR|" + user.getUserId() + "|" + 
                                      user.getUsername() + "|" + user.getPassword() + "|" + 
                                      user.getEmail());
+                    } else if (user instanceof SuperAdmin) {
+                        // Format: SUPERADMIN|userId|username|password|email
+                        writer.println("SUPERADMIN|" + user.getUserId() + "|" + 
+                                     user.getUsername() + "|" + user.getPassword() + "|" + 
+                                     user.getEmail());
                     } else if (user instanceof Admin) {
-                        Admin admin = (Admin) user;
-                        // Format: ADMIN|userId|username|password|email|adminLevel
+                        // Format: ADMIN|userId|username|password|email
                         writer.println("ADMIN|" + user.getUserId() + "|" + 
                                      user.getUsername() + "|" + user.getPassword() + "|" + 
-                                     user.getEmail() + "|" + admin.getAdminLevel());
+                                     user.getEmail());
                     }
                 }
             }
