@@ -63,18 +63,6 @@ import java.util.Scanner;
  * ... (Menu continues with more options: View all users, Modify accounts, Generate reports, etc.)
 */
 
-/**
- * App class - DRIVER CLASS for PennyWise Financial Management System.
- * 
- * This class demonstrates:
- * - SELECTIONS (if-else, switch statements)
- * - LOOPS (while loop for menu system)
- * - METHODS (value returning and void methods)
- * - USER INTERACTION (Scanner for System.in)
- * - INHERITANCE & POLYMORPHISM (User subclasses, Account subclasses)
- * - ENCAPSULATION (private fields with getters/setters)
- * - ARRAYS (storing users and accounts)
- */
 public class App {
     
     // ARRAYS: Store users and accounts (encapsulated - use accessors)
@@ -88,10 +76,6 @@ public class App {
         // Load saved data on startup
         if (DataStorage.dataExists()) {
             System.out.println("Loading saved data...");
-            if (DataLoader.loadAllData()) {
-                System.out.println("Data loaded successfully! (" + userCount + " users)");
-            } else {
-                System.out.println("Warning: Failed to load some data.");
             }
         }
         
