@@ -86,6 +86,16 @@ public abstract class Account {
         return false;
     }
 
+    public boolean deposit(double amount, String reason) {
+        // SELECTION: if-else statement to validate deposit
+        if (amount > 0) {
+            balance += amount;
+            recordTransaction(amount, AppConstants.TRANSACTION_DEPOSIT + " " + reason, getCurrentDate());
+            return true;
+        }
+        return false;
+    }
+
     /**
      * VALUE RETURNING METHOD: Withdraws money from the account.
      * POLYMORPHISM IMPLEMENTATION: Subclasses can override for different rules.
@@ -99,6 +109,17 @@ public abstract class Account {
             balance -= amount;
             System.out.println("Withdrawal successful - requested: $" + InputValidator.formatMoney(amount));
             recordTransaction(amount, AppConstants.TRANSACTION_WITHDRAWAL, getCurrentDate());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean withdraw(double amount, String reason) {
+        // SELECTION: if-else statement to validate withdrawal
+        if (amount > 0 && balance >= amount) {
+            balance -= amount;
+            System.out.println("Withdrawal successful - requested: $" + InputValidator.formatMoney(amount));
+            recordTransaction(amount, AppConstants.TRANSACTION_WITHDRAWAL + " " + reason, getCurrentDate());
             return true;
         }
         return false;

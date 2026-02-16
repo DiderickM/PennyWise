@@ -206,7 +206,7 @@ public class Admin extends User {
                     System.out.print("Enter amount to add: $");
                     double amount = InputValidator.getValidatedDouble(scanner, "Invalid amount. Please enter a valid number.");
                     if (amount > 0) {
-                        account.setBalance(account.getBalance() + amount);
+                        account.deposit(amount, "ADMIN ADDED CASH");
                         System.out.println("Amount added. New Balance: $" + InputValidator.formatMoney(account.getBalance()));
                         DataStorage.saveAllData(); // Save after balance adjustment
                     } else {
@@ -217,7 +217,7 @@ public class Admin extends User {
                     System.out.print("Enter amount to subtract: $");
                     double amount = InputValidator.getValidatedDouble(scanner, "Invalid amount. Please enter a valid number.");
                     if (amount > 0) {
-                        account.setBalance(account.getBalance() - amount);
+                        account.withdraw(amount, "ADMIN REMOVED CASH");
                         System.out.println("Amount subtracted. New Balance: $" + InputValidator.formatMoney(account.getBalance()));
                         DataStorage.saveAllData(); // Save after balance adjustment
                     } else {

@@ -96,46 +96,7 @@ public class AccountManager {
         System.out.println("Invalid selection.");
         return null;
     }
-    
-    /**
-     * VALUE RETURNING METHOD: Selects an account from a user's account list by index.
-     * Returns the account index instead of the account object.
-     * 
-     * @param scanner Scanner for user input
-     * @param accounts Array of accounts to select from
-     * @param prompt Custom prompt message
-     * @return Selected account index (0-based), or -1 if invalid selection
-     */
-    public static int selectAccountIndex(Scanner scanner, Account[] accounts, String prompt) {
-        if (hasNoAccounts(accounts)) {
-            System.out.println("No accounts available.");
-            return -1;
-        }
-        
-        if (accounts.length == 1) {
-            return 0; // Auto-select if only one account
-        }
-        
-        // Display accounts
-        System.out.println("\n--- Select Account ---");
-        for (int i = 0; i < accounts.length; i++) {
-            if (accounts[i] != null) {
-                System.out.println((i + 1) + ". [" + accounts[i].getAccountNumber() + "] " +
-                                 accounts[i].getAccountType() +
-                                 " - Balance: $" + InputValidator.formatMoney(accounts[i].getBalance()));
-            }
-        }
-        
-        System.out.print(prompt);
-        int choice = InputValidator.getIntInput(scanner);
-        
-        if (InputValidator.isValidMenuChoice(choice, 1, accounts.length)) {
-            return choice - 1;
-        }
-        
-        System.out.println("Invalid selection.");
-        return -1;
-    }
+
     
     /**
      * VALUE RETURNING METHOD: Selects a target account excluding a specific one.
@@ -241,7 +202,7 @@ public class AccountManager {
      */
     public static void displayAccountTypeMenu() {
         System.out.println("Select Account Type:");
-        System.out.println("1. Savings Account (" + InputValidator.formatPercentage(SystemConfiguration.getInstance().getDefaultSavingsInterestRate()) + " interest and " + InputValidator.formatMoney(SystemConfiguration.getInstance().getDefaultMaxSavingsWithdrawals()) + " max monthly withdrawals)");
+        System.out.println("1. Savings Account (" + InputValidator.formatPercentage(SystemConfiguration.getInstance().getDefaultSavingsInterestRate()) + " interest and " + InputValidator.formatMoney(SystemConfiguration.getInstance().getDefaultSavingsMaxWithdrawals()) + " max monthly withdrawals)");
         System.out.println("2. Checking Account (with overdraft fee of: $" + InputValidator.formatMoney(SystemConfiguration.getInstance().getDefaultCheckingOverdraftFee()) + "/" + InputValidator.formatMoney(SystemConfiguration.getInstance().getDefaultCheckingOverdraftLimit()) + " overdraft limit)");
     }
     

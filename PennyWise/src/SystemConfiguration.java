@@ -60,16 +60,6 @@ public class SystemConfiguration {
         }
     }
     
-    public double getDefaultMaxSavingsWithdrawals() {
-        return defaultSavingsMaxWithdrawals;
-    }
-
-    public void setDefaultMaxSavingsWithdrawals(int maxWithdrawals) {
-        if (maxWithdrawals >= 0) {
-            this.defaultSavingsMaxWithdrawals = maxWithdrawals;
-        }
-    }
-    
     public double getDefaultCheckingOverdraftLimit() {
         return defaultCheckingOverdraftLimit;
     }

@@ -281,8 +281,7 @@ public class UserInterface {
         Account account = AccountManager.selectAccount(scanner, accounts, "Select account for deposit:");
         
         if (account != null) {
-            System.out.print("Enter deposit amount: $");
-            double amount = InputValidator.getDoubleInput(scanner);
+            double amount = InputValidator.getValidatedAmount(scanner, "Enter deposit amount: $");
             
             if (amount > 0) {
                 account.deposit(amount);
@@ -312,8 +311,7 @@ public class UserInterface {
         Account account = AccountManager.selectAccount(scanner, accounts, "Select account for withdrawal:");
         
         if (account != null) {
-            System.out.print("Enter withdrawal amount: $");
-            double amount = InputValidator.getDoubleInput(scanner);
+            double amount = InputValidator.getValidatedAmount(scanner, "Enter withdrawal amount: $");
             
             if (amount > 0) {
                 if (account.withdraw(amount)) {
@@ -371,12 +369,11 @@ public class UserInterface {
         
         Account toAccount = accounts[toIndex];
         
-        System.out.print("Enter transfer amount: $");
-        double amount = InputValidator.getDoubleInput(scanner);
+        double amount = InputValidator.getValidatedAmount(scanner, "Enter transfer amount: $");
         
         if (amount > 0) {
-            if (fromAccount.withdraw(amount)) {
-                toAccount.deposit(amount);
+            if (fromAccount.withdraw(amount, "Internal Transfer to " + toAccount.getAccountNumber())) {
+                toAccount.deposit(amount, "Internal Transfer from " + fromAccount.getAccountNumber());
                 
                 // Transfer already recorded in deposit/withdraw
                 // No need to record again as Account class handles it
@@ -455,11 +452,11 @@ public class UserInterface {
         }
         
         System.out.print("Enter transfer amount: $");
-        double amount = InputValidator.getDoubleInput(scanner);
+        double amount = InputValidator.getValidatedAmount(scanner, "Enter transfer amount: $");
         
         if (amount > 0) {
-            if (fromAccount.withdraw(amount)) {
-                toAccount.deposit(amount);
+            if (fromAccount.withdraw(amount, "External Transfer" + " to " + destAccountNumber)) {
+                toAccount.deposit(amount, "External Transfer" + " from " + fromAccount.getAccountNumber());
                 
                 // Transfer already recorded in deposit/withdraw
                 // No need to record again as Account class handles it
@@ -540,14 +537,8 @@ public class UserInterface {
             
             Account destAccount = accounts[destIndex];
             double balanceToTransfer = accountToClose.getBalance();
-            
-            // Transfer with special message
-            accountToClose.recordTransaction(balanceToTransfer, "ACCOUNT CLOSURE TRANSFER", 
-                                            java.time.LocalDate.now().toString());
-            destAccount.recordTransaction(balanceToTransfer, "ACCOUNT CLOSURE TRANSFER" + " (from " + accountToClose.getAccountNumber() + ")", 
-                                         java.time.LocalDate.now().toString());
-            destAccount.setBalance(destAccount.getBalance() + balanceToTransfer);
-            accountToClose.setBalance(0);
+            accountToClose.withdraw(balanceToTransfer, "ACCOUNT CLOSURE TRANSFER");
+            destAccount.deposit(balanceToTransfer, "ACCOUNT CLOSURE TRANSFER FROM " + accountToClose.getAccountNumber());
             
             System.out.println("\nTransfer from account closure completed!");
             System.out.println("From: " + accountToClose.getAccountNumber() + " (Amount: $" + 

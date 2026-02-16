@@ -55,7 +55,7 @@ public class CheckingAccount extends Account {
         // SELECTION: Check if account is in overdraft
         if (getBalance() < 0) {
             System.out.println("Overdraft fee of $" + overdraftFee + " applied.");
-            super.setBalance(getBalance() - overdraftFee);
+            super.withdraw(overdraftFee, "OVERDRAFT FEE of $" + overdraftFee);
         }
     }
 

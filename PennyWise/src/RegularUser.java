@@ -42,26 +42,6 @@ public class RegularUser extends User {
         }
     }
 
-    // ENCAPSULATION: Getter for first account (deprecated - use getAccounts() for multiple accounts)
-    public Account getAccount() {
-        Account[] accounts = getAccounts();
-        if (accounts != null && accounts.length > 0) {
-            return accounts[0];
-        }
-        return null;
-    }
-
-    // ENCAPSULATION: Setter for first account (backward compatibility)
-    public void setAccount(Account account) {
-        if (account != null) {
-            Account[] accounts = getAccounts();
-            if (accounts == null || accounts.length == 0) {
-                addAccount(account);
-            } else {
-                accounts[0] = account;
-            }
-        }
-    }
 
     /**
      * VALUE RETURNING METHOD: Returns the account at specified index.
@@ -119,41 +99,7 @@ public class RegularUser extends User {
         }
         System.out.println("===========================================");
     }
-
-    /**
-     * VALUE RETURNING METHOD: Returns user's current account balance (first account).
-     */
-    public double getBalance() {
-        Account account = getAccount();
-        return (account != null) ? account.getBalance() : 0.0;
-    }
-
-    /**
-     * VOID METHOD: Displays transaction history from the user's first account.
-     */
-    public void viewTransactionHistory() {
-        Account account = getAccount();
-        if (account != null) {
-            account.displayTransactionHistory();
-        } else {
-            System.out.println("No account associated with this user.");
-        }
-    }
     
-    /**
-     * VOID METHOD: Displays transaction history from a specific account.
-     * 
-     * @param accountIndex Index of the account
-     */
-    public void viewTransactionHistory(int accountIndex) {
-        Account account = getAccountByIndex(accountIndex);
-        if (account != null) {
-            account.displayTransactionHistory();
-        } else {
-            System.out.println("Invalid account index.");
-        }
-    }
-
     /**
      * VALUE RETURNING METHOD: Transfers money between two of the user's own accounts.
      * 
@@ -176,42 +122,6 @@ public class RegularUser extends User {
             return false;
         }
         
-        return sourceAccount.transfer(amount, targetAccount);
-    }
-
-    /**
-     * VALUE RETURNING METHOD: Transfers money from this user to another user.
-     * Only allows transfers from a CheckingAccount.
-     *
-     * @param sourceIndex Index of source account (must be checking)
-     * @param targetUser Target user
-     * @param targetIndex Index of target user's account
-     * @param amount Amount to transfer
-     * @return true if transfer successful, false otherwise
-     */
-    public boolean transferToOtherUser(int sourceIndex, RegularUser targetUser, int targetIndex, double amount) {
-        Account sourceAccount = getAccountByIndex(sourceIndex);
-        if (sourceAccount == null) {
-            System.out.println("Source account not found.");
-            return false;
-        }
-
-        if (!(sourceAccount instanceof CheckingAccount)) {
-            System.out.println("Transfers to other users are only allowed from a checking account.");
-            return false;
-        }
-
-        if (targetUser == null || targetUser == this) {
-            System.out.println("Target user is invalid.");
-            return false;
-        }
-
-        Account targetAccount = targetUser.getAccountByIndex(targetIndex);
-        if (targetAccount == null) {
-            System.out.println("Target account not found.");
-            return false;
-        }
-
         return sourceAccount.transfer(amount, targetAccount);
     }
 }

@@ -92,13 +92,6 @@ public class PasswordUtil {
             return false;
         }
         
-        // Handle legacy plain text passwords (for backward compatibility during migration)
-        if (!storedHash.contains(":")) {
-            // This is a plain text password - compare directly
-            // In production, you'd want to rehash these immediately
-            return password.equals(storedHash);
-        }
-        
         try {
             // Split stored hash into salt and hash components
             String[] parts = storedHash.split(":", 2);
