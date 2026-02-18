@@ -124,22 +124,43 @@ public class DataStorage extends DataPersistence {
                     if (accounts != null) {
                         for (Account account : accounts) {
                             if (account != null) {
-                                switch (account) {
-                                    case SavingsAccount sa -> // Format: userId|SAVINGS|accountNumber|balance|interestRate|maxWithdrawals
-                                        writer.println(user.getUserId() + "|SAVINGS|" +
-                                                account.getAccountNumber() + "|" +
-                                                account.getBalance() + "|" +
-                                                sa.getInterestRate() + "|" +
-                                                sa.getMaxWithdrawalsPerMonth());
-                                    case CheckingAccount ca -> // Format: userId|CHECKING|accountNumber|balance|overdraftLimit|overdraftFee
-                                        writer.println(user.getUserId() + "|CHECKING|" +
-                                                account.getAccountNumber() + "|" +
-                                                account.getBalance() + "|" +
-                                                ca.getOverdraftLimit() + "|" +
-                                                ca.getOverdraftFee());
-                                    default -> {
-                                    }
+                                if(account instanceof SavingsAccount sa) {
+                                    // Format: userId|SAVINGS|accountNumber|balance|interestRate|maxWithdrawals
+                                    writer.println(user.getUserId() + "|SAVINGS|" +
+                                            account.getAccountNumber() + "|" +
+                                            account.getBalance() + "|" +
+                                            sa.getInterestRate() + "|" +
+                                            sa.getMaxWithdrawalsPerMonth());
+                                } else if(account instanceof CheckingAccount ca) {
+                                    // Format: userId|CHECKING|accountNumber|balance|overdraftLimit|overdraftFee
+                                    writer.println(user.getUserId() + "|CHECKING|" +
+                                            account.getAccountNumber() + "|" +
+                                            account.getBalance() + "|" +
+                                            ca.getOverdraftLimit() + "|" +
+                                            ca.getOverdraftFee());
+                                } else {
+                                    // For any other account types, we can add more cases here
+                                    // throwException();
+                                    System.out.println("Unknown account type for user " + user.getUsername() + ": " + account.getClass().getSimpleName());
                                 }
+
+                                // Switch statement not supported in java 17, using if-else instead
+                                // switch (account) {
+                                //     case SavingsAccount sa -> // Format: userId|SAVINGS|accountNumber|balance|interestRate|maxWithdrawals
+                                //         writer.println(user.getUserId() + "|SAVINGS|" +
+                                //                 account.getAccountNumber() + "|" +
+                                //                 account.getBalance() + "|" +
+                                //                 sa.getInterestRate() + "|" +
+                                //                 sa.getMaxWithdrawalsPerMonth());
+                                //     case CheckingAccount ca -> // Format: userId|CHECKING|accountNumber|balance|overdraftLimit|overdraftFee
+                                //         writer.println(user.getUserId() + "|CHECKING|" +
+                                //                 account.getAccountNumber() + "|" +
+                                //                 account.getBalance() + "|" +
+                                //                 ca.getOverdraftLimit() + "|" +
+                                //                 ca.getOverdraftFee());
+                                //     default -> {
+                                //     }
+                                // }
                             }
                         }
                     }

@@ -81,19 +81,33 @@ public class RegularUser extends User {
                     System.out.println("    Type: " + accounts[i].getAccountType());
                     System.out.println("    Balance: $" + InputValidator.formatMoney(accounts[i].getBalance()));
                     
-                    switch (accounts[i]) {
-                        case SavingsAccount savings -> {
-                            System.out.println("    Interest Rate: " + InputValidator.formatPercentage(savings.getInterestRate()));
-                            System.out.println("    Max Withdrawals/Month: " + savings.getMaxWithdrawalsPerMonth());
-                        }
-                        case CheckingAccount checking -> {
-                            System.out.println("    Overdraft Limit: $" + InputValidator.formatMoney(checking.getOverdraftLimit()));
-                            System.out.println("    Overdraft Fee: $" + InputValidator.formatMoney(checking.getOverdraftFee()));
-                        }
-                        default -> {
-                            System.out.println("    No additional details available for this account type.");
-                        }
+                    Account acc = accounts[i];
+                    if(acc instanceof SavingsAccount){
+                        SavingsAccount savings = (SavingsAccount) acc;
+                        System.out.println("    Interest Rate: " + InputValidator.formatPercentage(savings.getInterestRate()));
+                        System.out.println("    Max Withdrawals/Month: " + savings.getMaxWithdrawalsPerMonth());
+                    } else if(acc instanceof CheckingAccount){
+                        CheckingAccount checking = (CheckingAccount) acc;
+                        System.out.println("    Overdraft Limit: $" + InputValidator.formatMoney(checking.getOverdraftLimit()));
+                        System.out.println("    Overdraft Fee: $" + InputValidator.formatMoney(checking.getOverdraftFee()));
+                    } else {
+                        System.out.println("    No additional details available for this account type.");
                     }
+
+                    //Switch statement not supported in java 17, using if-else instead
+                    // switch (accounts[i]) {
+                    //     case SavingsAccount savings -> {
+                    //         System.out.println("    Interest Rate: " + InputValidator.formatPercentage(savings.getInterestRate()));
+                    //         System.out.println("    Max Withdrawals/Month: " + savings.getMaxWithdrawalsPerMonth());
+                    //     }
+                    //     case CheckingAccount checking -> {
+                    //         System.out.println("    Overdraft Limit: $" + InputValidator.formatMoney(checking.getOverdraftLimit()));
+                    //         System.out.println("    Overdraft Fee: $" + InputValidator.formatMoney(checking.getOverdraftFee()));
+                    //     }
+                    //     default -> {
+                    //         System.out.println("    No additional details available for this account type.");
+                    //     }
+                    // }
                     
                     totalBalance += accounts[i].getBalance();
                 }
