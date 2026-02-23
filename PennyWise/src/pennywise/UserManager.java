@@ -74,7 +74,8 @@ public class UserManager {
         }
         
         for (int i = 0; i < userCount; i++) {
-            if (users[i] instanceof RegularUser user) {
+            if (users[i] instanceof RegularUser) {
+                RegularUser user = (RegularUser) users[i];
                 if (user.getUsername().equals(username)) {
                     return user;
                 }
@@ -97,7 +98,8 @@ public class UserManager {
         }
         
         for (int i = 0; i < userCount; i++) {
-            if (users[i] instanceof RegularUser user) {
+            if (users[i] instanceof RegularUser) {
+                RegularUser user = (RegularUser) users[i];
                 if (user.getUsername().equals(username)) {
                     // Use password verification with hashing
                     if (PasswordUtil.verifyPassword(password, user.getPassword())) {
@@ -132,7 +134,8 @@ public class UserManager {
         
         int userIndex = -1;
         for (int i = 0; i < userCount; i++) {
-            if (users[i] instanceof RegularUser user) {
+            if (users[i] instanceof RegularUser) {
+                RegularUser user = (RegularUser) users[i];
                 if (user.getUsername().equals(username)) {
                     userIndex = i;
                     break;
@@ -168,7 +171,9 @@ public class UserManager {
         }
         
         for (int i = 0; i < userCount; i++) {
-            if (users[i] instanceof RegularUser user && user != excludeUser) {
+            if (users[i] instanceof RegularUser) {
+                RegularUser user = (RegularUser) users[i];
+                if (user != excludeUser) {
                 Account[] accounts = user.getAccounts();
                 if (accounts != null) {
                     for (Account account : accounts) {
@@ -176,6 +181,7 @@ public class UserManager {
                             return user;
                         }
                     }
+                }
                 }
             }
         }
@@ -196,7 +202,8 @@ public class UserManager {
         }
         
         for (int i = 0; i < userCount; i++) {
-            if (users[i] instanceof RegularUser user) {
+            if (users[i] instanceof RegularUser) {
+                RegularUser user = (RegularUser) users[i];
                 Account[] accounts = user.getAccounts();
                 if (accounts != null) {
                     for (Account account : accounts) {
@@ -221,7 +228,8 @@ public class UserManager {
         int count = 0;
         
         for (int i = 0; i < userCount; i++) {
-            if (users[i] instanceof RegularUser regularUser) {
+            if (users[i] instanceof RegularUser) {
+                RegularUser regularUser = (RegularUser) users[i];
                 regularUsers[count++] = regularUser;
             }
         }

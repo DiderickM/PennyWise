@@ -80,21 +80,43 @@ public class SuperAdmin extends Admin {
 
             String choice = scanner.nextLine();
             switch (choice) {
-                case "1" -> displayAllUsers();
-                case "2" -> modifyUserInformation(scanner);
-                case "3" -> adjustAccountBalance(scanner);
-                case "4" -> deleteUserAccount(scanner);
-                case "5" -> generateSystemReport();
-                case "6" -> applyAccountFeaturesToAllSavings();
-                case "7" -> applyAccountFeaturesToAllChecking();
-                case "8" -> manageAdmins(scanner);
-                case "9" -> manageSystemConfiguration(scanner);
-                case "10" -> deleteAllStoredData(scanner);
-                case "11" -> {
+                case "1":
+                    displayAllUsers();
+                    break;
+                case "2":
+                    modifyUserInformation(scanner);
+                    break;
+                case "3":
+                    adjustAccountBalance(scanner);
+                    break;
+                case "4":
+                    deleteUserAccount(scanner);
+                    break;
+                case "5":
+                    generateSystemReport();
+                    break;
+                case "6":
+                    applyAccountFeaturesToAllSavings();
+                    break;
+                case "7":
+                    applyAccountFeaturesToAllChecking();
+                    break;
+                case "8":
+                    manageAdmins(scanner);
+                    break;
+                case "9":
+                    manageSystemConfiguration(scanner);
+                    break;
+                case "10":
+                    deleteAllStoredData(scanner);
+                    break;
+                case "11":
                     inAdmin = false;
                     System.out.println("Admin logged out.");
-                }
-                default -> System.out.println("Invalid option.");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+                    break;
             }
         }
     }
@@ -113,7 +135,8 @@ public class SuperAdmin extends Admin {
         } else {
             for (int i = 0; i < UserManager.getUserCount(); i++) {
                 User u = UserManager.getUser(i);
-                if (u instanceof RegularUser user) {
+                if (u instanceof RegularUser) {
+                    RegularUser user = (RegularUser) u;
                     Account[] accounts = user.getAccounts();
                     if (!AccountManager.hasNoAccounts(accounts)) {
                         int accountIndex = 1;
@@ -155,12 +178,12 @@ public class SuperAdmin extends Admin {
 
         String choice = scanner.nextLine();
         switch (choice) {
-            case "1" -> {
+            case "1":
                 System.out.println("\n--- Current Admins ---");
                 System.out.println("1. admin (SuperAdmin) - admin@pennywise.com");
                 System.out.println("Note: In full implementation, multiple admins would be stored in an array.");
-            }
-            case "2" -> {
+                break;
+            case "2":
                 System.out.println("\n--- Create New Admin ---");
                 System.out.print("Enter new admin username: ");
                 String newAdminUsername = scanner.nextLine();
@@ -172,8 +195,8 @@ public class SuperAdmin extends Admin {
                 } else {
                     System.out.println("Invalid admin type. Must be Admin or SuperAdmin.");
                 }
-            }
-            case "3" -> {
+                break;
+            case "3":
                 System.out.println("\n--- Modify Admin ---");
                 System.out.print("Enter admin username to modify: ");
                 String adminUsername = scanner.nextLine();
@@ -183,12 +206,12 @@ public class SuperAdmin extends Admin {
                     System.out.print("Select option (1-2): ");
                     String modifyChoice = scanner.nextLine();
                     switch (modifyChoice) {
-                        case "1" -> {
+                        case "1":
                             System.out.print("Enter new email: ");
                             String newEmail = scanner.nextLine();
                             System.out.println("Admin email updated to: " + newEmail);
-                        }
-                        case "2" -> {
+                            break;
+                        case "2":
                             System.out.print("Enter new admin type (Admin/SuperAdmin): ");
                             String newType = scanner.nextLine();
                             if (newType.equalsIgnoreCase("Admin") || newType.equalsIgnoreCase("SuperAdmin")) {
@@ -196,15 +219,21 @@ public class SuperAdmin extends Admin {
                             } else {
                                 System.out.println("Invalid admin type.");
                             }
-                        }
-                        default -> System.out.println("Invalid option.");
+                            break;
+                        default:
+                            System.out.println("Invalid option.");
+                            break;
                     }
                 } else {
                     System.out.println("Admin not found.");
                 }
-            }
-            case "4" -> System.out.println("Admin management cancelled.");
-            default -> System.out.println("Invalid option.");
+                break;
+            case "4":
+                System.out.println("Admin management cancelled.");
+                break;
+            default:
+                System.out.println("Invalid option.");
+                break;
         }
     }
 
@@ -220,12 +249,14 @@ public class SuperAdmin extends Admin {
         // LOOPS: for loop to iterate through all users
         for (int i = 0; i < UserManager.getUserCount(); i++) {
             User u = UserManager.getUser(i);
-            if (u instanceof RegularUser user) {
+            if (u instanceof RegularUser) {
+                RegularUser user = (RegularUser) u;
                 Account[] accounts = user.getAccounts();
                 if (!AccountManager.hasNoAccounts(accounts)) {
                     for (Account account : accounts) {
                         // SELECTION: Check if account is a SavingsAccount
-                        if (account instanceof SavingsAccount savingsAccount) {
+                        if (account instanceof SavingsAccount) {
+                            SavingsAccount savingsAccount = (SavingsAccount) account;
                             double balanceBefore = account.getBalance();
                             // Apply account-specific features (interest in this case)
                             savingsAccount.applyAccountFeatures();
@@ -268,12 +299,14 @@ public class SuperAdmin extends Admin {
         // LOOPS: for loop to iterate through all users
         for (int i = 0; i < UserManager.getUserCount(); i++) {
             User u = UserManager.getUser(i);
-            if (u instanceof RegularUser user) {
+            if (u instanceof RegularUser) {
+                RegularUser user = (RegularUser) u;
                 Account[] accounts = user.getAccounts();
                 if (!AccountManager.hasNoAccounts(accounts)) {
                     for (Account account : accounts) {
                         // SELECTION: Check if account is a CheckingAccount
-                        if (account instanceof CheckingAccount checkingAccount) {
+                        if (account instanceof CheckingAccount) {
+                            CheckingAccount checkingAccount = (CheckingAccount) account;
                             double balanceBefore = account.getBalance();
                             // Apply account-specific features (overdraft fees in this case)
                             checkingAccount.applyAccountFeatures();
@@ -373,20 +406,38 @@ public class SuperAdmin extends Admin {
 
             String choice = scanner.nextLine();
             switch (choice) {
-                case "1" -> setDefaultInterestRate(scanner);
-                case "2" -> setSavingsAccountInterestRate(scanner);
-                case "3" -> setDefaultOverdraftLimit(scanner);
-                case "4" -> setCheckingAccountOverdraftLimit(scanner);
-                case "5" -> setDefaultOverdraftFee(scanner);
-                case "6" -> setDefaultMaxWithdrawals(scanner);
-                case "7" -> setSavingsAccountMaxWithdrawals(scanner);
-                case "8" -> config.displaySettings();
-                case "9" -> {
+                case "1":
+                    setDefaultInterestRate(scanner);
+                    break;
+                case "2":
+                    setSavingsAccountInterestRate(scanner);
+                    break;
+                case "3":
+                    setDefaultOverdraftLimit(scanner);
+                    break;
+                case "4":
+                    setCheckingAccountOverdraftLimit(scanner);
+                    break;
+                case "5":
+                    setDefaultOverdraftFee(scanner);
+                    break;
+                case "6":
+                    setDefaultMaxWithdrawals(scanner);
+                    break;
+                case "7":
+                    setSavingsAccountMaxWithdrawals(scanner);
+                    break;
+                case "8":
+                    config.displaySettings();
+                    break;
+                case "9":
                     inConfigMenu = false;
                     DataStorage.saveAllData();
                     System.out.println("Configuration saved successfully!");
-                }
-                default -> System.out.println("Invalid option.");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+                    break;
             }
         }
     }
@@ -427,7 +478,8 @@ public class SuperAdmin extends Admin {
             // Find savings accounts
             int savingsIndex = -1;
             for (int i = 0; i < accounts.length; i++) {
-                if (accounts[i] instanceof SavingsAccount savingsAccount) {
+                if (accounts[i] instanceof SavingsAccount) {
+                    SavingsAccount savingsAccount = (SavingsAccount) accounts[i];
                     if (savingsIndex == -1) savingsIndex = i;
                     System.out.println((savingsIndex + 1) + ". Savings Account: " + accounts[i].getAccountNumber() +
                                      " (Rate: " + String.format("%.2f", savingsAccount.getInterestRate() * 100) + "%)");
@@ -500,7 +552,8 @@ public class SuperAdmin extends Admin {
             int checkingCount = 0;
             System.out.println("\n--- Checking Accounts ---");
             for (Account account : accounts) {
-                if (account instanceof CheckingAccount checkingAccount) {
+                if (account instanceof CheckingAccount) {
+                    CheckingAccount checkingAccount = (CheckingAccount) account;
                     System.out.println((checkingCount + 1) + ". " + account.getAccountNumber() + " (Overdraft Limit: $" + InputValidator.formatMoney(checkingAccount.getOverdraftLimit()) + ")");
                     checkingCount++;
                 }
@@ -516,7 +569,8 @@ public class SuperAdmin extends Admin {
                 int choice = (int) InputValidator.getValidatedDouble(scanner, "Invalid account selection. Please enter a valid number.") - 1;
                 int accountIndex = 0;
                 for (Account account : accounts) {
-                    if (account instanceof CheckingAccount checkingAccount) {
+                    if (account instanceof CheckingAccount) {
+                        CheckingAccount checkingAccount = (CheckingAccount) account;
                         if (accountIndex == choice) {
                             System.out.print("Enter new overdraft limit ($): ");
                             double limit = InputValidator.getValidatedDouble(scanner, "Invalid overdraft limit. Please enter a valid number.");
@@ -595,7 +649,8 @@ public class SuperAdmin extends Admin {
             int savingsCount = 0;
             System.out.println("\n--- Savings Accounts ---");
             for (Account account : accounts) {
-                if (account instanceof SavingsAccount savingsAccount) {
+                if (account instanceof SavingsAccount) {
+                    SavingsAccount savingsAccount = (SavingsAccount) account;
                     System.out.println((savingsCount + 1) + ". " + account.getAccountNumber() +
                                      " (Max Withdrawals: " + savingsAccount.getMaxWithdrawalsPerMonth() + ")");
                     savingsCount++;
@@ -612,7 +667,8 @@ public class SuperAdmin extends Admin {
                 int choice = (int)  InputValidator.getValidatedDouble(scanner, "Invalid account selection. Please enter a valid number.") - 1;
                 int accountIndex = 0;
                 for (Account account : accounts) {
-                    if (account instanceof SavingsAccount savingsAccount) {
+                    if (account instanceof SavingsAccount) {
+                        SavingsAccount savingsAccount = (SavingsAccount) account;
                         if (accountIndex == choice) {
                             System.out.print("Enter new maximum withdrawals per month: ");
                             int max = (int) InputValidator.getValidatedDouble(scanner, "Invalid maximum withdrawals. Please enter a valid number.");

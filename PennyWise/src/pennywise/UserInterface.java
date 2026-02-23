@@ -62,9 +62,9 @@ public class UserInterface {
         int choice = InputValidator.getIntInput(scanner);
         
         switch (choice) {
-            case 1 -> registerRegularUser();
-            case 2 -> loginRegularUser();
-            default -> System.out.println("Invalid option.");
+            case 1 : registerRegularUser(); break;
+            case 2 : loginRegularUser(); break;
+            default : System.out.println("Invalid option."); 
         }
     }
     
@@ -199,26 +199,44 @@ public class UserInterface {
             }
             
             switch (choice) {
-                case 1 -> user.displayDashboard();
-                case 2 -> createAdditionalAccount(user);
-                case 3 -> handleDeposit(user);
-                case 4 -> handleWithdraw(user);
-                case 5 -> handleInternalTransfer(user);
-                case 6 -> {
+                case 1:
+                    user.displayDashboard();
+                    break;
+                case 2:
+                    createAdditionalAccount(user);
+                    break;
+                case 3:
+                    handleDeposit(user);
+                    break;
+                case 4:
+                    handleWithdraw(user);
+                    break;
+                case 5:
+                    handleInternalTransfer(user);
+                    break;
+                case 6:
                     if (hasCheckingAccount) {
                         handleExternalTransfer(user);
                     } else {
                         System.out.println("Invalid option. Please try again.");
                     }
-                }
-                case 7 -> viewTransactionHistory(user);
-                case 8 -> editProfile(user);
-                case 9 -> handleCloseAccount(user);
-                case 10 -> {
+                    break;
+                case 7:
+                    viewTransactionHistory(user);
+                    break;
+                case 8:
+                    editProfile(user);
+                    break;
+                case 9:
+                    handleCloseAccount(user);
+                    break;
+                case 10:
                     userLoggedIn = false;
                     System.out.println("Logged out successfully.");
-                }
-                default -> System.out.println("Invalid option. Please try again.");
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
             }
         }
     }
@@ -606,12 +624,24 @@ public class UserInterface {
         int choice = InputValidator.getIntInput(scanner);
         
         switch (choice) {
-            case 1 -> changeUsername(user);
-            case 2 -> changePassword(user);
-            case 3 -> changeEmail(user);
-            case 4 -> user.displayProfile();
-            case 5 -> System.out.println("Returning to account menu...");
-            default -> System.out.println("Invalid option.");
+            case 1:
+                changeUsername(user);
+                break;
+            case 2:
+                changePassword(user);
+                break;
+            case 3:
+                changeEmail(user);
+                break;
+            case 4:
+                user.displayProfile();
+                break;
+            case 5:
+                System.out.println("Returning to account menu...");
+                break;
+            default:
+                System.out.println("Invalid option.");
+                break;
         }
     }
     

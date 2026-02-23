@@ -31,33 +31,30 @@ public class AccountManager {
      * @return Newly created Account object
      */
     public static Account createAccount(String userId, String accountChoice, int accountCount) {
-        return switch (accountChoice) {
-            case "1" -> {
+        switch (accountChoice) {
+            case "1":
                 System.out.println("Savings Account created.");
-                yield new SavingsAccount(
+                return new SavingsAccount(
                     AppConstants.SAVINGS_ACCOUNT_PREFIX + userId + "-" + (accountCount + 1),
                     AppConstants.DEFAULT_INITIAL_BALANCE,
                     SystemConfiguration.getInstance().getDefaultSavingsInterestRate()
                 );
-            }
-            case "2" -> {
+            case "2":
                 System.out.println("Checking Account created.");
-                yield new CheckingAccount(
+                return new CheckingAccount(
                     AppConstants.CHECKING_ACCOUNT_PREFIX + userId + "-" + (accountCount + 1),
                     AppConstants.DEFAULT_INITIAL_BALANCE,
                     SystemConfiguration.getInstance().getDefaultCheckingOverdraftLimit(),
                     SystemConfiguration.getInstance().getDefaultCheckingOverdraftFee()
                 );
-            }
-            default -> {
+            default:
                 System.out.println("Invalid option. Savings Account created by default.");
-                yield new SavingsAccount(
+                return new SavingsAccount(
                     AppConstants.SAVINGS_ACCOUNT_PREFIX + userId + "-" + (accountCount + 1),
                     AppConstants.DEFAULT_INITIAL_BALANCE,
                     SystemConfiguration.getInstance().getDefaultSavingsInterestRate()
                 );
-            }
-        };
+        }
     }
     
     /**

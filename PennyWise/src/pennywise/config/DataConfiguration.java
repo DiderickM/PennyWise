@@ -117,14 +117,20 @@ public class DataConfiguration extends DataPersistence {
                     // SELECTION: Switch on key to set appropriate configuration value
                     try {
                         switch (key) {
-                            case "DEFAULT_SAVINGS_INTEREST_RATE" ->
+                            case "DEFAULT_SAVINGS_INTEREST_RATE":
                                 config.setDefaultSavingsInterestRate(Double.parseDouble(value));
-                            case "DEFAULT_CHECKING_OVERDRAFT_LIMIT" ->
+                                break;
+                            case "DEFAULT_CHECKING_OVERDRAFT_LIMIT":
                                 config.setDefaultCheckingOverdraftLimit(Double.parseDouble(value));
-                            case "DEFAULT_CHECKING_OVERDRAFT_FEE" ->
+                                break;
+                            case "DEFAULT_CHECKING_OVERDRAFT_FEE":
                                 config.setDefaultCheckingOverdraftFee(Double.parseDouble(value));
-                            case "DEFAULT_SAVINGS_MAX_WITHDRAWALS" ->
+                                break;
+                            case "DEFAULT_SAVINGS_MAX_WITHDRAWALS":
                                 config.setDefaultSavingsMaxWithdrawals(Integer.parseInt(value));
+                                break;
+                            default:
+                                break;
                         }
                     } catch (NumberFormatException e) {
                         System.out.println("Warning: Invalid configuration value for " + key + ": " + value);

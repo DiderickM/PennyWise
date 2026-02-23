@@ -92,15 +92,16 @@ public class Admin extends User {
 
             String choice = scanner.nextLine();
             switch (choice) {
-                case "1" -> displayAllUsers();
-                case "2" -> modifyUserInformation(scanner);
-                case "3" -> adjustAccountBalance(scanner);
-                case "4" -> deleteUserAccount(scanner);
-                case "5" -> {
+                case "1" : displayAllUsers(); break;
+                case "2" : modifyUserInformation(scanner); break;
+                case "3" : adjustAccountBalance(scanner); break;
+                case "4" : deleteUserAccount(scanner); break;
+                case "5" : {
                     inAdmin = false;
                     System.out.println("Admin logged out.");
+                    break;
                 }
-                default -> System.out.println("Invalid option.");
+                default : System.out.println("Invalid option.");
             }
         }
     }
@@ -132,29 +133,32 @@ public class Admin extends User {
 
             String choice = scanner.nextLine();
             switch (choice) {
-                case "1" -> {
+                case "1" : {
                     System.out.print("Enter new username: ");
                     String newUsername = scanner.nextLine();
                     user.setUsername(newUsername);
                     System.out.println("Username updated successfully!");
                     DataStorage.saveAllData(); // Save after user modification
+                    break;
                 }
-                case "2" -> {
+                case "2" : {
                     System.out.print("Enter new email: ");
                     String newEmail = scanner.nextLine();
                     user.setEmail(newEmail);
                     System.out.println("Email updated successfully!");
                     DataStorage.saveAllData(); // Save after user modification
+                    break;
                 }
-                case "3" -> {
+                case "3" : {
                     String newPassword = InputValidator.getValidatedPassword(scanner, "Enter new password: ");
                     // Hash the password before storing
                     user.setPassword(PasswordUtil.hashPassword(newPassword));
                     System.out.println("Password updated successfully!");
                     DataStorage.saveAllData(); // Save after user modification
+                    break;
                 }
-                case "4" -> System.out.println("Modification cancelled.");
-                default -> System.out.println("Invalid option.");
+                case "4" : System.out.println("Modification cancelled."); break;
+                default : System.out.println("Invalid option.");
             }
         } else {
             System.out.println("User not found.");
@@ -205,7 +209,7 @@ public class Admin extends User {
 
             String choice = scanner.nextLine();
             switch (choice) {
-                case "1" -> {
+                case "1": {
                     System.out.print("Enter amount to add: $");
                     double amount = InputValidator.getValidatedDouble(scanner, "Invalid amount. Please enter a valid number.");
                     if (amount > 0) {
@@ -215,8 +219,9 @@ public class Admin extends User {
                     } else {
                         System.out.println("Invalid amount.");
                     }
+                    break;
                 }
-                case "2" -> {
+                case "2": {
                     System.out.print("Enter amount to subtract: $");
                     double amount = InputValidator.getValidatedDouble(scanner, "Invalid amount. Please enter a valid number.");
                     if (amount > 0) {
@@ -226,8 +231,9 @@ public class Admin extends User {
                     } else {
                         System.out.println("Invalid amount.");
                     }
+                    break;
                 }
-                case "3" -> {
+                case "3": {
                     System.out.print("Enter exact balance amount: $");
                     double amount = InputValidator.getValidatedDouble(scanner, "Invalid amount. Please enter a valid number.");
                     if (amount >= 0) {
@@ -237,9 +243,14 @@ public class Admin extends User {
                     } else {
                         System.out.println("Balance must be non-negative.");
                     }
+                    break;
                 }
-                case "4" -> System.out.println("Adjustment cancelled.");
-                default -> System.out.println("Invalid option.");
+                case "4":
+                    System.out.println("Adjustment cancelled.");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+                    break;
             }
         } else {
             System.out.println("User or account not found.");
@@ -253,7 +264,8 @@ public class Admin extends User {
         int userIndex = -1;
         for (int i = 0; i < UserManager.getUserCount(); i++) {
             User u = UserManager.getUser(i);
-            if (u instanceof RegularUser user) {
+            if (u instanceof RegularUser) {
+                RegularUser user = (RegularUser) u;
                 if (user.getUsername().equals(username)) {
                     userIndex = i;
                     break;

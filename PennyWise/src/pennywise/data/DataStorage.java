@@ -124,14 +124,16 @@ public class DataStorage extends DataPersistence {
                     if (accounts != null) {
                         for (Account account : accounts) {
                             if (account != null) {
-                                if(account instanceof SavingsAccount sa) {
+                                if(account instanceof SavingsAccount) {
+                                    SavingsAccount sa = (SavingsAccount) account;
                                     // Format: userId|SAVINGS|accountNumber|balance|interestRate|maxWithdrawals
                                     writer.println(user.getUserId() + "|SAVINGS|" +
                                             account.getAccountNumber() + "|" +
                                             account.getBalance() + "|" +
                                             sa.getInterestRate() + "|" +
                                             sa.getMaxWithdrawalsPerMonth());
-                                } else if(account instanceof CheckingAccount ca) {
+                                } else if(account instanceof CheckingAccount) {
+                                    CheckingAccount ca = (CheckingAccount) account;
                                     // Format: userId|CHECKING|accountNumber|balance|overdraftLimit|overdraftFee
                                     writer.println(user.getUserId() + "|CHECKING|" +
                                             account.getAccountNumber() + "|" +
