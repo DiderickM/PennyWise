@@ -121,7 +121,7 @@ public class App {
                 // }
 
                 switch (choice) {
-                    case 1 :   ui.regularUserMode(); break; // Delegate to UserInterface
+                    case 1 : ui.regularUserMode(); break; // Delegate to UserInterface
                     case 2 : Admin.launchAdmin(scanner); break; // Admin mode
                     case 3 : {
                         // Save data before exiting
