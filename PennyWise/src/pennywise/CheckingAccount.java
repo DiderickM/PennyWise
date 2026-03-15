@@ -1,9 +1,3 @@
-/**
- * Created on Mon Feb 09 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 /**
@@ -49,7 +43,7 @@ public class CheckingAccount extends Account {
     }
 
     /**
-     * POLYMORPHISM IMPLEMENTATION: CheckingAccount applies overdraft features.
+     * POLYMORPHISM: CheckingAccount applies overdraft features.
      * Overrides abstract method from Account.
      */
     @Override
@@ -62,7 +56,7 @@ public class CheckingAccount extends Account {
     }
 
     /**
-     * POLYMORPHISM IMPLEMENTATION: Override withdraw with overdraft protection.
+     * POLYMORPHISM: Override withdraw with overdraft protection.
      * Checking accounts allow withdrawals up to the overdraft limit.
      */
     @Override

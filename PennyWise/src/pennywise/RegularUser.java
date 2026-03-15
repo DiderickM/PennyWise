@@ -1,9 +1,3 @@
-/**
- * Created on Mon Feb 09 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 /**
@@ -60,7 +54,7 @@ public class RegularUser extends User {
     }
 
     /**
-     * POLYMORPHISM IMPLEMENTATION: RegularUser displays their personal dashboard.
+     * POLYMORPHISM: RegularUser displays their personal dashboard.
      * This overrides the abstract displayDashboard() method from User.
      * Displays all accounts owned by the user with detailed information.
      */
@@ -93,21 +87,6 @@ public class RegularUser extends User {
                     } else {
                         System.out.println("    No additional details available for this account type.");
                     }
-
-                    //Switch statement not supported in java 17, using if-else instead
-                    // switch (accounts[i]) {
-                    //     case SavingsAccount savings -> {
-                    //         System.out.println("    Interest Rate: " + InputValidator.formatPercentage(savings.getInterestRate()));
-                    //         System.out.println("    Max Withdrawals/Month: " + savings.getMaxWithdrawalsPerMonth());
-                    //     }
-                    //     case CheckingAccount checking -> {
-                    //         System.out.println("    Overdraft Limit: $" + InputValidator.formatMoney(checking.getOverdraftLimit()));
-                    //         System.out.println("    Overdraft Fee: $" + InputValidator.formatMoney(checking.getOverdraftFee()));
-                    //     }
-                    //     default -> {
-                    //         System.out.println("    No additional details available for this account type.");
-                    //     }
-                    // }
                     
                     totalBalance += accounts[i].getBalance();
                 }

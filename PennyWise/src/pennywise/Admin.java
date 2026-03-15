@@ -1,9 +1,3 @@
-/**
- * Created on Mon Feb 09 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 /**
@@ -30,7 +24,7 @@ public class Admin extends User {
     }
 
     /**
-     * POLYMORPHISM IMPLEMENTATION: Admin displays the admin dashboard.
+     * POLYMORPHISM: Admin displays the admin dashboard.
      * This overrides the abstract displayDashboard() method from User.
      */
     @Override

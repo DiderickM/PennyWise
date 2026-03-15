@@ -102,23 +102,6 @@ public class App {
                 
                 // SELECTION: switch for menu options
                 int choice = InputValidator.getIntInput(scanner);
-                
-                // switch (choice) {
-                //     case 1 -> ui.regularUserMode(); // Delegate to UserInterface
-                //     case 2 -> Admin.launchAdmin(scanner); // Admin mode
-                //     case 3 -> {
-                //         // Save data before exiting
-                //         System.out.println("Saving data...");
-                //         if (DataStorage.saveAllData()) {
-                //             System.out.println("Data saved successfully!");
-                //         } else {
-                //             System.out.println("Warning: Failed to save some data.");
-                //         }
-                //         running = false;
-                //         System.out.println("\nThank you for using PennyWise. Goodbye!");
-                //     }
-                //     default -> System.out.println("Invalid option. Please try again.");
-                // }
 
                 switch (choice) {
                     case 1 : ui.regularUserMode(); break; // Delegate to UserInterface

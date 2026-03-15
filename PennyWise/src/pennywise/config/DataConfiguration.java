@@ -1,9 +1,3 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise.config;
 
 import java.io.*;
@@ -21,7 +15,7 @@ public class DataConfiguration extends DataPersistence {
     private static final String CONFIG_FILE = DATA_DIR + "/config.txt";
     
     /**
-     * POLYMORPHIC IMPLEMENTATION: Validates that configuration is ready to save.
+     * POLYMORPHIC: Validates that configuration is ready to save.
      * 
      * @return true if ready to proceed
      */
@@ -31,7 +25,7 @@ public class DataConfiguration extends DataPersistence {
     }
     
     /**
-     * POLYMORPHIC IMPLEMENTATION: Performs the configuration saving operation.
+     * POLYMORPHIC: Performs the configuration saving operation.
      * 
      * @return true if save successful, false otherwise
      * @throws IOException if file operations fail
@@ -43,7 +37,7 @@ public class DataConfiguration extends DataPersistence {
     }
     
     /**
-     * POLYMORPHIC IMPLEMENTATION: Returns the operation name.
+     * POLYMORPHIC: Returns the operation name.
      * 
      * @return "Configuration Save" operation name
      */

@@ -1,16 +1,10 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 import java.util.Scanner;
 
 /**
  * InputValidator class provides centralized validation for all user inputs.
- * Demonstrates ENCAPSULATION and Single Responsibility Principle.
+ * Demonstrates encapsulation 
  * 
  * This class handles:
  * - String input validation (username, email, etc.)

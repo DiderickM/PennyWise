@@ -1,9 +1,3 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 import java.util.Scanner;
@@ -11,7 +5,7 @@ import pennywise.config.SystemConfiguration;
 
 /**
  * AccountManager class handles all account-related operations.
- * Demonstrates SINGLE RESPONSIBILITY PRINCIPLE and ENCAPSULATION.
+ * Demonstrates encaptualtion.
  * 
  * This class manages:
  * - Account creation

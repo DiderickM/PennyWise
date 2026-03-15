@@ -1,9 +1,3 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise.config;
 
 import pennywise.AppConstants;
@@ -11,7 +5,7 @@ import pennywise.InputValidator;
 
 /**
  * SystemConfiguration class manages system-wide default settings for accounts.
- * Demonstrates ENCAPSULATION and SINGLETON pattern (static instance).
+ * Demonstrates encaptulation
  * 
  * This class stores and manages:
  * - Default interest rate for savings accounts
@@ -30,7 +24,6 @@ public class SystemConfiguration {
     private int defaultSavingsMaxWithdrawals;
     
     /**
-     * Private constructor for Singleton pattern.
      * Initializes with default values from AppConstants.
      */
     private SystemConfiguration() {

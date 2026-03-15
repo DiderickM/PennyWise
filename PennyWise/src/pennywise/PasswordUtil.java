@@ -1,9 +1,3 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 import java.security.MessageDigest;
@@ -12,14 +6,8 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * PasswordUtil class provides secure password hashing and verification.
- * Demonstrates SECURITY best practices - never store plain text passwords.
- * 
+ * PasswordUtil class provides secure password hashing and verification for passwords.
  * Uses SHA-256 hashing with salt for secure password storage.
- * This prevents:
- * - Rainbow table attacks
- * - Dictionary attacks
- * - Direct password exposure in case of data breach
  */
 public class PasswordUtil {
     

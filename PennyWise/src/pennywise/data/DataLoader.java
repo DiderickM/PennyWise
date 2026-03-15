@@ -1,9 +1,3 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans  
- */
-
 package pennywise.data;
 
 import java.io.*;
@@ -66,7 +60,7 @@ public class DataLoader extends DataPersistence {
     }
     
     /**
-     * POLYMORPHIC IMPLEMENTATION: Validates that data files exist before loading.
+     * POLYMORPHIC: Validates that data files exist before loading.
      * 
      * @return true if data files exist, false otherwise
      */
@@ -76,7 +70,7 @@ public class DataLoader extends DataPersistence {
     }
     
     /**
-     * POLYMORPHIC IMPLEMENTATION: Performs the load operation.
+     * POLYMORPHIC: Performs the load operation.
      * Loads configuration first, then users, accounts, and transactions from files.
      * 
      * @return true if all loads successful, false otherwise
@@ -95,7 +89,7 @@ public class DataLoader extends DataPersistence {
     }
     
     /**
-     * POLYMORPHIC IMPLEMENTATION: Returns the operation name.
+     * POLYMORPHIC: Returns the operation name.
      * 
      * @return "Data Load" operation name
      */

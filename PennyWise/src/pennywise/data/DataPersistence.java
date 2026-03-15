@@ -1,9 +1,3 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise.data;
 
 import java.io.File;
@@ -13,7 +7,7 @@ import java.io.IOException;
  * DataPersistence abstract base class defines shared configuration for data storage.
  * This ensures DataLoader and DataStorage always use the same file paths and stay in sync.
  * 
- * Demonstrates INHERITANCE, POLYMORPHISM, and the TEMPLATE METHOD pattern.
+ * Demonstrates INHERITANCE, POLYMORPHISM.
  * Subclasses must implement abstract methods for their specific persistence operations.
  */
 public abstract class DataPersistence {

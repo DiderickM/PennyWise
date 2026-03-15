@@ -1,14 +1,8 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 /**
  * UserManager class handles all user-related operations.
- * Demonstrates SINGLE RESPONSIBILITY PRINCIPLE and ENCAPSULATION.
+ * Demonstrates encapsulation
  * 
  * This class manages:
  * - User storage and retrieval

@@ -1,9 +1,3 @@
-/**
- * Created on Mon Feb 09 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 /**

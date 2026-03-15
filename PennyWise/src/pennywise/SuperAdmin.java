@@ -1,9 +1,3 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 import java.util.Scanner;
@@ -28,7 +22,7 @@ public class SuperAdmin extends Admin {
     }
 
     /**
-     * POLYMORPHISM IMPLEMENTATION: SuperAdmin displays the super admin dashboard.
+     * POLYMORPHISM: SuperAdmin displays the super admin dashboard.
      */
     @Override
     public void displayDashboard() {

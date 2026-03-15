@@ -1,9 +1,3 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise.data;
 
 import java.io.*;
@@ -29,7 +23,7 @@ import pennywise.config.DataConfiguration;
 public class DataStorage extends DataPersistence {
     
     /**
-     * POLYMORPHIC IMPLEMENTATION: Validates that there is data to save.
+     * POLYMORPHIC: Validates that there is data to save.
      * 
      * @return true if there are users to save, false otherwise
      */
@@ -40,7 +34,7 @@ public class DataStorage extends DataPersistence {
     }
     
     /**
-     * POLYMORPHIC IMPLEMENTATION: Performs the save operation.
+     * POLYMORPHIC: Performs the save operation.
      * Saves users, accounts, transactions, and configuration to files.
      * 
      * @return true if all saves successful, false otherwise
@@ -56,7 +50,7 @@ public class DataStorage extends DataPersistence {
     }
     
     /**
-     * POLYMORPHIC IMPLEMENTATION: Returns the operation name.
+     * POLYMORPHIC: Returns the operation name.
      * 
      * @return "Data Save" operation name
      */
@@ -145,24 +139,6 @@ public class DataStorage extends DataPersistence {
                                     // throwException();
                                     System.out.println("Unknown account type for user " + user.getUsername() + ": " + account.getClass().getSimpleName());
                                 }
-
-                                // Switch statement not supported in java 17, using if-else instead
-                                // switch (account) {
-                                //     case SavingsAccount sa -> // Format: userId|SAVINGS|accountNumber|balance|interestRate|maxWithdrawals
-                                //         writer.println(user.getUserId() + "|SAVINGS|" +
-                                //                 account.getAccountNumber() + "|" +
-                                //                 account.getBalance() + "|" +
-                                //                 sa.getInterestRate() + "|" +
-                                //                 sa.getMaxWithdrawalsPerMonth());
-                                //     case CheckingAccount ca -> // Format: userId|CHECKING|accountNumber|balance|overdraftLimit|overdraftFee
-                                //         writer.println(user.getUserId() + "|CHECKING|" +
-                                //                 account.getAccountNumber() + "|" +
-                                //                 account.getBalance() + "|" +
-                                //                 ca.getOverdraftLimit() + "|" +
-                                //                 ca.getOverdraftFee());
-                                //     default -> {
-                                //     }
-                                // }
                             }
                         }
                     }

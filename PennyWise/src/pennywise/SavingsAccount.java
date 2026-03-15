@@ -1,9 +1,3 @@
-/**
- * Created on Mon Feb 09 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 import pennywise.config.SystemConfiguration;
@@ -68,7 +62,7 @@ public class SavingsAccount extends Account {
     }
 
     /**
-     * POLYMORPHISM IMPLEMENTATION: SavingsAccount applies interest benefits.
+     * POLYMORPHISM: SavingsAccount applies interest benefits.
      * Overrides abstract method from Account.
      */
     @Override
@@ -85,7 +79,7 @@ public class SavingsAccount extends Account {
     }
 
     /**
-     * POLYMORPHISM IMPLEMENTATION: Override withdraw with withdrawal limit.
+     * POLYMORPHISM: Override withdraw with withdrawal limit.
      * Savings accounts limit withdrawals per month based on maxWithdrawalsPerMonth.
      */
     @Override

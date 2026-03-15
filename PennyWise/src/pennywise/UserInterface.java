@@ -1,9 +1,3 @@
-/**
- * Created on Mon Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 
@@ -12,13 +6,8 @@ import pennywise.data.DataStorage;
 
 /**
  * UserInterface class - Handles all UI/presentation logic for PennyWise.
- * Separates presentation layer from business logic.
- * 
- * Implements clean architecture principles:
- * - Single Responsibility: Only handles user interaction and display
- * - Delegation: Delegates business logic to UserManager and AccountManager
- * - Input Validation: Uses InputValidator for all user inputs
- * 
+ * This class displays the various ways we interact with the user, and delegates business logic to the UserManager and AccountManager classes.
+ * Input is validated using the InputValidator class.
  */
 public class UserInterface {
     private final Scanner scanner;

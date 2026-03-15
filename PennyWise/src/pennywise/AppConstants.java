@@ -1,14 +1,7 @@
-/**
- * Created on Sun Feb 16 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 /**
  * AppConstants class centralizes all magic numbers and configuration values.
- * Demonstrates best practice of using named constants instead of magic numbers.
  * 
  * This makes the code more maintainable and easier to understand.
  */

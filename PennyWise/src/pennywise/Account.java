@@ -1,9 +1,3 @@
-/**
- * Created on Mon Feb 09 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
 package pennywise;
 
 /**
@@ -100,7 +94,7 @@ public abstract class Account {
 
     /**
      * VALUE RETURNING METHOD: Withdraws money from the account.
-     * POLYMORPHISM IMPLEMENTATION: Subclasses can override for different rules.
+     * POLYMORPHISM: Subclasses can override for different rules.
      * 
      * @param amount Amount to withdraw
      * @return true if withdrawal successful, false otherwise
@@ -116,6 +110,7 @@ public abstract class Account {
         return false;
     }
 
+    //OVERLOADED METHOD: Withdraw with reason for better transaction records
     public boolean withdraw(double amount, String reason) {
         // SELECTION: if-else statement to validate withdrawal
         if (amount > 0 && balance >= amount) {
