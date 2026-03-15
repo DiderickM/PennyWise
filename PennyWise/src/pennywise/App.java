@@ -5,12 +5,6 @@ import pennywise.data.DataLoader;
 import pennywise.data.DataStorage;
 
 /**
- * Created on Mon Feb 09 2026
- *
- * Copyright (c) 2026 Diderick Magermans
- */
-
-/**
  * App class - DRIVER CLASS for PennyWise Financial Management System.
  */
 
