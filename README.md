@@ -1,30 +1,101 @@
-# PennyWise
-## RSM Erasmus University - Master Business Information Management
+# PennyWise - Financial Management System
+**RSM Erasmus University | Master Business Information Management | Group Project**
 
-This is a group project for the Erasmus University: Master Business Information management
+---
 
+## What is PennyWise?
 
-Group Project Proposal: PennyWise Financial Manager 
+PennyWise is a console-based financial management system -- think of it as a simplified bank. Users can register, open savings or checking accounts, deposit and withdraw money, and track their transaction history. An admin tier gives elevated access to view and manage all accounts across the system.
 
-## Project Description 
+We picked the **Financial Software** theme because it naturally maps to all seven required technical elements: different account types demonstrate inheritance and polymorphism, sensitive data (passwords, balances) motivates encapsulation, menus and transaction flows exercise selections and loops, and a multi-user registry calls for arrays and proper method design.
 
-Our group has chosen to develop financial software, specifically a system designed to display balances and handle transactions for multiple users mimicking a bank or financial manager.  
+---
 
-General users of the software should be able to create new accounts and log in. Once registered, users are presented with multiple options. They should be able to conduct transactions, view their balances, and edit their profile.  
+## Sample Run
 
-Besides general users, there will be an admin component. This admin has elevated permissions to view the entire system’s records, modify existing accounts, correct balances, and update users.  
+A full annotated sample run is embedded in the source file `App.java`. Here is the gist:
 
-### Why We Picked This Topic 
+```
+=========================================
+ Welcome to PennyWise Financial Manager!
+=========================================
+1. Regular User Mode
+2. Admin Mode
+3. Exit
 
-We selected the Financial Software theme, and specifically banking, because it lends itself to demonstrate all seven required technical elements described in the group project instructions. Different account- and saving types could allow us to demonstrate inheritance and polymorphism. Furthermore, the necessity of protecting sensitive financial data allows us to showcase Encapsulation by restricting direct access to private account variables. 
+Please select an option (1-3): 1
 
-# Program design: Class descriptions
+--- Regular User Mode ---
+1. Register New Account
+2. Login
+Select option (1-2): 1
 
+--- Registration ---
+Enter Username: john_doe
+Enter Password: ********
+Enter Email: john@example.com
 
+Select Account Type:
+1. Savings Account (3% interest)
+2. Checking Account (with overdraft)
+Select account type (1-2): 1
 
-## User Classes (Abstract)
+Account created! Starting balance: $0.00
 
-### User (abstract)
+--- User Dashboard ---
+1. Deposit
+2. Withdraw
+3. View Balance
+4. View Transactions
+5. Logout
+```
+
+Admin login (`admin` / `admin123`) unlocks a separate dashboard to view all users, modify balances, and generate reports. See the full sample run in `App.java`.
+
+---
+
+## Required Technical Elements
+
+The seven elements required by the project instructions are all present:
+
+| # | Element | Where it appears |
+|---|---------|-----------------|
+| 1 | **Selections** (if-else, switch) | `App.java` main switch, `CheckingAccount.withdraw()` overdraft check, `InputValidator` validation logic |
+| 2 | **Loops** (while, for) | Main menu loop in `App.java`, transaction history loops in `UserInterface`, user search in `UserManager` |
+| 3 | **Methods** (value-returning & void) | Every class -- e.g. `deposit()` returns `boolean`; `displayDashboard()` is void |
+| 4 | **Arrays** | `transactions[]` in `Account`, `accounts[]` in `User`, `regularUsers[]` and `admins[]` in `UserManager` |
+| 5 | **Inheritance & Polymorphism** | `User -> RegularUser / Admin -> SuperAdmin` and `Account -> CheckingAccount / SavingsAccount`; `displayDashboard()` overridden per subclass |
+| 6 | **User interaction** (System.in) | All input goes through `InputValidator` wrapping a `Scanner` -- menus, amounts, credentials |
+| 7 | **Encapsulation** | All fields are `private`; access is through getters/setters across `User`, `Account`, and `Transaction` |
+
+### Code quality notes
+- Names are descriptive and follow Java conventions (`accountNumber`, `overdraftLimit`, `hashPassword`).
+- Comments throughout the code call out each required element explicitly (look for `// LOOPS:`, `// SELECTION:`, etc.).
+- Passwords are hashed via `PasswordUtil` -- plain-text credentials are never stored.
+- Redundant logic is avoided by centralising input validation in `InputValidator` and data persistence in `DataStorage`.
+
+---
+
+## How to Run
+
+1. Compile from the project root:
+   ```
+   javac -d PennyWise/bin PennyWise/src/pennywise/*.java PennyWise/src/pennywise/**/*.java
+   ```
+2. Run the application:
+   ```
+   java -cp PennyWise/bin pennywise.App
+   ```
+
+Data is automatically saved on exit and reloaded on the next launch.
+
+---
+
+# Class Overview
+
+## User Classes
+
+### User (abstract class)
 - **Properties**: userId, username, password, email, accounts[]
 - **Methods**: displayDashboard() (abstract), addAccount(), getAccounts()
 
@@ -44,7 +115,7 @@ We selected the Financial Software theme, and specifically banking, because it l
 
 ---
 
-## Account Classes (Abstract)
+## Account Classes
 
 ### Account (abstract)
 - **Properties**: accountNumber, balance, accountType, transactions[]
@@ -133,7 +204,7 @@ We selected the Financial Software theme, and specifically banking, because it l
   - saveAccounts(): void
 
 ### DataLoader (extends DataPersistence)
-- **Properties**: userAccountsMap<String, List<AccountData>>, accountTransactionsMap<String, List<TransactionData>>
+- **Properties**: userAccountsMap, accountTransactionsMap
 - **Methods**: 
   - loadUsers(): void
   - loadAccounts(): void
